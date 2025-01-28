@@ -148,6 +148,10 @@ DMainWindow::DMainWindow(QWidget *parent)
 {
     d_func()->init();
 
+    // 默认启用背景
+    setEnableWindowBackground(1);
+    background()->setUseGlobalBackground(1);
+
     background()->setMainWindow(this);
     background()->refresh();
 }
