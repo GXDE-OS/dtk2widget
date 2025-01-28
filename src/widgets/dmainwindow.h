@@ -20,6 +20,7 @@
 
 #include "dtkwidget_global.h"
 #include "dobject.h"
+#include "dmainwindowbackground.h"
 
 #include <QPainterPath>
 #include <QMainWindow>
@@ -53,6 +54,8 @@ public:
 
     DTitlebar *titlebar() const;
 
+    DMainWindowBackground *background() const;
+
     bool isDXcbWindow() const;
 
     int windowRadius() const;
@@ -73,6 +76,10 @@ public:
     bool enableSystemMove() const;
     bool enableBlurWindow() const;
     bool autoInputMaskByClipPath() const;
+    bool enableWindowBackground() const;
+
+    void resizeEvent(QResizeEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
 public Q_SLOTS:
     void setWindowRadius(int windowRadius);
@@ -92,6 +99,7 @@ public Q_SLOTS:
     void setEnableSystemMove(bool enableSystemMove);
     void setEnableBlurWindow(bool enableBlurWindow);
     void setAutoInputMaskByClipPath(bool autoInputMaskByClipPath);
+    void setEnableWindowBackground(bool background);
 
     // TODO: remove it if there is an batter sulotion
 #ifdef Q_OS_MAC
@@ -113,12 +121,14 @@ Q_SIGNALS:
     void enableSystemMoveChanged();
     void enableBlurWindowChanged();
     void autoInputMaskByClipPathChanged();
+    void enableWindowBackgroundChanged();
 
 protected:
     DMainWindow(DMainWindowPrivate &dd, QWidget *parent = 0);
 
 private:
     D_DECLARE_PRIVATE(DMainWindow)
+
 };
 
 DWIDGET_END_NAMESPACE

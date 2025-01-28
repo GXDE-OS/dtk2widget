@@ -920,6 +920,19 @@ void DBlurEffectWidget::changeEvent(QEvent *event)
     QWidget::changeEvent(event);
 }
 
+void DBlurEffectWidget::setWindowFlag(Qt::WindowType type, bool on)
+{
+    // 目前只有 loong64 和 riscv64 需要这样处理
+    if ((QFile::exists("/lib/riscv64-linux-gnu/ld-linux-riscv64-lp64d.so.1") ||
+        QFile::exists("/lib/loongarch64-linux-gnu/ld-linux-loongarch-lp64d.so.1")) &&
+            type == Qt::WindowStaysOnTopHint &&
+            on == true) {
+        // 如想把 Qt::WindowStaysOnTopHint 设为 true 则直接忽略
+        return;
+    }
+    QWidget::setWindowFlag(type, on);
+}
+
 void DBlurEffectWidget::setWindowFlags(Qt::WindowFlags type)
 {
     QWidget::setWindowFlags(type);

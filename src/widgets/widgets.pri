@@ -48,6 +48,7 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dcheckbox.h \
     $$PWD/ddialog.h \
     $$PWD/dguiapplicationhelper.h \
+    $$PWD/dmainwindowbackground.h \
     $$PWD/dmessagebox.h \
     $$PWD/dpalette.h \
     $$PWD/dinputdialog_p.h \
@@ -133,6 +134,7 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dcheckbox.cpp \
     $$PWD/ddialog.cpp \
     $$PWD/dguiapplicationhelper.cpp \
+    $$PWD/dmainwindowbackground.cpp \
     $$PWD/dmessagebox.cpp \
     $$PWD/dpalette.cpp \
     $$PWD/dplatformtheme.cpp \
@@ -236,6 +238,7 @@ includes.files += \
     $$PWD/DTitlebar \
     $$PWD/DWindow \
     $$PWD/DMainWindow \
+    $$PWD/DMainWindowBackground \
     $$PWD/DAboutDialog \
     $$PWD/DApplication \
     $$PWD/DBlurEffectWidget \

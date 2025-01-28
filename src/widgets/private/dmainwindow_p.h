@@ -21,6 +21,7 @@
 #include <DObjectPrivate>
 #include "dtkwidget_global.h"
 #include "dmainwindow.h"
+#include "dmainwindowbackground.h"
 
 class QShortcut;
 
@@ -37,6 +38,7 @@ public:
 
     DPlatformWindowHandle   *handle     = Q_NULLPTR;
     DTitlebar               *titlebar   = Q_NULLPTR;
+    DMainWindowBackground   *background = Q_NULLPTR;
     QShortcut               *help       = Q_NULLPTR;
 
 private:

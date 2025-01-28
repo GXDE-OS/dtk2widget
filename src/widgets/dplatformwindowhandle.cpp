@@ -47,6 +47,7 @@ DEFINE_CONST_CHAR(enableBlurWindow);
 DEFINE_CONST_CHAR(windowBlurAreas);
 DEFINE_CONST_CHAR(windowBlurPaths);
 DEFINE_CONST_CHAR(autoInputMaskByClipPath);
+DEFINE_CONST_CHAR(enableWindowBackground);
 
 // functions
 DEFINE_CONST_CHAR(setWmBlurWindowBackgroundArea);
@@ -1089,6 +1090,11 @@ bool DPlatformWindowHandle::autoInputMaskByClipPath() const
     return m_window->property(_autoInputMaskByClipPath).toBool();
 }
 
+bool DPlatformWindowHandle::enableWindowBackground() const
+{
+    return m_window->property(_enableWindowBackground).toBool();
+}
+
 WId DPlatformWindowHandle::realWindowId() const
 {
     return qvariant_cast<WId>(m_window->property("_d_real_content_window"));
@@ -1159,6 +1165,11 @@ void DPlatformWindowHandle::setAutoInputMaskByClipPath(bool autoInputMaskByClipP
     setWindowProperty(m_window, _autoInputMaskByClipPath, autoInputMaskByClipPath);
 }
 
+void DPlatformWindowHandle::setEnableWindowBackground(bool background)
+{
+    setWindowProperty(m_window, _enableWindowBackground, background);
+}
+
 bool DPlatformWindowHandle::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == m_window) {
@@ -1193,6 +1204,8 @@ bool DPlatformWindowHandle::eventFilter(QObject *obj, QEvent *event)
                 Q_EMIT enableBlurWindowChanged();
             } else if (e->propertyName() == _autoInputMaskByClipPath) {
                 Q_EMIT autoInputMaskByClipPathChanged();
+            } else if (e->propertyName() == _enableWindowBackground) {
+                Q_EMIT enableWindowBackgroundChanged();
             }
         }
     }

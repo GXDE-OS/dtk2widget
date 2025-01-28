@@ -109,6 +109,7 @@ public:
     bool enableSystemMove() const;
     bool enableBlurWindow() const;
     bool autoInputMaskByClipPath() const;
+    bool enableWindowBackground() const;
 
     WId realWindowId() const;
 
@@ -130,6 +131,7 @@ public Q_SLOTS:
     void setEnableSystemMove(bool enableSystemMove);
     void setEnableBlurWindow(bool enableBlurWindow);
     void setAutoInputMaskByClipPath(bool autoInputMaskByClipPath);
+    void setEnableWindowBackground(bool background);
 
 Q_SIGNALS:
     void frameMarginsChanged();
@@ -146,6 +148,7 @@ Q_SIGNALS:
     void enableSystemMoveChanged();
     void enableBlurWindowChanged();
     void autoInputMaskByClipPathChanged();
+    void enableWindowBackgroundChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;

@@ -27,6 +27,7 @@
 #include <QShortcut>
 #include <QWindow>
 #include <QMouseEvent>
+#include <QDebug>
 
 #ifdef Q_OS_MAC
 #include "osxwindow.h"
@@ -42,6 +43,7 @@ DMainWindowPrivate::DMainWindowPrivate(DMainWindow *qq)
     : DObjectPrivate(qq)
 {
     titlebar = new DTitlebar(qq);
+    background = new DMainWindowBackground(NULL);
     if (DApplication::isDXcbPlatform()) {
         handle = new DPlatformWindowHandle(qq, qq);
         qq->setMenuWidget(titlebar);
@@ -89,6 +91,7 @@ void DMainWindowPrivate::init()
         q->connect(handle, &DPlatformWindowHandle::enableSystemResizeChanged, q, &DMainWindow::enableSystemResizeChanged);
         q->connect(handle, &DPlatformWindowHandle::enableBlurWindowChanged, q, &DMainWindow::enableBlurWindowChanged);
         q->connect(handle, &DPlatformWindowHandle::autoInputMaskByClipPathChanged, q, &DMainWindow::autoInputMaskByClipPathChanged);
+        q->connect(handle, &DPlatformWindowHandle::enableWindowBackgroundChanged, q, &DMainWindow::enableWindowBackgroundChanged);
 
         if (!handle->isEnableNoTitlebar(q->windowHandle())) {
             q->connect(qApp, &QGuiApplication::focusWindowChanged, q, [q] {
@@ -120,6 +123,7 @@ void DMainWindowPrivate::init()
     if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qgetenv("DTK2_XWAYLAND") == "") {
         titlebar->setDMainWindow(q);
     }
+    background->setMainWindow(q);
 }
 
 /*!
@@ -143,6 +147,17 @@ DMainWindow::DMainWindow(QWidget *parent)
     , DObject(*new DMainWindowPrivate(this))
 {
     d_func()->init();
+
+    background()->setMainWindow(this);
+    background()->refresh();
+}
+
+/**/
+DMainWindowBackground *DMainWindow::background() const
+{
+    D_DC(DMainWindow);
+
+    return d->background;
 }
 
 /*!
@@ -398,6 +413,17 @@ bool DMainWindow::autoInputMaskByClipPath() const
     return d->handle->autoInputMaskByClipPath();
 }
 
+bool DMainWindow::enableWindowBackground() const
+{
+    D_DC(DMainWindow);
+
+    if (!d->handle) {
+        return false;
+    }
+
+    return d->handle->enableWindowBackground();
+}
+
 void DMainWindow::setWindowRadius(int windowRadius)
 {
     D_D(DMainWindow);
@@ -541,6 +567,17 @@ void DMainWindow::setAutoInputMaskByClipPath(bool autoInputMaskByClipPath)
     d->handle->setAutoInputMaskByClipPath(autoInputMaskByClipPath);
 }
 
+void DMainWindow::setEnableWindowBackground(bool background)
+{
+    D_D(DMainWindow);
+
+    if (!d->handle) {
+        return;
+    }
+
+    d->handle->setEnableWindowBackground(background);
+}
+
 #ifdef Q_OS_MAC
 void DMainWindow::setWindowFlags(Qt::WindowFlags type)
 {
@@ -554,8 +591,33 @@ DMainWindow::DMainWindow(DMainWindowPrivate &dd, QWidget *parent)
     , DObject(dd)
 {
     d_func()->init();
+
+    // 默认启用背景
+    setEnableWindowBackground(1);
+    background()->setUseGlobalBackground(1);
+
+    background()->setMainWindow(this);
+    background()->refresh();
+
     //titlebar()->setDMainWindow(this);
 
+}
+
+void DMainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    background()->resizeImage();
+}
+
+void DMainWindow::paintEvent(QPaintEvent *event)
+{
+    QMainWindow::paintEvent(event);
+    if (enableWindowBackground()) {
+        QPainter painter;
+        painter.begin(this);
+        background()->drawInWidget(&painter);
+        painter.end();
+    }
 }
 
 DWIDGET_END_NAMESPACE
