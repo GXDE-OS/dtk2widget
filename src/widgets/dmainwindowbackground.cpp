@@ -20,6 +20,10 @@ void DMainWindowBackground::drawInWidget(QPainter *painter)
         // 防止空指针导致崩溃
         return;
     }
+    // 只有在设置了壁纸才会渲染
+    if (!m_isSetBackground) {
+        return;
+    }
     QString theme = DThemeManager::instance()->theme(m_dmainWindow);
 
     QList<BackgroundPlace> list = {
@@ -160,12 +164,18 @@ QStringList DMainWindowBackground::customBackgroundPath()
     return m_customBackgroundPath;
 }
 
+bool DMainWindowBackground::isSetBackground()
+{
+    return m_isSetBackground;
+}
+
 void DMainWindowBackground::refresh()
 {
     if (!m_dmainWindow) {
         // 防止空指针导致崩溃
         return;
     }
+    m_isSetBackground = false;
     QString theme = DThemeManager::instance()->theme(m_dmainWindow);
 
     QStringList imageName = m_imageList;
@@ -198,6 +208,7 @@ void DMainWindowBackground::refresh()
     for (int i = 0; i < imageName.count(); ++i) {
         QImage image;
         if (QFile::exists(imagePath[i])) {
+            m_isSetBackground = true;
             image.load(imagePath[i]);
             if (i == 8) {
                 // 如果已经设置了右下角 logo,则不重复显示

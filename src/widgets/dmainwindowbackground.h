@@ -51,11 +51,14 @@ public:
 
     void drawInWidget(QPainter *painter);
 
+    bool isSetBackground();
+
 private:
     QList<QImage> m_imageVar;
     QMainWindow *m_dmainWindow;
     bool m_showFMLogo = true;
     bool m_useGlobalBackground = true;
+    bool m_isSetBackground = false;
     QImage m_fmLogo;
     QImage m_backgroundResized;
     QString m_appName;
