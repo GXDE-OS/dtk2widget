@@ -474,17 +474,21 @@ void DTitlebarPrivate::_q_addDefaultMenuItems()
         q->setMenu(new QMenu(q));
     }
 
-    if (!backgroundAction && isEnableBackgroundAction()) {
+    if (!backgroundAction) {
+        menu->addSeparator();
         backgroundAction = new QAction(qApp->translate("TitleBarMenu", "Set Background"), menu);
         QObject::connect(backgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_backgroundActionTriggered()));
         menu->addAction(backgroundAction);
+        backgroundAction->setVisible(isEnableBackgroundAction());
     }
 
-    if (!removeBackgroundAction && isEnableBackgroundAction()) {
+    if (!removeBackgroundAction) {
         removeBackgroundAction = new QAction(qApp->translate("TitleBarMenu", "Remove Background"), menu);
         QObject::connect(removeBackgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_removeBackgroundActionTriggered()));
         menu->addAction(removeBackgroundAction);
+        removeBackgroundAction->setVisible(isEnableBackgroundAction());
     }
+
 
     // add help menu item.
     if (!helpAction && DApplicationPrivate::isUserManualExists()) {
@@ -556,7 +560,7 @@ void DTitlebarPrivate::_q_backgroundActionTriggered()
             QString fileName = DFileDialog::getOpenFileName(NULL,
                                          QObject::tr("Choose the background image file"),
                                          QDir::homePath(),
-                                         QObject::tr("Image file (*.jpg *.jpeg *.png *.bmp *.gif *.svg) ||"
+                                         QObject::tr("Image file (*.jpg *.jpeg *.png *.bmp *.gif *.svg);;"
                                                      "All file (*.*)"));
             if (QFile::exists(fileName)) {
                 dwin->background()->setUserBackground(DMainWindowBackground::light,
@@ -735,9 +739,12 @@ void DTitlebar::showEvent(QShowEvent *event)
 
 void DTitlebar::setDMainWindow(DMainWindow *window)
 {
-    this->m_dwindow = window;
     D_D(DTitlebar);
-    //d->_q_addDefaultMenuItems();
+    this->m_dwindow = window;
+    if (d->backgroundAction && d->removeBackgroundAction) {
+        d->backgroundAction->setVisible(d->isEnableBackgroundAction());
+        d->removeBackgroundAction->setVisible(d->isEnableBackgroundAction());
+    }
 }
 
 void DTitlebar::mousePressEvent(QMouseEvent *event)

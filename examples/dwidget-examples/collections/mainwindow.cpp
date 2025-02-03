@@ -166,6 +166,8 @@ MainWindow::MainWindow(QWidget *parent)
     QTimer::singleShot(4000, [ = ]() {
         toast->pop();
     });
+
+    setEnableWindowBackground(1);
 }
 
 void MainWindow::menuItemInvoked(QAction *action)

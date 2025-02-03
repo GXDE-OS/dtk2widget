@@ -596,6 +596,7 @@ void DMainWindow::setEnableWindowBackground(bool background)
     }
 
     d->handle->setEnableWindowBackground(background);
+    titlebar()->setDMainWindow(this);
     if (d->background) {
         d->background->refresh();
     }

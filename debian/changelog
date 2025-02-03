@@ -1,15 +1,8 @@
-dtkwidget2 (15.14.1-2.2.7) UNRELEASED; urgency=medium
+dtkwidget2 (15.14.3-2.2.8) UNRELEASED; urgency=medium
 
-  * 修复大部分 dtk2 应用退出时异常崩溃的问题
-  * 修复在 dtk2 中开启 dtk5 应用时样式错误的问题
-  * Wayland 初步支持
-  * 添加 DCommandLinkButton
-  * 修复对话框无法拖动的问题
-  * 修复在loong64和riscv64下无法正常渲染透明窗口的问题
-  * 支持全局背景
-  * 支持自定义背景
+  * 菜单栏新增背景设置选项
 
- -- gfdgd_xi <gfdgd_xi@gfdgd-xi-PC>  Mon, 03 Feb 2025 14:19:15 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Mon, 03 Feb 2025 22:38:43 +0800
 
 dtkwidget2 (15.11~2.2.1+rebuild-1) unstable; urgency=medium
 
