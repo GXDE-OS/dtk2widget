@@ -78,6 +78,8 @@ public:
     bool autoInputMaskByClipPath() const;
     bool enableWindowBackground() const;
 
+    void refreshBackground();
+
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 

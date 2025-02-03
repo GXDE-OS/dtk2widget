@@ -185,9 +185,10 @@ void DMainWindowBackground::refresh()
     // 获取图片路径
     //QString basePath = QDir::homePath() + "/.config/GXDE/" + m_appName + "/background-" + theme;
     QStringList basePathList;
+    QStringList globalPathList = QStringList() << "/usr/share/backgrounds/GXDE/dtk2/global/background-" + theme
+                             << QDir::homePath() + "/.config/GXDE/dtk2/global/background-" + theme;
     if (m_useGlobalBackground) {
-        basePathList << "/usr/share/backgrounds/GXDE/dtk2/global/background-" + theme
-                     << QDir::homePath() + "/.config/GXDE/dtk2/global/background-" + theme;
+        basePathList = globalPathList;
     }
     basePathList << "/usr/share/backgrounds/GXDE/dtk2/" + m_appName + "/background-" + theme
                  << QDir::homePath() + "/.config/GXDE/" + m_appName + "/background-" + theme;
@@ -220,4 +221,19 @@ void DMainWindowBackground::refresh()
     resizeImage();
     // 读取默认 logo
     //m_fmLogo = QImage(":/images/images/fm-logo.png");
+}
+
+void DMainWindowBackground::setUserBackground(ThemesType themetype, QString imagePath)
+{
+    QStringList themesTypeStr = {"light", "dark"};
+    QDir dir(QDir::homePath() + "/.config/GXDE/" + m_appName);
+    if (!dir.exists()) {
+        dir.mkpath(dir.path());
+    }
+    QString backgroundPath = dir.path() + "/background-" +
+            themesTypeStr[ThemesType(themetype)] + "-FullWindow.png";
+    if (QFile::exists(backgroundPath)) {
+        QFile::remove(backgroundPath);
+    }
+    QFile::copy(imagePath, backgroundPath);
 }

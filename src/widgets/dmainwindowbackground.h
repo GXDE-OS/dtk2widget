@@ -25,6 +25,12 @@ public:
         // 特殊的一类
         FullWindow = 9
     };
+
+    enum ThemesType {
+        light = 0,
+        dark = 1
+    };
+
     QStringList m_imageList = {"TopLeft", "TopCenter", "TopRight",
                             "CenterLeft", "Center", "CenterRight",
                             "BottomLeft", "BottomCenter", "BottomRight",
@@ -43,6 +49,7 @@ public:
     void setAppName(QString name);
     void setUseGlobalBackground(bool use);
     void setCustomBackgroundPath(QStringList pathList);
+    void setUserBackground(ThemesType themetype, QString imagePath);
 
     QImage getImage(BackgroundPlace place);
     QList<int> getImageXY(BackgroundPlace place);
@@ -55,6 +62,7 @@ public:
 
 private:
     QList<QImage> m_imageVar;
+    QList<bool> m_imageVarIsGlobal;
     QMainWindow *m_dmainWindow;
     bool m_showFMLogo = true;
     bool m_useGlobalBackground = true;

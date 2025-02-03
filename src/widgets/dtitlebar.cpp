@@ -41,6 +41,7 @@
 #include "dthememanager.h"
 #include "util/dwindowmanagerhelper.h"
 #include "dmainwindow.h"
+#include "dfiledialog.h"
 
 DWIDGET_BEGIN_NAMESPACE
 
@@ -59,6 +60,7 @@ private:
     // FIXME: get a batter salution
     // hide title will make eventFilter not work, instead set Height to zero
     bool isVisableOnFullscreen();
+    bool isEnableBackgroundAction();
     void hideOnFullscreen();
     void showOnFullscreen();
 
@@ -76,6 +78,7 @@ private:
     void _q_helpActionTriggered();
     void _q_aboutActionTriggered();
     void _q_quitActionTriggered();
+    void _q_backgroundActionTriggered();
 #endif
 
     QHBoxLayout         *mainLayout;
@@ -96,10 +99,11 @@ private:
     QLabel              *separator;
 
 #ifndef QT_NO_MENU
-    QMenu               *menu           = Q_NULLPTR;
-    QAction             *helpAction     = Q_NULLPTR;
-    QAction             *aboutAction    = Q_NULLPTR;
-    QAction             *quitAction     = Q_NULLPTR;
+    QMenu               *menu             = Q_NULLPTR;
+    QAction             *helpAction       = Q_NULLPTR;
+    QAction             *aboutAction      = Q_NULLPTR;
+    QAction             *backgroundAction = Q_NULLPTR;
+    QAction             *quitAction       = Q_NULLPTR;
 #endif
 
     QWindow            *targetWindowHandle = Q_NULLPTR;
@@ -109,7 +113,7 @@ private:
     bool                embedMode       = false;
     bool                autoHideOnFullscreen = false;
 
-    Q_DECLARE_PUBLIC(DTitlebar)
+    D_DECLARE_PUBLIC(DTitlebar)
 };
 
 DTitlebarPrivate::DTitlebarPrivate(DTitlebar *qq): DObjectPrivate(qq)
@@ -482,6 +486,12 @@ void DTitlebarPrivate::_q_addDefaultMenuItems()
         menu->addAction(aboutAction);
     }
 
+    if (!backgroundAction && isEnableBackgroundAction()) {
+        backgroundAction = new QAction(qApp->translate("TitleBarMenu", "Set Background"), menu);
+        QObject::connect(backgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_backgroundActionTriggered()));
+        menu->addAction(backgroundAction);
+    }
+
     // add quit menu item.
     if (!quitAction) {
         quitAction = new QAction(qApp->translate("TitleBarMenu", "Exit"), menu);
@@ -512,6 +522,40 @@ void DTitlebarPrivate::_q_quitActionTriggered()
     if (dapp) {
         dapp->handleQuitAction();
     }
+}
+
+void DTitlebarPrivate::_q_backgroundActionTriggered()
+{
+    D_QC(DTitlebar);
+    DMainWindow *dwin = q->m_dwindow;
+    if (dwin) {
+        qDebug() << dwin;
+        qDebug() << dwin->background();
+        if (dwin->background()) {
+            QString fileName = DFileDialog::getOpenFileName(NULL,
+                                         QObject::tr("Choose the background image file"),
+                                         QDir::homePath(),
+                                         QObject::tr("Image file (*.jpg *.jpeg *.png *.bmp *.gif *.svg) ||"
+                                                     "All file (*.*)"));
+            if (QFile::exists(fileName)) {
+                dwin->background()->setUserBackground(DMainWindowBackground::light,
+                                                  fileName);
+                dwin->background()->setUserBackground(DMainWindowBackground::dark,
+                                                  fileName);
+            }
+        }
+        dwin->refreshBackground();
+    }
+}
+
+bool DTitlebarPrivate::isEnableBackgroundAction()
+{
+    D_QC(DTitlebar);
+    DMainWindow *dwin = q->m_dwindow;
+    if (dwin) {
+        return dwin->enableWindowBackground();
+    }
+    return false;
 }
 
 #endif
@@ -669,6 +713,8 @@ void DTitlebar::showEvent(QShowEvent *event)
 void DTitlebar::setDMainWindow(DMainWindow *window)
 {
     this->m_dwindow = window;
+    D_D(DTitlebar);
+    //d->_q_addDefaultMenuItems();
 }
 
 void DTitlebar::mousePressEvent(QMouseEvent *event)

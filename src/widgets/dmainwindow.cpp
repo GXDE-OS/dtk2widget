@@ -149,11 +149,13 @@ DMainWindow::DMainWindow(QWidget *parent)
     d_func()->init();
 
     // 默认启用背景
-    setEnableWindowBackground(1);
+    setEnableWindowBackground(0);
     background()->setUseGlobalBackground(1);
 
     background()->setMainWindow(this);
     background()->refresh();
+
+    titlebar()->setDMainWindow(this);
 }
 
 /**/
@@ -382,6 +384,20 @@ bool DMainWindow::enableSystemMove() const
     return d->handle->enableSystemResize();
 }
 
+void DMainWindow::refreshBackground()
+{
+    D_DC(DMainWindow);
+
+    if (!d->handle) {
+        return;
+    }
+    if (!d->background) {
+        return;
+    }
+    d->background->refresh();
+    this->update();
+}
+
 /*!
  * \property DMainWindow::enableBlurWindow
  * \brief This property holds whether the window background is blurred.
@@ -580,6 +596,9 @@ void DMainWindow::setEnableWindowBackground(bool background)
     }
 
     d->handle->setEnableWindowBackground(background);
+    if (d->background) {
+        d->background->refresh();
+    }
 }
 
 #ifdef Q_OS_MAC
@@ -597,13 +616,13 @@ DMainWindow::DMainWindow(DMainWindowPrivate &dd, QWidget *parent)
     d_func()->init();
 
     // 默认启用背景
-    setEnableWindowBackground(1);
+    setEnableWindowBackground(0);
     background()->setUseGlobalBackground(1);
 
     background()->setMainWindow(this);
     background()->refresh();
 
-    //titlebar()->setDMainWindow(this);
+    titlebar()->setDMainWindow(this);
 
 }
 
@@ -616,12 +635,10 @@ void DMainWindow::resizeEvent(QResizeEvent *event)
 void DMainWindow::paintEvent(QPaintEvent *event)
 {
     QMainWindow::paintEvent(event);
-    if (enableWindowBackground()) {
-        QPainter painter;
-        painter.begin(this);
-        background()->drawInWidget(&painter);
-        painter.end();
-    }
+    QPainter painter;
+    painter.begin(this);
+    background()->drawInWidget(&painter);
+    painter.end();
 }
 
 DWIDGET_END_NAMESPACE
