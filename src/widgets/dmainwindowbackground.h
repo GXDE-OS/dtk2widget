@@ -49,7 +49,8 @@ public:
     void setAppName(QString name);
     void setUseGlobalBackground(bool use);
     void setCustomBackgroundPath(QStringList pathList);
-    void setUserBackground(ThemesType themetype, QString imagePath);
+    void setUserBackground(ThemesType themetype, QString imagePath, BackgroundPlace place);
+    void removeUserBackground(ThemesType themetype, BackgroundPlace place);
 
     QImage getImage(BackgroundPlace place);
     QList<int> getImageXY(BackgroundPlace place);

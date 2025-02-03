@@ -79,6 +79,7 @@ private:
     void _q_aboutActionTriggered();
     void _q_quitActionTriggered();
     void _q_backgroundActionTriggered();
+    void _q_removeBackgroundActionTriggered();
 #endif
 
     QHBoxLayout         *mainLayout;
@@ -99,11 +100,12 @@ private:
     QLabel              *separator;
 
 #ifndef QT_NO_MENU
-    QMenu               *menu             = Q_NULLPTR;
-    QAction             *helpAction       = Q_NULLPTR;
-    QAction             *aboutAction      = Q_NULLPTR;
-    QAction             *backgroundAction = Q_NULLPTR;
-    QAction             *quitAction       = Q_NULLPTR;
+    QMenu               *menu                   = Q_NULLPTR;
+    QAction             *helpAction             = Q_NULLPTR;
+    QAction             *aboutAction            = Q_NULLPTR;
+    QAction             *backgroundAction       = Q_NULLPTR;
+    QAction             *removeBackgroundAction = Q_NULLPTR;
+    QAction             *quitAction             = Q_NULLPTR;
 #endif
 
     QWindow            *targetWindowHandle = Q_NULLPTR;
@@ -472,6 +474,18 @@ void DTitlebarPrivate::_q_addDefaultMenuItems()
         q->setMenu(new QMenu(q));
     }
 
+    if (!backgroundAction && isEnableBackgroundAction()) {
+        backgroundAction = new QAction(qApp->translate("TitleBarMenu", "Set Background"), menu);
+        QObject::connect(backgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_backgroundActionTriggered()));
+        menu->addAction(backgroundAction);
+    }
+
+    if (!removeBackgroundAction && isEnableBackgroundAction()) {
+        removeBackgroundAction = new QAction(qApp->translate("TitleBarMenu", "Remove Background"), menu);
+        QObject::connect(removeBackgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_removeBackgroundActionTriggered()));
+        menu->addAction(removeBackgroundAction);
+    }
+
     // add help menu item.
     if (!helpAction && DApplicationPrivate::isUserManualExists()) {
         helpAction = new QAction(qApp->translate("TitleBarMenu", "Help"), menu);
@@ -484,12 +498,6 @@ void DTitlebarPrivate::_q_addDefaultMenuItems()
         aboutAction = new QAction(qApp->translate("TitleBarMenu", "About"), menu);
         QObject::connect(aboutAction, SIGNAL(triggered(bool)), q, SLOT(_q_aboutActionTriggered()));
         menu->addAction(aboutAction);
-    }
-
-    if (!backgroundAction && isEnableBackgroundAction()) {
-        backgroundAction = new QAction(qApp->translate("TitleBarMenu", "Set Background"), menu);
-        QObject::connect(backgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_backgroundActionTriggered()));
-        menu->addAction(backgroundAction);
     }
 
     // add quit menu item.
@@ -524,13 +532,26 @@ void DTitlebarPrivate::_q_quitActionTriggered()
     }
 }
 
+void DTitlebarPrivate::_q_removeBackgroundActionTriggered()
+{
+    D_QC(DTitlebar);
+    DMainWindow *dwin = q->m_dwindow;
+    if (dwin) {
+        if (dwin->background()) {
+            dwin->background()->removeUserBackground(DMainWindowBackground::light,
+                                                  DMainWindowBackground::BackgroundPlace::FullWindow);
+            dwin->background()->removeUserBackground(DMainWindowBackground::dark,
+                                                  DMainWindowBackground::BackgroundPlace::FullWindow);
+        }
+        dwin->refreshBackground();
+    }
+}
+
 void DTitlebarPrivate::_q_backgroundActionTriggered()
 {
     D_QC(DTitlebar);
     DMainWindow *dwin = q->m_dwindow;
     if (dwin) {
-        qDebug() << dwin;
-        qDebug() << dwin->background();
         if (dwin->background()) {
             QString fileName = DFileDialog::getOpenFileName(NULL,
                                          QObject::tr("Choose the background image file"),
@@ -539,9 +560,11 @@ void DTitlebarPrivate::_q_backgroundActionTriggered()
                                                      "All file (*.*)"));
             if (QFile::exists(fileName)) {
                 dwin->background()->setUserBackground(DMainWindowBackground::light,
-                                                  fileName);
+                                                      fileName,
+                                                      DMainWindowBackground::BackgroundPlace::FullWindow);
                 dwin->background()->setUserBackground(DMainWindowBackground::dark,
-                                                  fileName);
+                                                      fileName,
+                                                      DMainWindowBackground::BackgroundPlace::FullWindow);
             }
         }
         dwin->refreshBackground();

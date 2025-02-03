@@ -223,7 +223,7 @@ void DMainWindowBackground::refresh()
     //m_fmLogo = QImage(":/images/images/fm-logo.png");
 }
 
-void DMainWindowBackground::setUserBackground(ThemesType themetype, QString imagePath)
+void DMainWindowBackground::setUserBackground(ThemesType themetype, QString imagePath, BackgroundPlace place)
 {
     QStringList themesTypeStr = {"light", "dark"};
     QDir dir(QDir::homePath() + "/.config/GXDE/" + m_appName);
@@ -231,9 +231,21 @@ void DMainWindowBackground::setUserBackground(ThemesType themetype, QString imag
         dir.mkpath(dir.path());
     }
     QString backgroundPath = dir.path() + "/background-" +
-            themesTypeStr[ThemesType(themetype)] + "-FullWindow.png";
+            themesTypeStr[ThemesType(themetype)] + "-" + m_imageList[BackgroundPlace(place)] + ".png";
     if (QFile::exists(backgroundPath)) {
         QFile::remove(backgroundPath);
     }
     QFile::copy(imagePath, backgroundPath);
+}
+
+void DMainWindowBackground::removeUserBackground(ThemesType themetype, BackgroundPlace place)
+{
+    QStringList themesTypeStr = {"light", "dark"};
+    QDir dir(QDir::homePath() + "/.config/GXDE/" + m_appName);
+    QString backgroundPath = dir.path() + "/background-" +
+            themesTypeStr[ThemesType(themetype)] + "-" + m_imageList[BackgroundPlace(place)] + ".png";
+    if (!QFile::exists(backgroundPath)) {
+        return;
+    }
+    QFile::remove(backgroundPath);
 }
