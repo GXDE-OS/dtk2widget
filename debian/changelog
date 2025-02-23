@@ -1,8 +1,8 @@
-dtkwidget2 (15.14.3-2.2.8) UNRELEASED; urgency=medium
+dtkwidget2 (15.14.3-2.2.9) UNRELEASED; urgency=medium
 
-  * 菜单栏新增背景设置选项
+  * 修复高分屏下背景显示模糊的问题
 
- -- gfdgd_xi <3025613752@qq.com>  Mon, 03 Feb 2025 22:38:43 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Sun, 23 Feb 2025 10:29:35 +0800
 
 dtkwidget2 (15.11~2.2.1+rebuild-1) unstable; urgency=medium
 

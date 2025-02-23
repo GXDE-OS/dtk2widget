@@ -26,6 +26,9 @@ void DMainWindowBackground::drawInWidget(QPainter *painter)
     }
     QString theme = DThemeManager::instance()->theme(m_dmainWindow);
 
+    auto oldRenderHints = painter->renderHints();
+    painter->setRenderHint(QPainter::Antialiasing);
+
     QList<BackgroundPlace> list = {
         BackgroundPlace::FullWindow,
         BackgroundPlace::Center,
@@ -44,6 +47,9 @@ void DMainWindowBackground::drawInWidget(QPainter *painter)
         int y = xy[1];
         painter->drawImage(x, y, getImage(DMainWindowBackground::BackgroundPlace(i)));
     }
+
+    painter->setRenderHints(oldRenderHints);
+
     //// 绘制半透明图层
     // 备份原来的 QPen 和 QBrush
     QPen oldPen = painter->pen();
@@ -76,7 +82,14 @@ void DMainWindowBackground::resizeImage()
         // 防止空指针导致崩溃
         return;
     }
-    m_backgroundResized = m_imageVar[BackgroundPlace::FullWindow].scaled(m_dmainWindow->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    qreal scaleFactor = m_dmainWindow->devicePixelRatioF();
+    int imageWidth = m_dmainWindow->width() * scaleFactor;
+    int imageHeight = m_dmainWindow->height() * scaleFactor;
+    QImage image = m_imageVar[BackgroundPlace::FullWindow];
+    image.setDevicePixelRatio(scaleFactor);
+    m_backgroundResized = image.scaled(QSize(imageWidth, imageHeight),
+                                                                         Qt::KeepAspectRatioByExpanding,
+                                                                         Qt::SmoothTransformation);
 }
 
 QImage DMainWindowBackground::getImage(BackgroundPlace place)
@@ -109,8 +122,9 @@ QList<int> DMainWindowBackground::getImageXY(BackgroundPlace place)
     int windowWidth = 0;
     int windowHeight = 0;
     if (m_dmainWindow) {
-        windowWidth = m_dmainWindow->width();
-        windowHeight = m_dmainWindow->height();
+        qreal scaleFactor = m_dmainWindow->devicePixelRatioF();
+        windowWidth = m_dmainWindow->width() * scaleFactor;
+        windowHeight = m_dmainWindow->height() * scaleFactor;
     }
     int x = 0, y = 0;
 
