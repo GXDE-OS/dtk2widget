@@ -1,4 +1,4 @@
-dtkwidget2 (15.14.3-2.2.9-1) UNRELEASED; urgency=medium
+dtkwidget2 (15.14.3-2.2.9-2) UNRELEASED; urgency=medium
 
   * 修复高分屏下背景显示模糊的问题
   * 添加依赖 libdtklog-dev 修复龙芯平台无法编译
