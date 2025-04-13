@@ -599,6 +599,31 @@ bool DApplication::loadTranslator(QList<QLocale> localeFallback)
  */
 bool DApplication::loadDXcbPlugin()
 {
+    // 处理
+    if (qgetenv("DTK2_XWAYLAND") != "" && qgetenv("XDG_SESSION_DESKTOP") == "gxde-wayland") {
+        qputenv("XDG_SESSION_TYPE", "xwayland");
+        // 判断 DISPLAY 是否存在，如果不存在则需要获取
+        if (qgetenv("DISPLAY") == "") {
+            QDir dir("/tmp");
+            if (dir.exists()) {
+                dir.setFilter(QDir::Files | QDir::Hidden);
+                dir.setNameFilters(QStringList() << ".X*");
+                for (QString i: dir.entryList()) {
+                    i = i.replace(".X", "").replace("-lock", "");
+                    qDebug() << i;
+                    bool isNumber;
+                    i.toInt(&isNumber);
+                    if (i.count() > 0 && isNumber) {
+                        qputenv("DISPLAY", (":" + QString::number(i.toInt())).toUtf8());
+                    }
+                }
+            }
+        }
+    }
+
+    if (qgetenv("XDG_SESSION_TYPE") == "wayland") {
+        return false;
+    }
     // 设置主题为 dlight 以跳过调用 dde-qt5integration 来解决 dtk2 关闭过程中异常崩溃的问题
     // 注：必须在 QApplication 对象创建前设置该环境变量，否则依然会调用 dde-qt5integration
     //  而非 gxde-qt5integration

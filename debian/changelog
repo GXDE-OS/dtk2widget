@@ -1,9 +1,10 @@
-dtkwidget2 (2:2.3.0) UNRELEASED; urgency=medium
+dtkwidget2 (2:2.3.1) UNRELEASED; urgency=medium
 
   * 修复高分屏下背景显示模糊的问题
   * 添加依赖 libdtklog-dev 修复龙芯平台无法编译
+  * 针对 GXDE Wayland 进行特调
 
- -- gfdgd_xi <3025613752@qq.com>  Sun, 23 Feb 2025 10:29:35 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Sun, 13 Apr 2025 13:20:27 +0800
 
 dtkwidget2 (15.11~2.2.1+rebuild-1) unstable; urgency=medium
 
