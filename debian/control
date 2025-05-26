@@ -1,7 +1,7 @@
 Source: dtkwidget2
 Section: libdevel
 Priority: optional
-Maintainer: Deepin Packages Builder <packages@deepin.com>
+Maintainer: gfdgd xi <3025613752@qq.com>
 Build-Depends: debhelper (>= 9), pkg-config, libudev-dev,
  qtmultimedia5-dev, libqt5x11extras5-dev, libxext-dev, qttools5-dev-tools,
  x11proto-xext-dev, libxcb-util0-dev, libstartup-notification0-dev,
