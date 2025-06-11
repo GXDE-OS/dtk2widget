@@ -1,9 +1,10 @@
-dtkwidget2 (2:2.3.2) UNRELEASED; urgency=medium
+dtkwidget2 (2:2.3.3) UNRELEASED; urgency=medium
 
   * 修复高分屏下背景显示模糊的问题
   * 添加依赖 libdtklog-dev 修复龙芯平台无法编译
   * 针对 GXDE Wayland 进行特调
   * 修改关于窗口地址（www.gxde.org=>www.gxde.top）
+  * 依赖修改为 libgxframeworkdbus2
 
  -- gfdgd_xi <3025613752@qq.com>  Sat, 26 Apr 2025 16:44:28 +0800
 
