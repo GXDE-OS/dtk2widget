@@ -53,12 +53,13 @@ DMainWindowPrivate::DMainWindowPrivate(DMainWindow *qq)
         OSX::HideWindowTitlebar(qq->winId());
 #else
         // Wayland 下不设置 setEmbedMode 以便正确显示右上角的关闭按钮
-        if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+        if (!DApplication::isWayland()) {
             titlebar->setEmbedMode(true);
         }
         else {
             // Wayland 下隐藏窗口管理器提供的标题栏
             qq->setWindowFlags(Qt::X11BypassWindowManagerHint);
+            qq->setWindowFlags(qq->windowFlags() | Qt::FramelessWindowHint);
         }
 
 #endif
@@ -120,7 +121,7 @@ void DMainWindowPrivate::init()
 
     // 仅在 Wayland 下使用 
     // TODO: mouseReleaseEvent 事件依旧存在问题: https://bbs.deepin.org.cn/zh/post/279273
-    if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qgetenv("DTK2_XWAYLAND") == "") {
+    if (DApplication::isWayland()) {
         titlebar->setDMainWindow(q);
     }
     background->setMainWindow(q);
@@ -624,6 +625,11 @@ DMainWindow::DMainWindow(DMainWindowPrivate &dd, QWidget *parent)
     background()->refresh();
 
     titlebar()->setDMainWindow(this);
+
+    if (DApplication::isWayland()) {
+        // Wayland 下禁用窗管提供的标题栏
+        setWindowFlag(Qt::FramelessWindowHint, true);
+    }
 
 }
 

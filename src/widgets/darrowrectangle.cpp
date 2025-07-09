@@ -1169,7 +1169,7 @@ void DArrowRectanglePrivate::resizeWithContent()
     q->setFixedSize(q->getFixedSize());
 
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         const qreal ratio = qApp->devicePixelRatio();
         if (!m_handle && !floatMode) {
             XRectangle m_contentXRect;

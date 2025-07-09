@@ -24,6 +24,7 @@
  */
 
 #include "dkeyboardmonitor.h"
+#include "dapplication.h"
 
 #include <QX11Info>
 #include <QDebug>
@@ -171,7 +172,7 @@ DKeyboardMonitor *DKeyboardMonitor::instance()
 
 bool DKeyboardMonitor::isCapslockOn()
 {
-    if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qgetenv("DTK2_XWAYLAND") == "") {
+    if (DApplication::isWayland()) {
         return false;
     }
     bool result;

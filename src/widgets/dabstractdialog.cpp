@@ -417,7 +417,7 @@ void DAbstractDialog::mouseMoveEvent(QMouseEvent *event)
     }
 
     if (d->mousePressed) {
-        if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qgetenv("DTK2_XWAYLAND") == "") {
+        if (DApplication::isWayland()) {
             // 仅在 Wayland 下启用
             // TODO: 当前 mouseReleaseEvent 事件依旧存在问题: https://bbs.deepin.org.cn/zh/post/279273
             this->windowHandle()->startSystemMove();
@@ -455,6 +455,10 @@ void DAbstractDialog::paintEvent(QPaintEvent *event)
 /*!\reimp */
 void DAbstractDialog::resizeEvent(QResizeEvent *event)
 {
+    if (!event) {
+        return;
+    }
+
     if (event->size().width() >= maximumWidth()) {
         bool resized = testAttribute(Qt::WA_Resized);
 

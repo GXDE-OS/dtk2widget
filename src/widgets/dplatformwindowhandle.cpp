@@ -29,6 +29,7 @@ DWIDGET_BEGIN_NAMESPACE
 #define DEFINE_CONST_CHAR(Name) const char _##Name[] = "_d_" #Name
 
 DEFINE_CONST_CHAR(useDxcb);
+DEFINE_CONST_CHAR(useDwayland);
 DEFINE_CONST_CHAR(redirectContent);
 DEFINE_CONST_CHAR(netWmStates);
 DEFINE_CONST_CHAR(windowRadius);
@@ -58,6 +59,7 @@ DEFINE_CONST_CHAR(pluginVersion);
 DEFINE_CONST_CHAR(disableOverrideCursor);
 DEFINE_CONST_CHAR(enableDxcb);
 DEFINE_CONST_CHAR(isEnableDxcb);
+DEFINE_CONST_CHAR(isEnableDwayland);
 DEFINE_CONST_CHAR(setEnableNoTitlebar);
 DEFINE_CONST_CHAR(isEnableNoTitlebar);
 
@@ -601,13 +603,16 @@ bool DPlatformWindowHandle::isEnabledDXcb(const QWindow *window)
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
     is_enable_dxcb = qApp->platformFunction(_isEnableDxcb);
+    if (!is_enable_dxcb) {
+        is_enable_dxcb = qApp->platformFunction(_isEnableDwayland);
+    }
 #endif
 
     if (is_enable_dxcb) {
         return (*reinterpret_cast<bool(*)(const QWindow*)>(is_enable_dxcb))(window);
     }
 
-    return window->property(_useDxcb).toBool();
+    return window->property(_useDxcb).toBool() || window->property(_useDwayland).toBool();
 }
 
 /*!

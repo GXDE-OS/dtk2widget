@@ -66,6 +66,8 @@ public:
 
     bool loadTranslator(QList<QLocale> localeFallback = QList<QLocale>() << QLocale::system());
 
+    static bool isWayland();
+
     //! warning: Must call before QGuiApplication defined object
     static bool loadDXcbPlugin();
     static bool isDXcbPlatform();

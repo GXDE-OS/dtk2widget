@@ -32,6 +32,7 @@
 #include <DObjectPrivate>
 
 #include "dtitlebar.h"
+#include "dapplication.h"
 #include "private/dborderlesswidget_p.h"
 
 #ifdef Q_OS_LINUX
@@ -153,7 +154,7 @@ void DBorderlessWidgetPrivate::_q_onTitleBarMousePressed(Qt::MouseButtons button
 {
 #ifdef Q_OS_LINUX
     D_QC(DBorderlessWidget);
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (DApplication::isWayland()) {
 
         if (buttons != Qt::LeftButton) {
             XUtils::CancelMoveWindow(q, Qt::LeftButton);
@@ -255,7 +256,7 @@ DBorderlessWidget::DBorderlessWidget(DBorderlessWidgetPrivate &dd, QWidget *pare
 
     DBorderlessWidget::adjustSize();
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::SetMouseTransparent(this, true);
     }
 #endif
@@ -304,7 +305,7 @@ void DBorderlessWidget::mouseMoveEvent(QMouseEvent *event)
 {
 #ifdef Q_OS_LINUX
     D_D(DBorderlessWidget);
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
 
         const int x = event->x();
         const int y = event->y();
@@ -322,7 +323,7 @@ void DBorderlessWidget::mousePressEvent(QMouseEvent *event)
 {
 #ifdef Q_OS_LINUX
     D_D(DBorderlessWidget);
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
 
         const int x = event->x();
         const int y = event->y();
@@ -344,7 +345,7 @@ void DBorderlessWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 #ifdef Q_OS_LINUX
     D_D(DBorderlessWidget);
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         d->resizingCornerEdge = XUtils::CornerEdge::kInvalid;
     }
 #endif
@@ -357,7 +358,7 @@ void DBorderlessWidget::mouseReleaseEvent(QMouseEvent *event)
 void DBorderlessWidget::showMinimized()
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::ShowMinimizedWindow(this, true);
     }
 #endif
@@ -370,7 +371,7 @@ void DBorderlessWidget::showMinimized()
 void DBorderlessWidget::showMaximized()
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::ShowMaximizedWindow(this);
     }
 #endif
@@ -436,7 +437,7 @@ QMargins DBorderlessWidget::contentsMargins() const
 void DBorderlessWidget::showFullScreen()
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::ShowFullscreenWindow(this, true);
     }
 #endif
@@ -452,7 +453,7 @@ void DBorderlessWidget::showFullScreen()
 void DBorderlessWidget::moveWindow(Qt::MouseButton button)
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::MoveWindow(this, button);
     }
 #endif
@@ -465,7 +466,7 @@ void DBorderlessWidget::moveWindow(Qt::MouseButton button)
 void DBorderlessWidget::toggleMaximizedWindow()
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::ToggleMaximizedWindow(this);
     }
 #endif
@@ -478,7 +479,7 @@ void DBorderlessWidget::toggleMaximizedWindow()
 void DBorderlessWidget::showNormal()
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::ShowNormalWindow(this);
     }
 #endif
@@ -914,7 +915,7 @@ void DBorderlessWidget::setFixedSize(const QSize &size)
     setWindowFlags(windowFlags() & ~ Qt::WindowMaximizeButtonHint);
 
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         XUtils::DisableResize(this);
     }
 #endif
@@ -1169,7 +1170,7 @@ void DBorderlessWidget::resizeEvent(QResizeEvent *e)
 {
     D_D(DBorderlessWidget);
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         int resizeHandleWidth = d->resizable ? d->m_ResizeHandleWidth : 0;
         XUtils::SetWindowExtents(this, d->externMargins(), resizeHandleWidth);
     }
@@ -1244,7 +1245,7 @@ bool FilterMouseMove::eventFilter(QObject *obj, QEvent *event)
         }
         if (m_rootWidget) {
 #ifdef Q_OS_LINUX
-            if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+            if (!DApplication::isWayland()) {
                 XUtils::ResetCursorShape(m_rootWidget);
             }
 #endif

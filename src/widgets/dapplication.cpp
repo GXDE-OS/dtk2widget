@@ -70,7 +70,9 @@
 #include <QStyleFactory>
 
 #define DXCB_PLUGIN_KEY "dxcb"
+#define DWAYLAND_PLUGIN_KEY "dwayland"
 #define DXCB_PLUGIN_SYMBOLIC_PROPERTY "_d_isDxcb"
+#define DWAYLAND_PLUGIN_SYMBOLIC_PROPERTY "_d_isDwayland"
 #define QT_THEME_CONFIG_PATH "D_QT_THEME_CONFIG_PATH"
 
 DCORE_USE_NAMESPACE
@@ -81,7 +83,7 @@ DApplicationPrivate::DApplicationPrivate(DApplication *q) :
     DObjectPrivate(q)
 {
 #ifdef Q_OS_LINUX
-    if (qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "") {
+    if (!DApplication::isWayland()) {
         StartupNotificationMonitor *monitor = StartupNotificationMonitor::instance();
         auto cancelNotification = [this, q](const QString id) {
             m_monitoredStartupApps.removeAll(id);
@@ -591,6 +593,11 @@ bool DApplication::loadTranslator(QList<QLocale> localeFallback)
     return d->loadTranslator(translateDirs, appName, localeFallback);
 }
 
+bool DApplication::isWayland()
+{
+    return !(qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != "");
+}
+
 /*!
  * \~chinese \brief DApplication::loadDXcbPlugin 强制程序使用的平台插件到dxcb。
  * \~chinese 这个函数的工作原理是通过设置 QT_QPA_PLATFORM 来影响平台插件的加载，所以此函数
@@ -600,7 +607,7 @@ bool DApplication::loadTranslator(QList<QLocale> localeFallback)
 bool DApplication::loadDXcbPlugin()
 {
     // 处理
-    if (qgetenv("DTK2_XWAYLAND") != "" && qgetenv("XDG_SESSION_DESKTOP") == "gxde-wayland") {
+    /*if (DApplication::isWayland() && qgetenv("XDG_SESSION_DESKTOP") == "gxde-wayland") {
         qputenv("XDG_SESSION_TYPE", "xwayland");
         // 判断 DISPLAY 是否存在，如果不存在则需要获取
         if (qgetenv("DISPLAY") == "") {
@@ -619,11 +626,8 @@ bool DApplication::loadDXcbPlugin()
                 }
             }
         }
-    }
+    }*/
 
-    if (qgetenv("XDG_SESSION_TYPE") == "wayland") {
-        return false;
-    }
     // 设置主题为 dlight 以跳过调用 dde-qt5integration 来解决 dtk2 关闭过程中异常崩溃的问题
     // 注：必须在 QApplication 对象创建前设置该环境变量，否则依然会调用 dde-qt5integration
     //  而非 gxde-qt5integration
@@ -631,13 +635,17 @@ bool DApplication::loadDXcbPlugin()
             qgetenv("QT_STYLE_OVERRIDE"));  // 通过设置 QT_STYLE_OVERRIDE_BAK 来备份原来的设置
     qputenv("QT_STYLE_OVERRIDE", "dlight");
 
+    if (isWayland()) {
+        // 如果是 Wayland 则使用 dwayland 插件
+        if (!QPlatformIntegrationFactory::keys().contains(DWAYLAND_PLUGIN_KEY)) {
+            return false;
+        }
+        qputenv("DWAYLAND_FAKE_PLATFORM_NAME_WAYLAND", "true");
+        return qputenv("QT_QPA_PLATFORM", DWAYLAND_PLUGIN_KEY);
+    }
+
     Q_ASSERT_X(!qApp, "DApplication::loadDxcbPlugin", "Must call before QGuiApplication defined object");
 
-    // 如果为 WAYLAND 环境则不配置 dxcb 插件
-    //if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qgetenv("DTK2_XWAYLAND") == "") {
-    //    qputenv("QT_QPA_PLATFORM", "wayland");
-    //    return false;
-    //}
 
     if (!QPlatformIntegrationFactory::keys().contains(DXCB_PLUGIN_KEY)) {
         return false;
@@ -659,6 +667,7 @@ bool DApplication::isDXcbPlatform()
         return false;
 
     static bool _is_dxcb = qApp->platformName() == DXCB_PLUGIN_KEY || qApp->property(DXCB_PLUGIN_SYMBOLIC_PROPERTY).toBool();
+        //|| qApp->platformName() == DWAYLAND_PLUGIN_KEY || qApp->property(DWAYLAND_PLUGIN_SYMBOLIC_PROPERTY).toBool();
 
     return _is_dxcb;
 }

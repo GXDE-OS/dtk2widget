@@ -30,13 +30,13 @@
 #include "dwindowmaxbutton.h"
 #include "dwindowminbutton.h"
 #include "dwindowoptionbutton.h"
+#include "dapplication.h"
 #include "dlabel.h"
 #include "dplatformwindowhandle.h"
 #ifdef Q_OS_LINUX
 #include "../platforms/x11/xutil.h"
 #endif
 #include "daboutdialog.h"
-#include "dapplication.h"
 #include "private/dapplication_p.h"
 #include "dthememanager.h"
 #include "util/dwindowmanagerhelper.h"
@@ -291,7 +291,7 @@ void DTitlebarPrivate::updateButtonsState(Qt::WindowFlags type)
     bool isFullscreen = targetWindow()->windowState().testFlag(Qt::WindowFullScreen);
 
     bool forceShow = !useDXcb;
-    if (qgetenv("XDG_SESSION_TYPE") == "wayland" && qgetenv("DTK2_XWAYLAND") == "") {
+    if (DApplication::isWayland()) {
         forceShow = false;
     }
 #ifndef Q_OS_LINUX
