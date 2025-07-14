@@ -655,6 +655,10 @@ void DBlurEffectWidget::setBlendMode(DBlurEffectWidget::BlendMode blendMode)
         }
     }
 
+    if (blendMode == BehindWindowBlend && DApplication::isWayland()) {
+        setWindowFlag(Qt::FramelessWindowHint, true);
+    }
+
     d->blendMode = blendMode;
 
     update();
@@ -929,11 +933,17 @@ void DBlurEffectWidget::changeEvent(QEvent *event)
 void DBlurEffectWidget::setWindowFlag(Qt::WindowType type, bool on)
 {
     QWidget::setWindowFlag(type, on);
+    if (DApplication::isWayland()) {
+        QWidget::setWindowFlag(Qt::WindowStaysOnTopHint, false);
+    }
 }
 
 void DBlurEffectWidget::setWindowFlags(Qt::WindowFlags type)
 {
     QWidget::setWindowFlags(type);
+    if (DApplication::isWayland()) {
+        QWidget::setWindowFlag(Qt::WindowStaysOnTopHint, false);
+    }
 }
 
 DWIDGET_END_NAMESPACE
