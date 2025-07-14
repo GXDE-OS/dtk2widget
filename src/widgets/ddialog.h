@@ -122,8 +122,6 @@ protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 
 private:
-    void updateTextLayout();
-
     D_DECLARE_PRIVATE(DDialog)
 
     Q_PRIVATE_SLOT(d_func(), void _q_onButtonClicked())

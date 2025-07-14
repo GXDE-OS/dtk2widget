@@ -230,50 +230,15 @@ void DDialogPrivate::updateSize()
     D_Q(DDialog);
 
     if (!q->testAttribute(Qt::WA_Resized)) {
-        // 确保文本标签更新尺寸
-        titleLabel->adjustSize();
-        messageLabel->adjustSize();
-
-        // 获取建议尺寸
         QSize size = q->sizeHint();
 
-        // 应用最小尺寸约束
         size.setWidth(qMax(size.width(), DIALOG::DEFAULT_WIDTH));
         size.setHeight(qMax(size.height(), DIALOG::DEFAULT_HEIGHT));
 
-        // 应用最大尺寸约束（不超过屏幕的90%）
-        const QScreen *screen = getScreen();
-        if (screen) {
-            const QRect screenGeometry = screen->availableGeometry();
-            const int maxWidth = screenGeometry.width() * 0.9;
-            const int maxHeight = screenGeometry.height() * 0.9;
-
-            size.setWidth(qMin(size.width(), maxWidth));
-            size.setHeight(qMin(size.height(), maxHeight));
-        }
-
         q->resize(size);
         q->setAttribute(Qt::WA_Resized, false);
-
-        // 确保布局正确应用
-        //q->layout()->activate();
     }
 }
-
-/*void DDialogPrivate::updateSize()
-{
-    D_Q(DDialog);
-
-    if (!q->testAttribute(Qt::WA_Resized)) {
-        QSize size = q->sizeHint();
-
-        size.setWidth(qMax(size.width(), DIALOG::DEFAULT_WIDTH));
-        size.setHeight(qMax(size.height(), DIALOG::DEFAULT_HEIGHT));
-
-        q->resize(size);
-        q->setAttribute(Qt::WA_Resized, false);
-    }
-}*/
 
 void DDialogPrivate::_q_onButtonClicked()
 {
@@ -897,36 +862,6 @@ void DDialog::setButtonIcon(int index, const QIcon &icon)
 /*!
  * \~chinese \brief 设置对话框标题
  */
-/*void DDialog::setTitle(const QString &title)
-{
-    D_D(DDialog);
-
-    if (d->title == title)
-        return;
-
-    d->title = title;
-    d->titleLabel->setText(title);
-    d->titleLabel->setHidden(title.isEmpty());
-
-    Q_EMIT titleChanged(title);
-}*/
-
-/*!
- * \~chinese \brief 设置对话框消息内容
- */
-/*void DDialog::setMessage(const QString &message)
-{
-    D_D(DDialog);
-
-    if (d->message == message)
-        return;
-
-    d->message = message;
-    d->messageLabel->setText(message);
-    d->messageLabel->setHidden(message.isEmpty());
-
-    Q_EMIT messageChanged(message);
-}*/
 void DDialog::setTitle(const QString &title)
 {
     D_D(DDialog);
@@ -938,21 +873,12 @@ void DDialog::setTitle(const QString &title)
     d->titleLabel->setText(title);
     d->titleLabel->setHidden(title.isEmpty());
 
-    // 重置尺寸约束
-    d->titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    d->titleLabel->setMinimumHeight(0);
-    d->titleLabel->setMaximumHeight(QWIDGETSIZE_MAX);
-    d->titleLabel->setFixedWidth(QWIDGETSIZE_MAX);
-
-    // 强制更新布局
-    if (isVisible()) {
-        resizeEvent(nullptr);
-        d->updateSize();
-    }
-
     Q_EMIT titleChanged(title);
 }
 
+/*!
+ * \~chinese \brief 设置对话框消息内容
+ */
 void DDialog::setMessage(const QString &message)
 {
     D_D(DDialog);
@@ -963,18 +889,6 @@ void DDialog::setMessage(const QString &message)
     d->message = message;
     d->messageLabel->setText(message);
     d->messageLabel->setHidden(message.isEmpty());
-
-    // 重置尺寸约束
-    d->messageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    d->messageLabel->setMinimumHeight(0);
-    d->messageLabel->setMaximumHeight(QWIDGETSIZE_MAX);
-    d->messageLabel->setFixedWidth(QWIDGETSIZE_MAX);
-
-    // 强制更新布局
-    if (isVisible()) {
-        resizeEvent(nullptr);
-        d->updateSize();
-    }
 
     Q_EMIT messageChanged(message);
 }
@@ -1090,39 +1004,12 @@ DDialog::DDialog(DDialogPrivate &dd, QWidget *parent) :
 }
 
 /*!\reimp */
-/*void DDialog::showEvent(QShowEvent *event)
-{
-    D_D(DDialog);
-
-    DAbstractDialog::showEvent(event);
-
-    setAttribute(Qt::WA_Resized, false);
-    d->updateSize();
-
-    Q_EMIT visibleChanged(isVisible());
-}*/
-
 void DDialog::showEvent(QShowEvent *event)
 {
     D_D(DDialog);
 
     DAbstractDialog::showEvent(event);
 
-    // 重置尺寸约束
-    d->titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    d->titleLabel->setMinimumHeight(0);
-    d->titleLabel->setMaximumHeight(QWIDGETSIZE_MAX);
-    d->titleLabel->setFixedWidth(QWIDGETSIZE_MAX);
-
-    d->messageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    d->messageLabel->setMinimumHeight(0);
-    d->messageLabel->setMaximumHeight(QWIDGETSIZE_MAX);
-    d->messageLabel->setFixedWidth(QWIDGETSIZE_MAX);
-
-    // 强制更新布局
-    resizeEvent(nullptr);
-
-    // 更新尺寸
     setAttribute(Qt::WA_Resized, false);
     d->updateSize();
 
@@ -1189,7 +1076,7 @@ void DDialog::childEvent(QChildEvent *event)
     }
 }
 
-/*void DDialog::resizeEvent(QResizeEvent *event)
+void DDialog::resizeEvent(QResizeEvent *event)
 {
     DAbstractDialog::resizeEvent(event);
 
@@ -1213,39 +1100,6 @@ void DDialog::childEvent(QChildEvent *event)
         d->messageLabel->setWordWrap(true);
         d->messageLabel->setFixedHeight(d->messageLabel->sizeHint().height());
     }
-}*/
-void DDialog::resizeEvent(QResizeEvent *event)
-{
-    DAbstractDialog::resizeEvent(event);
-    D_D(DDialog);
-
-    // 确保标签能够自动调整高度
-    d->titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    d->messageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    // 计算可用宽度（减去关闭按钮和边距）
-    const int availableWidth = width() - d->closeButton->width() -
-                               d->topLayout->contentsMargins().left() -
-                               d->topLayout->contentsMargins().right();
-
-    // 标题标签处理
-    d->titleLabel->setFixedWidth(availableWidth);
-    d->titleLabel->setMinimumHeight(0);
-    d->titleLabel->setMaximumHeight(QWIDGETSIZE_MAX);
-
-    // 消息标签处理
-    d->messageLabel->setFixedWidth(availableWidth);
-    d->messageLabel->setMinimumHeight(0);
-    d->messageLabel->setMaximumHeight(QWIDGETSIZE_MAX);
-
-    // 强制重新计算布局
-    d->titleLabel->adjustSize();
-    d->messageLabel->adjustSize();
-
-    // 更新整个布局
-    layout()->invalidate();
-    layout()->activate();
-    updateGeometry();
 }
 
 DWIDGET_END_NAMESPACE
