@@ -1,4 +1,4 @@
-dtkwidget2 (2:2.3.4) UNRELEASED; urgency=medium
+dtkwidget2 (2:2.3.5) UNRELEASED; urgency=medium
 
   * 修复高分屏下背景显示模糊的问题
   * 添加依赖 libdtklog-dev 修复龙芯平台无法编译
@@ -6,8 +6,10 @@ dtkwidget2 (2:2.3.4) UNRELEASED; urgency=medium
   * 修改关于窗口地址（www.gxde.org=>www.gxde.top）
   * 依赖修改为 libgxframeworkdbus2
   * 修复 treeland 下无法隐藏标题栏的问题
+  * 修复 Wayland 下部分窗口透明异常的问题
+  * 修复 DDialog UI 隐藏的问题
 
- -- gfdgd_xi <3025613752@qq.com>  Wed, 09 Jul 2025 11:28:55 +0800
+ -- gfdgd_xi <3025613752@qq.com>  Mon, 14 Jul 2025 10:14:49 +0800
 
 dtkwidget2 (15.11~2.2.1+rebuild-1) unstable; urgency=medium
 
