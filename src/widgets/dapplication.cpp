@@ -595,6 +595,9 @@ bool DApplication::loadTranslator(QList<QLocale> localeFallback)
 
 bool DApplication::isWayland()
 {
+    if (qgetenv("XDG_SESSION_TYPE") == "xwayland") {
+        return true;
+    }
     return !(qgetenv("XDG_SESSION_TYPE") != "wayland" || qgetenv("DTK2_XWAYLAND") != ""
              || qgetenv("QT_QPA_PLATFORM") == "xcb" || qgetenv("QT_QPA_PLATFORM") == "dxcb");
 }
