@@ -98,7 +98,8 @@ void DPasswdEditAnimatedPrivate::init()
     m_invalidTip->hide();
 
     // fix QLineEdit do not expand width in QHBoxLayout
-    passwdVBLayout->setMargin(0);
+    //passwdVBLayout->setMargin(0);
+    passwdVBLayout->setContentsMargins(0, 0, 0, 0);
     passwdVBLayout->setContentsMargins(0, 0, 0, 0);
     passwdVBLayout->setSpacing(0);
     passwdVBLayout->addWidget(m_passwdEdit);

@@ -145,7 +145,7 @@ protected:
     void paintEvent(QPaintEvent *) Q_DECL_OVERRIDE;
     void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
     void closeEvent(QCloseEvent *) Q_DECL_OVERRIDE;
-    void enterEvent(QEvent *)Q_DECL_OVERRIDE;
+    void enterEvent(QEnterEvent *)Q_DECL_OVERRIDE;
     void leaveEvent(QEvent *)Q_DECL_OVERRIDE;
     void changeEvent(QEvent *event) Q_DECL_OVERRIDE;
 

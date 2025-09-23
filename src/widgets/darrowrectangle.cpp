@@ -22,7 +22,8 @@
 
 #ifdef Q_OS_LINUX
 #include <X11/extensions/shape.h>
-#include <QX11Info>
+//#include <QX11Info>
+#include <QtGui/private/qtx11extras_p.h>
 #endif
 #include <QApplication>
 #include <QScreen>

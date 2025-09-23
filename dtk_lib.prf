@@ -7,6 +7,9 @@ exists($$_PRO_FILE_PWD_/dtk_translation.prf) {
 TEMPLATE  = subdirs
 CONFIG += ordered
 
+# 暂时禁用多媒体支持
+DTK_NO_MULTIMEDIA = 1
+
 exists($$_PRO_FILE_PWD_/src) SUBDIRS += src
 exists($$_PRO_FILE_PWD_/tools) SUBDIRS += tools
 exists($$_PRO_FILE_PWD_/tests) SUBDIRS += tests

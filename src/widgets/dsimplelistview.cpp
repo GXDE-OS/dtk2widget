@@ -219,7 +219,7 @@ void DSimpleListView::setColumnTitleInfo(QList<QString> titles, QList<int> width
         if (widths[i] == -1) {
             d->columnWidths << widths[i];
         } else {
-            int renderTitleWidth = fm.width(titles[i]) + d->titlePadding + arrowUpNormalImage.width() / arrowUpNormalImage.devicePixelRatio() + d->titleArrowPadding * 2;
+            int renderTitleWidth = fm.horizontalAdvance(titles[i]) + d->titlePadding + arrowUpNormalImage.width() / arrowUpNormalImage.devicePixelRatio() + d->titleArrowPadding * 2;
             d->columnWidths << std::max(widths[i], renderTitleWidth);
         }
     }
@@ -1161,7 +1161,8 @@ void DSimpleListView::wheelEvent(QWheelEvent *event)
 {
     D_D(DSimpleListView);
 
-    if (event->orientation() == Qt::Vertical) {
+    //if (event->orientation() == Qt::Vertical) {
+    if (event->angleDelta().y() != 0) {
         // Record old render offset to control scrollbar whether display.
         d->oldRenderOffset = d->renderOffset;
 
@@ -1418,7 +1419,7 @@ void DSimpleListView::selectNextItemWithOffset(int scrollOffset)
         }
 
         if (lastIndex != -1) {
-            lastIndex = std::min(d->renderItems->count() - 1, lastIndex + scrollOffset);
+            lastIndex = std::min(d->renderItems->count() - 1, (long long)lastIndex + scrollOffset);
 
             clearSelections(false);
 
@@ -1576,9 +1577,9 @@ void DSimpleListView::shiftSelectNextItemWithOffset(int scrollOffset)
 
             if (firstIndex == lastSelectionIndex) {
                 selectionStartIndex = firstIndex;
-                selectionEndIndex = std::min(d->renderItems->count() - 1, lastIndex + scrollOffset);
+                selectionEndIndex = std::min(d->renderItems->count() - 1, (long long)lastIndex + scrollOffset);
             } else {
-                selectionStartIndex = std::min(d->renderItems->count() - 1, firstIndex + scrollOffset);
+                selectionStartIndex = std::min(d->renderItems->count() - 1, (long long)firstIndex + scrollOffset);
                 selectionEndIndex = lastIndex;
             }
 
@@ -1727,9 +1728,12 @@ int DSimpleListView::getBottomRenderOffset()
 void DSimpleListViewPrivate::sortItemsByColumn(int column, bool descendingSort)
 {
     if (sortingAlgorithms->count() != 0 && sortingAlgorithms->count() == columnTitles.count() && sortingOrderes->count() == columnTitles.count()) {
-        qSort(renderItems->begin(), renderItems->end(), [&](const DSimpleListItem *item1, const DSimpleListItem *item2) {
+        /*qSort(renderItems->begin(), renderItems->end(), [&](const DSimpleListItem *item1, const DSimpleListItem *item2) {
                 return (*sortingAlgorithms)[column](item1, item2, descendingSort);
-            });
+            });*/
+        std::sort(renderItems->begin(), renderItems->end(), [&](const DSimpleListItem* item1, const DSimpleListItem* item2) {
+            return (*sortingAlgorithms)[column](item1, item2, descendingSort);
+        });
     }
 }
 

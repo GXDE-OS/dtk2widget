@@ -113,7 +113,7 @@ void DScrollBar::setAutoHide(bool autoHide)
     update();
 }
 
-void DScrollBar::enterEvent(QEvent *event)
+void DScrollBar::enterEvent(QEnterEvent *event)
 {
     D_D(DScrollBar);
 

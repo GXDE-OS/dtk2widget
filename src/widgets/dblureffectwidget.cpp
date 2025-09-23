@@ -75,7 +75,8 @@ void DBlurEffectWidgetPrivate::addToBlurEffectWidgetHash()
 
     QWidget *topLevelWidget = q->topLevelWidget();
 
-    blurEffectWidgetHash.insertMulti(topLevelWidget, q);
+    //blurEffectWidgetHash.insertMulti(topLevelWidget, q);
+    blurEffectWidgetHash.insert(topLevelWidget, q);
     windowOfBlurEffectHash[q] = topLevelWidget;
     updateWindowBlurArea(topLevelWidget);
 }

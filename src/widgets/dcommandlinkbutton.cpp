@@ -55,7 +55,7 @@ void DCommandLinkButton::paintEvent(QPaintEvent *e)
     painter.setPen(QColor(0, 122, 255));  // 蓝色文字
     style()->drawControl(QStyle::CE_PushButtonLabel, &opt, &painter, this);
 }
-void DCommandLinkButton::enterEvent(QEvent *event)
+void DCommandLinkButton::enterEvent(QEnterEvent *event)
 {
     Q_UNUSED(event)
     setCursor(Qt::PointingHandCursor);  // 鼠标进入时设置为手型

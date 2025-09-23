@@ -18,11 +18,15 @@
 #include "dvideowidget.h"
 #include <DObjectPrivate>
 
-#include <QAbstractVideoSurface>
-#include <QVideoSurfaceFormat>
+//#include <QAbstractVideoSurface>
+#include <QVideoSink>
+//#include <QVideoSurfaceFormat>
+#include <QVideoFrameFormat>
 #include <QCamera>
 #include <QMediaPlayer>
-#include <QMediaPlaylist>
+#include <QAbstractVideoBuffer>
+//#include <QMediaPlaylist>
+#include <QVideoWidget>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPointer>
@@ -34,7 +38,7 @@ DWIDGET_BEGIN_NAMESPACE
  * \~chinese \brief DVideoWidget使用的封装视频帧的代理类
  *
  */
-class VideoFormatProxy : public QAbstractVideoSurface
+class VideoFormatProxy : public QVideoSink
 {
     Q_OBJECT
 
@@ -43,9 +47,9 @@ public:
     QVideoFrame& currentFrame() const;
 protected:
     bool present(const QVideoFrame &frame);
-    QList<QVideoFrame::PixelFormat> supportedPixelFormats(
+    QList<QVideoFrameFormat::PixelFormat> supportedPixelFormats(
                 QAbstractVideoBuffer::HandleType handleType = QAbstractVideoBuffer::NoHandle) const;
-    bool isFormatSupported(const QVideoSurfaceFormat &format) const;
+    bool isFormatSupported(const QVideoFrameFormat &format) const;
 private:
     QVideoFrame m_currentFrame;
     QVideoFrame m_lastFrame;
@@ -57,7 +61,7 @@ Q_SIGNALS:
 };
 
 VideoFormatProxy::VideoFormatProxy(QObject *parent):
-    QAbstractVideoSurface(parent)
+    QVideoSink(parent)
 {
 }
 
@@ -77,19 +81,26 @@ bool VideoFormatProxy::present(const QVideoFrame &frame)
     return true;
 }
 
-QList<QVideoFrame::PixelFormat> VideoFormatProxy::supportedPixelFormats(QAbstractVideoBuffer::HandleType) const
+QList<QVideoFrameFormat::PixelFormat> VideoFormatProxy::supportedPixelFormats(QAbstractVideoBuffer::HandleType) const
 {
-    return QList<QVideoFrame::PixelFormat>()
+    /*return QList<QVideoFrame::PixelFormat>()
                      << QVideoFrame::Format_RGB32
                      << QVideoFrame::Format_ARGB32
                      << QVideoFrame::Format_ARGB32_Premultiplied
                      << QVideoFrame::Format_RGB565
-                     << QVideoFrame::Format_RGB555;
+                     << QVideoFrame::Format_RGB555;*/
+    return QList<QVideoFrameFormat::PixelFormat>()
+           << QVideoFrameFormat::Format_ARGB8888
+           << QVideoFrameFormat::Format_ARGB8888_Premultiplied
+           << QVideoFrameFormat::Format_ABGR8888
+           << QVideoFrameFormat::Format_RGBA8888
+           << QVideoFrameFormat::Format_RGBX8888;
 }
 
-bool VideoFormatProxy::isFormatSupported(const QVideoSurfaceFormat &format) const
+bool VideoFormatProxy::isFormatSupported(const QVideoFrameFormat &format) const
 {
-    return QVideoFrame::imageFormatFromPixelFormat(format.pixelFormat()) != QImage::Format_Invalid;
+    //return QVideoFrame::imageFormatFromPixelFormat(format.pixelFormat()) != QImage::Format_Invalid;
+    return false;
 }
 
 class DVideoWidgetPrivate : public DTK_CORE_NAMESPACE::DObjectPrivate

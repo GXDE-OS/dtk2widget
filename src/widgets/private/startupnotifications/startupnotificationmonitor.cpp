@@ -16,7 +16,8 @@
  */
 
 #include <QtWidgets>
-#include <QX11Info>
+//#include <QX11Info>
+#include <QtGui/private/qtx11extras_p.h>
 
 #include <libsn/sn-monitor.h>
 #include <xcb/xcb_aux.h>
@@ -25,7 +26,11 @@
 
 class StartupNotificationMonitorSub : public StartupNotificationMonitor
 {
-
+    // 必须实现纯虚函数 nativeEventFilter
+    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override {
+        // 实现事件过滤逻辑...
+        return false; // 或者根据逻辑返回 true
+    }
 };
 
 Q_GLOBAL_STATIC(StartupNotificationMonitorSub, StartupNotificationMonitorInstance)

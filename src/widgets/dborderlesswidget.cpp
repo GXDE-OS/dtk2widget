@@ -89,7 +89,8 @@ void DBorderlessWidgetPrivate::init()
 
     windowWidget = new QWidget;
     QVBoxLayout *windowLayout = new QVBoxLayout(windowWidget);
-    windowLayout->setMargin(0);
+    //windowLayout->setMargin(0);
+    windowLayout->setContentsMargins(0, 0, 0, 0);
     windowLayout->setSpacing(0);
 
     rootLayout->addWidget(windowWidget);
@@ -98,7 +99,8 @@ void DBorderlessWidgetPrivate::init()
     contentWidget = new QWidget;
     QVBoxLayout *contentWidgetLayout = new QVBoxLayout;
     contentWidgetLayout->setSpacing(0);
-    contentWidgetLayout->setMargin(0);
+    //contentWidgetLayout->setMargin(0);
+    contentWidgetLayout->setContentsMargins(0, 0, 0, 0);
     contentWidget->setLayout(contentWidgetLayout);
     contentWidget->setContentsMargins(m_Border, 0, m_Border, m_Border);
     contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -278,7 +280,7 @@ DBorderlessWidget::DBorderlessWidget(DBorderlessWidgetPrivate &dd, QWidget *pare
 #endif
 }
 
-void DBorderlessWidget::enterEvent(QEvent *e)
+void DBorderlessWidget::enterEvent(QEnterEvent *e)
 {
 //    qDebug() << "enterEvent" ;
     return QWidget::enterEvent(e);
@@ -416,7 +418,7 @@ void DBorderlessWidget::setContentsMargins(const QMargins &margins)
 void DBorderlessWidget::getContentsMargins(int *left, int *top, int *right, int *bottom) const
 {
     D_DC(DBorderlessWidget);
-    d->contentWidget->getContentsMargins(left, top, right, bottom);
+    //d->contentWidget->getContentsMargins(left, top, right, bottom);
 }
 
 /*!
@@ -877,7 +879,7 @@ void DBorderlessWidget::setBackgroundImage(const QPixmap &srcPixmap)
     QPixmap maskPixmap(sz);
     maskPixmap.fill(Qt::transparent);
     QPainterPath path;
-    path.addRoundRect(QRectF(0, 0, sz.width(), sz.height()), radius / 2);
+    path.addRoundedRect(QRectF(0, 0, sz.width(), sz.height()), radius / 2, radius / 2);
     QPainter bkPainter(&maskPixmap);
     bkPainter.setRenderHint(QPainter::Antialiasing);
     bkPainter.setPen(QPen(Qt::white, 1));

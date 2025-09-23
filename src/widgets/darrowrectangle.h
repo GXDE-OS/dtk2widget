@@ -18,7 +18,8 @@
 #ifndef DARROWRECTANGLE_H
 #define DARROWRECTANGLE_H
 
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
+#include <QScreen>
 #include <QWidget>
 #include <QLabel>
 #include <QTextLine>

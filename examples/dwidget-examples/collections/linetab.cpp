@@ -64,7 +64,7 @@ LineTab::LineTab(QWidget *parent) : QLabel(parent)
         rightWidget->move(400, 0);
         QVBoxLayout *rightLayout = new QVBoxLayout();
         rightLayout->setSpacing(0);
-        rightLayout->setMargin(0);
+        rightLayout->setContentsMargins(0, 0, 0, 0);
         rightWidget->setLayout(rightLayout);
 
         /////////////////////////////////////////////////////////////--DArrowLineExpand

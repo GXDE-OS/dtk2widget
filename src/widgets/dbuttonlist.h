@@ -49,7 +49,7 @@ Q_SIGNALS:
 
 protected:
     void resizeEvent(QResizeEvent *event);
-    void enterEvent(QEvent *event);
+    void enterEvent(QEnterEvent *event);
     void leaveEvent(QEvent *event);
 
 private:

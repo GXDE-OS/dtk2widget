@@ -9,7 +9,8 @@ linux {
     }
 
     CONFIG += link_pkgconfig
-    PKGCONFIG += gsettings-qt
+    PKGCONFIG += gsettings-qt6
+#    PKGCONFIG += gsettings-qt
 
     SOURCES += \
         $$PWD/dtrashmanager_linux.cpp

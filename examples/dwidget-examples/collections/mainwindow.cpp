@@ -20,7 +20,11 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QFontDatabase>
+#if QT_VERSION < QT_VERSION_CHECK(6,0,0)
 #include <QTextCodec>
+#else
+#include <QStringConverter>
+#endif
 #include <QDebug>
 #include <QTemporaryFile>
 
@@ -66,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
 
-    mainLayout->setMargin(5);
+    mainLayout->setContentsMargins(5, 5, 5, 5);
     mainLayout->addWidget(m_mainTab);
 
     QHBoxLayout *styleLayout = new QHBoxLayout();
@@ -218,7 +222,12 @@ void MainWindow::menuItemInvoked(QAction *action)
         });
 
         QStringList codings;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         for (auto coding : QTextCodec::availableCodecs()) {
+#else
+        for (auto i = 0; i < QStringConverter::LastEncoding; ++i) {
+            QString coding = QStringConverter::nameForEncoding(static_cast<QStringConverter::Encoding>(i));
+#endif
             codings << coding;
         }
 

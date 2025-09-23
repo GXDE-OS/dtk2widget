@@ -6,6 +6,9 @@ linux* {
     PKGCONFIG += dframeworkdbus
 }
 
+# 暂时禁用多媒体支持
+DTK_NO_MULTIMEDIA = 1
+
 TARGET = collections
 TEMPLATE = app
 CONFIG += c++11
@@ -18,7 +21,7 @@ unix {
 
 !isEmpty(DTK_NO_MULTIMEDIA){
     DEFINES += DTK_NO_MULTIMEDIA
-    QT -= multimedia multimediawidgets
+
 } else {
     HEADERS  += \
         cameraform.h

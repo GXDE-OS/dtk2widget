@@ -441,7 +441,8 @@ void DSlider::paintEvent(QPaintEvent *event)
 
     if (d->m_handleHovering && !d->m_hoverTimout) {
         QString str = QString::number(value());
-        int x = d->getScalePosition(value()) - painter.fontMetrics().width(str) / 2.0;
+        //int x = d->getScalePosition(value()) - painter.fontMetrics().width(str) / 2.0;
+        int x = d->getScalePosition(value()) - painter.fontMetrics().horizontalAdvance(str) / 2.0;
         painter.setPen(d->m_hoverValueColor);
         painter.drawText(x, 10, str);
     }

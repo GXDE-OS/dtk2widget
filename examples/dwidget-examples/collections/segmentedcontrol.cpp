@@ -29,7 +29,8 @@ Segmentedcontrol::Segmentedcontrol(QWidget *parent) :
 
     QLabel *label = new QLabel(this);
     QPalette pa = label->palette();
-    pa.setColor(QPalette::Foreground, Qt::white);
+    //pa.setColor(QPalette::Foreground, Qt::white);
+    pa.setColor(QPalette::Window, Qt::white);
     label->setPalette(pa);
     label->move(100, 150);
     label->setText(QString("current paga %1").arg(segmentedControl->currentIndex()+1));

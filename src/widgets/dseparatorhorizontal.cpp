@@ -62,7 +62,8 @@ DSeparatorHorizontal::DSeparatorHorizontal(QWidget *parent) : QWidget(parent)
     m_bottomRec->setObjectName("DSeparatorBottomRec");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setMargin(0);
+    //mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->setSpacing(0);
 
     mainLayout->addStretch();

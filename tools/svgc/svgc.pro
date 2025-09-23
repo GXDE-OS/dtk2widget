@@ -1,4 +1,4 @@
-QT += gui svg
+QT += gui svg core widgets
 QT += dtkcore
 
 TARGET = dtk-svgc

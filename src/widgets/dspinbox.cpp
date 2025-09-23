@@ -57,7 +57,8 @@ void DSpinBoxPrivate::init()
     DImageButton *button_add = DSpinBox_getButton("spinner_increase");
     DImageButton *button_sub = DSpinBox_getButton("spinner_decrease");
 
-    h_layout->setMargin(0);
+    //h_layout->setMargin(0);
+    h_layout->setContentsMargins(0, 0, 0, 0);
     h_layout->setSpacing(0);
     h_layout->addStretch();
     h_layout->addWidget(button_reset);
@@ -231,7 +232,8 @@ void DDoubleSpinBoxPrivate::init()
     DImageButton *button_add = DSpinBox_getButton("spinner_increase");
     DImageButton *button_sub = DSpinBox_getButton("spinner_decrease");
 
-    h_layout->setMargin(0);
+    //h_layout->setMargin(0);
+    h_layout->setContentsMargins(0, 0, 0, 0);
     h_layout->setSpacing(0);
     h_layout->addStretch();
     h_layout->addWidget(button_reset);

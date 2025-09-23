@@ -75,7 +75,7 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
     lineEditAlert->setAlert(true);
     lineEditAlert->setFixedSize(200, 30);
     lineEditAlert->move(20, 230);
-    lineEditAlert->setValidator(new QRegExpValidator(QRegExp("((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){0,3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)?")));
+    //lineEditAlert->setValidator(new QRegExpValidator(QRegExp("((2[0-4]\\d|25[0-5]|[01]?\\d\\d?)\\.){0,3}(2[0-4]\\d|25[0-5]|[01]?\\d\\d?)?")));
 
     DTK_WIDGET_NAMESPACE::DShortcutEdit *shortcutEdit = new DTK_WIDGET_NAMESPACE::DShortcutEdit(this);
     shortcutEdit->move(20, 300);

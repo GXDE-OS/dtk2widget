@@ -424,9 +424,9 @@ QSizeF CrumbObjectInterface::intrinsicSize(QTextDocument *doc, int posInDocument
     int radius = crumb_format.backgroundRadius();
 
     if (crumb_format.tagColor().isValid())
-        return QSizeF(font_metrics.width(crumb_format.text()) + font_metrics.height() + radius + 2, font_metrics.height() + 2);
+        return QSizeF(font_metrics.horizontalAdvance(crumb_format.text()) + font_metrics.height() + radius + 2, font_metrics.height() + 2);
 
-    return QSizeF(font_metrics.width(crumb_format.text()) + 2 * radius + 2, font_metrics.height() + 2);
+    return QSizeF(font_metrics.horizontalAdvance(crumb_format.text()) + 2 * radius + 2, font_metrics.height() + 2);
 }
 
 void CrumbObjectInterface::drawObject(QPainter *painter, const QRectF &rect,

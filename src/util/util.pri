@@ -19,7 +19,8 @@ SOURCES += \
 
 linux* {
 CONFIG += link_pkgconfig
-PKGCONFIG += gsettings-qt librsvg-2.0 dframeworkdbus
+PKGCONFIG += gsettings-qt6 librsvg-2.0 dframeworkdbus
+#PKGCONFIG += gsettings-qt librsvg-2.0 dframeworkdbus
 
 HEADERS += \
     $$PWD/dregionmonitor.h \

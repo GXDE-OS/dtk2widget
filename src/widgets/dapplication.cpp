@@ -136,7 +136,11 @@ static bool tryAcquireSystemSemaphore(QSystemSemaphore *ss, qint64 timeout = 10)
     _tmp_ss.acquire();
 
     QElapsedTimer t;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QFuture<bool> request = QtConcurrent::run(ss, &QSystemSemaphore::acquire);
+#else
+    QFuture<bool> request = QtConcurrent::run(&QSystemSemaphore::acquire,ss);
+#endif
 
     t.start();
 
@@ -275,7 +279,7 @@ bool DApplicationPrivate::loadTranslator(QList<DPathBuf> translateDirs, const QS
             }
         }
 
-        QStringList parseLocalNameList = locale.name().split("_", QString::SkipEmptyParts);
+        QStringList parseLocalNameList = locale.name().split("_", Qt::SkipEmptyParts);
         if (parseLocalNameList.length() > 0) {
             translateFilename = QString("%1_%2").arg(name)
                                 .arg(parseLocalNameList.at(0));
@@ -635,9 +639,9 @@ bool DApplication::loadDXcbPlugin()
     // 设置主题为 dlight 以跳过调用 dde-qt5integration 来解决 dtk2 关闭过程中异常崩溃的问题
     // 注：必须在 QApplication 对象创建前设置该环境变量，否则依然会调用 dde-qt5integration
     //  而非 gxde-qt5integration
-    qputenv("QT_STYLE_OVERRIDE_BAK_c80071c7-853e-4a3f-a27d-4145ae662bb9",
+    /*qputenv("QT_STYLE_OVERRIDE_BAK_c80071c7-853e-4a3f-a27d-4145ae662bb9",
             qgetenv("QT_STYLE_OVERRIDE"));  // 通过设置 QT_STYLE_OVERRIDE_BAK 来备份原来的设置
-    qputenv("QT_STYLE_OVERRIDE", "dlight");
+    qputenv("QT_STYLE_OVERRIDE", "dlight");*/
 
     if (isWayland()) {
         // 如果是 Wayland 则使用 dwayland 插件

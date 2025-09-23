@@ -80,7 +80,7 @@ void DIconButton::updateStyle(){
     update();
 }
 
-void DIconButton::enterEvent(QEvent *event){
+void DIconButton::enterEvent(QEnterEvent *event){
     Q_EMIT mouseEntered(text());
     QPushButton::enterEvent(event);
 }

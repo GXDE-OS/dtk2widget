@@ -117,7 +117,8 @@ void DBorderlessWindow::setContentWidget(QWidget *w)
 {
     QHBoxLayout *l = new QHBoxLayout;
     l->setSpacing(0);
-    l->setMargin(0);
+    //l->setMargin(0);
+    l->setContentsMargins(0, 0, 0, 0);
     l->addWidget(w);
     l->setAlignment(w, Qt::AlignCenter);
     setContentLayout(l);

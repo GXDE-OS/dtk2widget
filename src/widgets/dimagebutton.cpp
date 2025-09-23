@@ -202,7 +202,7 @@ DImageButton::~DImageButton()
 {
 }
 
-void DImageButton::enterEvent(QEvent *event)
+void DImageButton::enterEvent(QEnterEvent *event)
 {
     D_D(DImageButton);
 

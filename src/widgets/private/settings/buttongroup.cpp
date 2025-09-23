@@ -40,10 +40,11 @@ ButtonGroup::ButtonGroup(QWidget *parent) :
     d->group = new QButtonGroup;
     d->layout = new QHBoxLayout(this);
     d->layout->setSpacing(0);
-    d->layout->setMargin(0);
+    //d->layout->setMargin(0);
+    d->layout->setContentsMargins(0, 0, 0, 0);
 
-    connect(d->group,static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonReleased),
-            this, [=](int){
+    connect(d->group,static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonReleased),
+            this, [=](QAbstractButton *){
         Q_EMIT buttonChecked(d->group->checkedId());
     });
 }

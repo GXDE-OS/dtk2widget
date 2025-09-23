@@ -23,7 +23,9 @@
 #include <QFile>
 #include <QMediaPlayer>
 #include <QGSettings/QGSettings>
-#include <QSound>
+//#include <QSound>
+#include <QSoundEffect>
+#include <QAudioOutput>
 
 DWIDGET_BEGIN_NAMESPACE
 
@@ -89,7 +91,10 @@ static QMediaPlayer *soundEffectPlayer()
 
     if (!player) {
         player = new QMediaPlayer;
-        player->setVolume(70);
+        QAudioOutput *audioOutput = new QAudioOutput;
+        player->setAudioOutput(audioOutput);
+        audioOutput->setVolume(70);
+        //player->setVolume(70);
     }
 
     return player;
@@ -128,7 +133,7 @@ static QString soundEffectFilePath(const QString &name)
  */
 static QString GSettingsKeyToCamelCase(const QString name)
 {
-    QStringList parts = name.split('-', QString::SkipEmptyParts);
+    QStringList parts = name.split('-', Qt::SkipEmptyParts);
     for (int i=1; i<parts.size(); ++i)
         parts[i][0] = parts[i][0].toUpper();
 
@@ -263,10 +268,11 @@ bool DDesktopServices::previewSystemSoundEffect(const QString &name)
     }
 
     if (path.endsWith("wav")) {
-        QSound::play(path);
+        QSoundEffect *sound = new QSoundEffect();
+        sound->setSource(path);
     } else {
         QMediaPlayer *player = soundEffectPlayer();
-        player->setMedia(QUrl::fromLocalFile(path));
+        player->setSource(QUrl::fromLocalFile(path));
         player->play();
     }
 

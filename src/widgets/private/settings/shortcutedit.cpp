@@ -84,7 +84,7 @@ void ShortcutEdit::setShortCut(Qt::KeyboardModifiers modifier, Qt::Key key)
 
     d->keyStringList.clear();
     if (d->keyModifiers != Qt::NoModifier) {
-        d->keyStringList << QKeySequence(d->keyModifiers).toString().split("+", QString::SkipEmptyParts);
+        d->keyStringList << QKeySequence(d->keyModifiers).toString().split("+", Qt::SkipEmptyParts);
     }
     if (d->key != Qt::Key_unknown) {
         d->keyStringList << QKeySequence(d->key).toString();
@@ -108,7 +108,7 @@ void ShortcutEdit::paintEvent(QPaintEvent *)
 {
     Q_D(const ShortcutEdit);
     QPainter painter(this);
-    painter.setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::Antialiasing);
 
     if (d->keyStringList.isEmpty()) {
         // Draw tips
@@ -174,7 +174,7 @@ void ShortcutEdit::keyPressEvent(QKeyEvent *e)
         }
         d->keyStringList.clear();
         if (d->keyModifiers != Qt::NoModifier) {
-            d->keyStringList << QKeySequence(d->keyModifiers).toString().split("+", QString::SkipEmptyParts);
+            d->keyStringList << QKeySequence(d->keyModifiers).toString().split("+", Qt::SkipEmptyParts);
         }
         if (d->key != Qt::Key_unknown) {
             d->keyStringList << QKeySequence(d->key).toString();

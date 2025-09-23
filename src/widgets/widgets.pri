@@ -2,6 +2,8 @@ include(private/private.pri)
 include(dialogs.pri)
 include($$PWD/../platforms/platforms.pri)
 
+QT += statemachine
+
 win32* {
     INCLUDEPATH += $$PWD/../platforms/windows
 }
@@ -30,7 +32,6 @@ mac{
 
     LIBS += -framework Foundation -framework Cocoa
 }
-
 isEmpty(DTK_NO_MULTIMEDIA){
     HEADERS += \
         $$PWD/dvideowidget.h
