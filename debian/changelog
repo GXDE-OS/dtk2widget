@@ -1,3 +1,9 @@
+dtkwidget2 (2:2.3.7) unstable; urgency=medium
+
+  * Fix DPushButton icon rendering with DTK2 styles.
+
+ -- GXDE Team <team@gxde.org>  Sun, 03 May 2026 22:12:54 +0800
+
 dtkwidget2 (2:2.3.6) UNRELEASED; urgency=medium
 
   * 修复高分屏下背景显示模糊的问题
