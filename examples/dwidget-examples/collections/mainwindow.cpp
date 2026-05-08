@@ -245,7 +245,9 @@ void MainWindow::updateCentralBackground()
     const bool transparentBackground = m_transparentAction && m_transparentAction->isChecked();
     const bool blurBackground = m_blurWindowAction && m_blurWindowAction->isChecked();
 
-    setEnableWindowBackground(imageBackground);
+    // Keep DMainWindow's built-in background actions hidden; this example owns
+    // background switching through the titlebar submenu above.
+    setEnableWindowBackground(false);
     setEnableBlurWindow(blurBackground);
     setTranslucentBackground(transparentBackground || blurBackground);
     titlebar()->setBackgroundTransparent(transparentBackground || blurBackground);
@@ -265,7 +267,6 @@ void MainWindow::updateCentralBackground()
         centralWidget()->setPalette(qApp->palette());
     }
 
-    background()->refresh();
     refreshBackground();
 }
 
