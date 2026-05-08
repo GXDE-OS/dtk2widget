@@ -5,7 +5,7 @@
 #include <QWidget>
 #include <QPalette>
 
-class DPalette: QPalette
+class DPalette: public QPalette
 {
 public:
     enum ColorType {
@@ -25,6 +25,7 @@ public:
     };
 
     DPalette();
+    DPalette(const QPalette &palette);
 };
 
 #endif // DPALETTE_H

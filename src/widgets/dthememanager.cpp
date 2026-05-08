@@ -34,6 +34,7 @@
 
 #include "dthememanager.h"
 #include "dapplication.h"
+#include "dguiapplicationhelper.h"
 
 DWIDGET_BEGIN_NAMESPACE
 
@@ -331,32 +332,37 @@ public:
     void setTheme(const QString theme)
     {
         D_Q(DThemeManager);
-        if (themeName != theme) {
-            QStyle *style = Q_NULLPTR;
+        const QString requestedTheme = theme.toLower();
+        QString normalizedTheme;
+        QStyle *style = Q_NULLPTR;
 
-            // TODO: remove this shit in the future.
-            // It's just a trick to make all DApplications use dde qt5 styles,
-            // if dlight or ddark style is set to default style of dde, those
-            // ugly code will no longer needed.
-            if (theme == "light") {
-                style = QStyleFactory::create("dlight");
-                themeName = theme;
-            } else if (theme == "dark") {
-                style = QStyleFactory::create("ddark");
-                themeName = theme;
-            } else if (theme == "semilight") {
-                style = QStyleFactory::create("dsemilight");
-                themeName = "light";
-            } else if (theme == "semidark") {
-                style = QStyleFactory::create("dsemidark");
-                themeName = "dark";
-            }
+        if (requestedTheme == "light") {
+            style = QStyleFactory::create("dlight");
+            normalizedTheme = "light";
+        } else if (requestedTheme == "dark") {
+            style = QStyleFactory::create("ddark");
+            normalizedTheme = "dark";
+        } else if (requestedTheme == "semilight") {
+            style = QStyleFactory::create("dsemilight");
+            normalizedTheme = "light";
+        } else if (requestedTheme == "semidark") {
+            style = QStyleFactory::create("dsemidark");
+            normalizedTheme = "dark";
+        }
 
-            if (style) {
+        if (!normalizedTheme.isEmpty()) {
+            const bool themeChanged = themeName != normalizedTheme;
+
+            if (style)
                 qApp->setStyle(style);
-            }
 
-            Q_EMIT q->themeChanged(themeName);
+            themeName = normalizedTheme;
+            qApp->setPalette(DGuiApplicationHelper::standardPalette(themeName == "dark"
+                                                                     ? DGuiApplicationHelper::DarkType
+                                                                     : DGuiApplicationHelper::LightType));
+
+            if (themeChanged)
+                Q_EMIT q->themeChanged(themeName);
         }
     }
 

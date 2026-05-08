@@ -34,6 +34,7 @@
 #include "indicatortab.h"
 #include "widgetstab.h"
 #include "containertab.h"
+#include "palettetab.h"
 
 
 class QAction;

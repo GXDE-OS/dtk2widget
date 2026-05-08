@@ -72,6 +72,7 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout *styleLayout = new QHBoxLayout();
     QPushButton *darkButton = new QPushButton("Dark", this);
     QPushButton *lightBUtton = new QPushButton("Light", this);
+    QPushButton *systemThemeButton = new QPushButton("Follow System", this);
     QPushButton *enableButtons = new QPushButton("Enable Titlebar ", this);
     QPushButton *disableButtons = new QPushButton("Disable Titlebar", this);
     QPushButton *toggleMinMaxButtons = new QPushButton("Toggle MinMax", this);
@@ -86,6 +87,9 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(lightBUtton, &QPushButton::clicked, [ = ] {
         themeManager->setTheme("light");
+    });
+    connect(systemThemeButton, &QPushButton::clicked, [ = ] {
+        themeManager->FollowSystemDefaultTheme();
     });
     connect(enableButtons, &QPushButton::clicked, [ = ] {
         titlebar()->setDisableFlags(Qt::Widget);
@@ -129,6 +133,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     styleLayout->addWidget(darkButton);
     styleLayout->addWidget(lightBUtton);
+    styleLayout->addWidget(systemThemeButton);
     styleLayout->addWidget(enableButtons);
     styleLayout->addWidget(disableButtons);
     styleLayout->addWidget(toggleMinMaxButtons);
@@ -269,6 +274,7 @@ void MainWindow::initTabWidget()
     WidgetsTab *widgetsTab = new WidgetsTab(this);
 
     ContainerTab *containerTab = new ContainerTab(this);
+    PaletteTab *paletteTab = new PaletteTab(this);
 
 #ifndef DTK_NO_MULTIMEDIA
     CameraForm *cameraform = new CameraForm(this);
@@ -280,6 +286,7 @@ void MainWindow::initTabWidget()
 
     m_mainTab->addTab(widgetsTab, "Widgets");
     m_mainTab->addTab(containerTab, "Containers");
+    m_mainTab->addTab(paletteTab, "Palettes");
     m_mainTab->addTab(effectTab, "GraphicsEffect");
     m_mainTab->addTab(indicatorTab, "Indicator");
     m_mainTab->addTab(lineTab, "Line");

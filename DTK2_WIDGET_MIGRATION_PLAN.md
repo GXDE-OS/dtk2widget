@@ -21,6 +21,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Added `DTabbedStackWidget` for system-assistant style top tab plus stacked page switching.
 - [x] Added `DDocumentTabBar` for editor-style document tabs with stable document ids, modified markers, close helpers, and next/previous navigation.
 - [x] Added compact/transparent/elevated titlebar presets and matching main-window presets for common app titlebar subclasses.
+- [x] Added built-in light/dark palette support and a DTKExample palette preview tab.
 - [x] Exported the new widgets through qmake sources and forwarding headers.
 - [x] Added a `Containers` tab to DTKExample/collections for `DFrame`, `DCardWidget`, `DFloatingWidget`, `DBackgroundGroup`, `DTypographyLabel`, and `DSectionTitle`.
 - [x] Verified with `qmake ../dtkwidget.pro` and `make -j2` from `dtk2widget/build`.
@@ -41,6 +42,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - `DTabbedStackWidget`: compact `DTabBar` plus `QStackedWidget` wrapper, `addPage()`, `insertPage()`, `removePage()`, `currentIndex`, and direct access to both child widgets.
 - `DDocumentTabBar`: `DTabBar` subclass for document tabs, `addDocument()`, `insertDocument()`, `updateDocument()`, `setDocumentModified()`, close-current/close-other helpers, and document id lookup.
 - `DTitlebar` / `DMainWindow` presets: `DTitlebar::applyStylePreset()` and `DMainWindow::applyWindowPreset()` provide default, compact, transparent/blur, and elevated configurations.
+- Built-in palette themes: `DGuiApplicationHelper::standardPalette()` now returns usable light/dark palettes, and `DThemeManager::setTheme()` applies them as application palette fallbacks.
 
 ## Candidate Inventory
 
@@ -61,7 +63,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Absorb system-assistant multi-tab/page-switching patterns into DTK2 after the current widget migration batch.
 - [x] Absorb editor multi-tab document/tabbar patterns into DTK2 after the current widget migration batch.
 - [x] Review whether `DMainWindow`/`DTitlebar` should expose a compact/blur/elevated preset instead of each app subclassing title bars.
-- [ ] Add an examples tab showing `DFrame`, `DCardWidget`, and `DFloatingWidget` in light/dark palettes.
+- [x] Add an examples tab showing `DFrame`, `DCardWidget`, and `DFloatingWidget` in light/dark palettes.
 - [ ] Start replacing one application-local widget usage after the new API settles.
 
 ## Deferred Optimization Tracks
