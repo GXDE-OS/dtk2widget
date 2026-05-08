@@ -1418,7 +1418,7 @@ int DTabBar::insertTab(int index, const QString &text)
  */
 int DTabBar::insertTab(int index, const QIcon &icon, const QString &text)
 {
-    return insertTab(index, icon, text);
+    return d_func()->insertTab(index, icon, text);
 }
 
 /*!
@@ -2026,15 +2026,6 @@ QSize DTabBar::tabSizeHint(int index) const
     D_DC(DTabBar);
 
     QSize size = d->QTabBar::tabSizeHint(index);
-
-    QTabBarPrivate *dd = reinterpret_cast<QTabBarPrivate *>(qGetPtrHelper(d->d_ptr));
-    bool is_vertical = verticalTabs(dd->shape);
-
-    if (is_vertical) {
-        size.setWidth(qMax(size.width(), d->width()));
-    } else {
-        size.setHeight(qMax(size.height(), d->height()));
-    }
 
     const QSize &min = qApp->buildDtkVersion() > DTK_VERSION_CHECK(2, 0, 8, 1) ? minimumTabSizeHint(index) : DTabBar::minimumTabSizeHint(index);
     const QSize &max = qApp->buildDtkVersion() > DTK_VERSION_CHECK(2, 0, 8, 1) ? maximumTabSizeHint(index) : DTabBar::maximumTabSizeHint(index);
