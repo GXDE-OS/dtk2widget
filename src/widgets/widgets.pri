@@ -86,6 +86,7 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dsimplelistitem.h \
     $$PWD/dexpandgroup.h \
     $$PWD/dlabel.h \
+    $$PWD/dtypographylabel.h \
     $$PWD/dlinkbutton.h \
     $$PWD/dscrollbar.h \
     $$PWD/dscrollarea.h \
@@ -173,6 +174,7 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dsimplelistitem.cpp \
     $$PWD/dexpandgroup.cpp \
     $$PWD/dlabel.cpp \
+    $$PWD/dtypographylabel.cpp \
     $$PWD/dlinkbutton.cpp \
     $$PWD/dscrollbar.cpp \
     $$PWD/dscrollarea.cpp \
@@ -287,4 +289,6 @@ includes.files += \
     $$PWD/DCardWidget \
     $$PWD/DFloatingWidget \
     $$PWD/DBackgroundGroup \
+    $$PWD/DTypographyLabel \
+    $$PWD/DSectionTitle \
     $$PWD/DApplicationSettings

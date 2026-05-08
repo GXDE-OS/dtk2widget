@@ -13,8 +13,9 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Added `DCardWidget` to provide a reusable small-radius card with a restrained default shadow.
 - [x] Added `DFloatingWidget` to provide a reusable elevated/blur-capable floating container inspired by dtk5.
 - [x] Added `DBackgroundGroup` to provide dtk5-like grouped row backgrounds without depending on dtk5 `DStyle`.
+- [x] Added `DTypographyLabel` and `DSectionTitle` to replace repeated app-local small/normal/large/section title label patterns.
 - [x] Exported the new widgets through qmake sources and forwarding headers.
-- [x] Added a `Containers` tab to DTKExample/collections for `DFrame`, `DCardWidget`, `DFloatingWidget`, and `DBackgroundGroup`.
+- [x] Added a `Containers` tab to DTKExample/collections for `DFrame`, `DCardWidget`, `DFloatingWidget`, `DBackgroundGroup`, `DTypographyLabel`, and `DSectionTitle`.
 - [x] Verified with `qmake ../dtkwidget.pro` and `make -j2` from `dtk2widget/build`.
 
 ## First-Batch API
@@ -23,6 +24,8 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - `DCardWidget`: card surface, `shadowEnabled`, `shadowBlurRadius`, `shadowColor`, `shadowOffset`.
 - `DFloatingWidget`: elevated container, `setWidget()`, `blurBackgroundEnabled`, `blurBackground()`.
 - `DBackgroundGroup`: grouped row/section background, `itemMargins`, `itemSpacing`, `radius`, `useWidgetBackground`, `backgroundRole`.
+- `DTypographyLabel`: reusable text hierarchy, `LargeTitle`, `Title`, `Body`, `Caption`, `emphasis`, `secondary`.
+- `DSectionTitle`: section header with compact title text and trailing separator line.
 
 ## Candidate Inventory
 
@@ -36,7 +39,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 ## Next Ticks
 
 - [x] Add a grouped-background/list-section container similar to dtk5 `DBackgroundGroup`, but implemented without depending on dtk5 `DStyle`.
-- [ ] Consolidate duplicate app label classes into reusable DTK2 typography helpers or documented presets.
+- [x] Consolidate duplicate app label classes into reusable DTK2 typography helpers or documented presets.
 - [ ] Migrate reusable icon/text/hover buttons from file manager and image viewer into generic button primitives.
 - [ ] Add a compact notification/tip surface that can replace editor/movie/image-viewer local toast-like widgets.
 - [ ] Review whether `DMainWindow`/`DTitlebar` should expose a compact/blur/elevated preset instead of each app subclassing title bars.

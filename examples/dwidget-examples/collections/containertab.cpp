@@ -5,6 +5,7 @@
 #include "dfloatingwidget.h"
 #include "dframe.h"
 #include "dswitchbutton.h"
+#include "dtypographylabel.h"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -18,19 +19,16 @@ DWIDGET_USE_NAMESPACE
 
 static QLabel *createTitle(const QString &text, QWidget *parent)
 {
-    QLabel *label = new QLabel(text, parent);
-    QFont font = label->font();
-    font.setPointSize(font.pointSize() + 1);
-    font.setBold(true);
-    label->setFont(font);
+    DTypographyLabel *label = new DTypographyLabel(text, DTypographyLabel::Title, parent);
+    label->setEmphasis(true);
     return label;
 }
 
 static QLabel *createDescription(const QString &text, QWidget *parent)
 {
-    QLabel *label = new QLabel(text, parent);
+    DTypographyLabel *label = new DTypographyLabel(text, DTypographyLabel::Body, parent);
     label->setWordWrap(true);
-    label->setStyleSheet("color: #6f7278;");
+    label->setSecondary(true);
     return label;
 }
 
@@ -97,6 +95,19 @@ ContainerTab::ContainerTab(QWidget *parent)
     group->layout()->addWidget(createRow("Separated but flat", "Rows keep clear hierarchy without custom per-app frames.", new QPushButton("Edit", group), group));
     group->layout()->addWidget(createRow("Small radius", "Corners stay compact to match the current DTK2 visual style.", new QPushButton("Open", group), group));
     mainLayout->addWidget(group);
+
+    DCardWidget *typographyCard = new DCardWidget(this);
+    QVBoxLayout *typographyLayout = new QVBoxLayout(typographyCard);
+    typographyLayout->setContentsMargins(18, 14, 18, 14);
+    typographyLayout->setSpacing(8);
+    typographyLayout->addWidget(new DSectionTitle("DTypographyLabel", typographyCard));
+    typographyLayout->addWidget(new DTypographyLabel("LargeTitle: page or dialog focus", DTypographyLabel::LargeTitle, typographyCard));
+    typographyLayout->addWidget(new DTypographyLabel("Title: grouped content title", DTypographyLabel::Title, typographyCard));
+    typographyLayout->addWidget(new DTypographyLabel("Body: normal readable copy", DTypographyLabel::Body, typographyCard));
+    DTypographyLabel *caption = new DTypographyLabel("Caption: supporting and secondary information", DTypographyLabel::Caption, typographyCard);
+    caption->setSecondary(true);
+    typographyLayout->addWidget(caption);
+    mainLayout->addWidget(typographyCard);
 
     QWidget *floatingArea = new QWidget(this);
     floatingArea->setMinimumHeight(156);
