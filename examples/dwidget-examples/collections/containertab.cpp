@@ -62,6 +62,68 @@ static QWidget *createRow(const QString &title, const QString &description, QWid
     return row;
 }
 
+static void loadTabsPage(QTabWidget *tabs, int index)
+{
+    QWidget *page = tabs->widget(index);
+    if (!page || page->property("loaded").toBool())
+        return;
+
+    page->setProperty("loaded", true);
+    QVBoxLayout *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(18, 18, 18, 18);
+    layout->setSpacing(14);
+
+    switch (index) {
+    case 0:
+        layout->addWidget(createDescription("Open one tab component at a time. This isolates DTabbedStackWidget from DDocumentTabBar.", page));
+        layout->addStretch();
+        break;
+    case 1: {
+        DCardWidget *tabbedCard = new DCardWidget(page);
+        QVBoxLayout *tabbedLayout = new QVBoxLayout(tabbedCard);
+        tabbedLayout->setContentsMargins(18, 14, 18, 14);
+        tabbedLayout->setSpacing(10);
+        tabbedLayout->addWidget(new DSectionTitle("DTabbedStackWidget", tabbedCard));
+
+        DTabbedStackWidget *tabbedStack = new DTabbedStackWidget(tabbedCard);
+        tabbedStack->addPage(createRow("Home", "Start page content can keep its own monitor or refresh logic.", new QPushButton("Refresh", tabbedStack), tabbedStack), QIcon::fromTheme("go-home"), "Home");
+        tabbedStack->addPage(createRow("Cleaner", "Applications can switch pages without manually wiring tab and stack indexes.", new QPushButton("Scan", tabbedStack), tabbedStack), QIcon::fromTheme("edit-clear"), "Cleaner");
+        tabbedStack->addPage(createRow("Tools", "This covers the system-assistant titlebar tab plus stacked layout pattern.", new QPushButton("Open", tabbedStack), tabbedStack), QIcon::fromTheme("applications-system"), "Tools");
+        tabbedLayout->addWidget(tabbedStack);
+
+        layout->addWidget(tabbedCard);
+        layout->addStretch();
+        break;
+    }
+    case 2: {
+        DCardWidget *documentTabCard = new DCardWidget(page);
+        QVBoxLayout *documentTabLayout = new QVBoxLayout(documentTabCard);
+        documentTabLayout->setContentsMargins(18, 14, 18, 14);
+        documentTabLayout->setSpacing(10);
+        documentTabLayout->addWidget(new DSectionTitle("DDocumentTabBar", documentTabCard));
+
+        DDocumentTabBar *documentTabBar = new DDocumentTabBar(documentTabCard);
+        documentTabBar->setDragable(false);
+        documentTabBar->setVisibleAddButton(false);
+        documentTabBar->addDocument("/tmp/notes.txt", QIcon::fromTheme("text-x-generic"), "notes.txt");
+        documentTabBar->addDocument("/tmp/report.md", QIcon::fromTheme("text-markdown"), "report.md");
+        documentTabBar->addDocument("/tmp/readme.txt", QIcon::fromTheme("text-x-generic"), "readme.txt");
+        documentTabBar->setDocumentModified(1, true);
+        documentTabBar->setFixedHeight(40);
+        documentTabLayout->addWidget(documentTabBar);
+        documentTabLayout->addWidget(createDescription("Document tabs are shown with drag and add-button disabled in the example to keep diagnostics focused.", documentTabCard));
+
+        layout->addWidget(documentTabCard);
+        layout->addStretch();
+        break;
+    }
+    default:
+        layout->addWidget(createDescription("Unknown tabs page.", page));
+        layout->addStretch();
+        break;
+    }
+}
+
 static void loadContainerPage(QTabWidget *tabs, int index)
 {
     QWidget *page = tabs->widget(index);
@@ -209,34 +271,17 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         break;
     }
     case 7: {
-        DCardWidget *tabbedCard = new DCardWidget(page);
-        QVBoxLayout *tabbedLayout = new QVBoxLayout(tabbedCard);
-        tabbedLayout->setContentsMargins(18, 14, 18, 14);
-        tabbedLayout->setSpacing(10);
-        tabbedLayout->addWidget(new DSectionTitle("DTabbedStackWidget", tabbedCard));
+        QTabWidget *tabPages = new QTabWidget(page);
+        tabPages->setDocumentMode(true);
+        tabPages->addTab(new QWidget(tabPages), "Overview");
+        tabPages->addTab(new QWidget(tabPages), "Stacked Pages");
+        tabPages->addTab(new QWidget(tabPages), "Document Tabs");
+        QObject::connect(tabPages, &QTabWidget::currentChanged, tabPages, [tabPages](int childIndex) {
+            loadTabsPage(tabPages, childIndex);
+        });
 
-        DTabbedStackWidget *tabbedStack = new DTabbedStackWidget(tabbedCard);
-        tabbedStack->addPage(createRow("Home", "Start page content can keep its own monitor or refresh logic.", new QPushButton("Refresh", tabbedStack), tabbedStack), QIcon::fromTheme("go-home"), "Home");
-        tabbedStack->addPage(createRow("Cleaner", "Applications can switch pages without manually wiring tab and stack indexes.", new QPushButton("Scan", tabbedStack), tabbedStack), QIcon::fromTheme("edit-clear"), "Cleaner");
-        tabbedStack->addPage(createRow("Tools", "This covers the system-assistant titlebar tab plus stacked layout pattern.", new QPushButton("Open", tabbedStack), tabbedStack), QIcon::fromTheme("applications-system"), "Tools");
-        tabbedLayout->addWidget(tabbedStack);
-
-        DCardWidget *documentTabCard = new DCardWidget(page);
-        QVBoxLayout *documentTabLayout = new QVBoxLayout(documentTabCard);
-        documentTabLayout->setContentsMargins(18, 14, 18, 14);
-        documentTabLayout->setSpacing(10);
-        documentTabLayout->addWidget(new DSectionTitle("DDocumentTabBar", documentTabCard));
-
-        DDocumentTabBar *documentTabBar = new DDocumentTabBar(documentTabCard);
-        documentTabBar->addDocument("/tmp/notes.txt", QIcon::fromTheme("text-x-generic"), "notes.txt");
-        documentTabBar->addDocument("/tmp/report.md", QIcon::fromTheme("text-markdown"), "report.md");
-        documentTabBar->addDocument("/tmp/readme.txt", QIcon::fromTheme("text-x-generic"), "readme.txt");
-        documentTabBar->setDocumentModified(1, true);
-        documentTabBar->setFixedHeight(40);
-        documentTabLayout->addWidget(documentTabBar);
-
-        layout->addWidget(tabbedCard);
-        layout->addWidget(documentTabCard);
+        layout->addWidget(tabPages);
+        loadTabsPage(tabPages, 0);
         layout->addStretch();
         break;
     }
