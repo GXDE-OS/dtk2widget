@@ -10,6 +10,7 @@
 #include "dhoverbutton.h"
 #include "dicontextbutton.h"
 #include "dswitchbutton.h"
+#include "dtabbedstackwidget.h"
 #include "dtypographylabel.h"
 
 #include <QFrame>
@@ -182,6 +183,20 @@ ContainerTab::ContainerTab(QWidget *parent)
     blurSurfaceLayout->addWidget(createDescription("Reusable translucent panel for control-center style grouped content. It manages the blur widget, rounded mask, tint, and restrained shadow.", blurSurface));
     blurAreaLayout->addWidget(blurSurface, 0, Qt::AlignCenter);
     mainLayout->addWidget(blurArea);
+
+    DCardWidget *tabbedCard = new DCardWidget(this);
+    QVBoxLayout *tabbedLayout = new QVBoxLayout(tabbedCard);
+    tabbedLayout->setContentsMargins(18, 14, 18, 14);
+    tabbedLayout->setSpacing(10);
+    tabbedLayout->addWidget(new DSectionTitle("DTabbedStackWidget", tabbedCard));
+
+    DTabbedStackWidget *tabbedStack = new DTabbedStackWidget(tabbedCard);
+    tabbedStack->addPage(createRow("Home", "Start page content can keep its own monitor or refresh logic.", new QPushButton("Refresh", tabbedStack), tabbedStack), QIcon::fromTheme("go-home"), "Home");
+    tabbedStack->addPage(createRow("Cleaner", "Applications can switch pages without manually wiring tab and stack indexes.", new QPushButton("Scan", tabbedStack), tabbedStack), QIcon::fromTheme("edit-clear"), "Cleaner");
+    tabbedStack->addPage(createRow("Tools", "This covers the system-assistant titlebar tab plus stacked layout pattern.", new QPushButton("Open", tabbedStack), tabbedStack), QIcon::fromTheme("applications-system"), "Tools");
+    tabbedLayout->addWidget(tabbedStack);
+    tabbedLayout->addWidget(createDescription("Use this for compact top-level page switching before adding app-specific titlebar or tray logic.", tabbedCard));
+    mainLayout->addWidget(tabbedCard);
 
     QWidget *floatingArea = new QWidget(this);
     floatingArea->setMinimumHeight(156);

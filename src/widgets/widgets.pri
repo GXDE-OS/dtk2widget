@@ -127,6 +127,7 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dspinner.h \
     $$PWD/dcrumbedit.h \
     $$PWD/dtabbar.h \
+    $$PWD/dtabbedstackwidget.h \
     $$PWD/dsuggestbutton.h \
     $$PWD/dstyleoption.h \
     $$PWD/dtoast.h \
@@ -218,6 +219,7 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dspinner.cpp \
     $$PWD/dcrumbedit.cpp \
     $$PWD/dtabbar.cpp \
+    $$PWD/dtabbedstackwidget.cpp \
     $$PWD/dsuggestbutton.cpp \
     $$PWD/dstyleoption.cpp \
     $$PWD/dtoast.cpp \
@@ -280,6 +282,7 @@ includes.files += \
     $$PWD/DSpinner \
     $$PWD/DCrumbEdit \
     $$PWD/DTabBar \
+    $$PWD/DTabbedStackWidget \
     $$PWD/DSuggestButton \
     $$PWD/DStyleOption \
     $$PWD/DToast \
