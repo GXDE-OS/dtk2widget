@@ -18,8 +18,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QTabWidget>
+
+#include "dmainwindow.h"
 
 #include "bartab.h"
 #include "buttontab.h"
@@ -33,8 +34,10 @@
 
 
 class QAction;
+class QActionGroup;
+class QMenu;
 
-class MainWindow : public QMainWindow
+class MainWindow : public Dtk::Widget::DMainWindow
 {
     Q_OBJECT
 
@@ -46,11 +49,23 @@ protected Q_SLOTS:
     void menuItemInvoked(QAction *action);
 
 private:
+    void initTitlebarMenu();
     void initTabWidget();
     void loadSection(int index);
+    void applyDemoBackground(bool enabled);
+    void setDemoBackgroundTransparent(bool transparent);
+    void updateThemeActions();
 
 private:
     QTabWidget *m_mainTab = NULL;
+    QMenu *m_titleMenu = NULL;
+    QActionGroup *m_themeGroup = NULL;
+    QAction *m_lightAction = NULL;
+    QAction *m_darkAction = NULL;
+    QAction *m_systemThemeAction = NULL;
+    QAction *m_backgroundAction = NULL;
+    QAction *m_transparentAction = NULL;
+    QAction *m_blurWindowAction = NULL;
 };
 
 #endif // MAINWINDOW_H

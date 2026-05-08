@@ -20,6 +20,8 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QMenu>
+#include <QAction>
+#include <QActionGroup>
 #include <QFontDatabase>
 #include <QTextCodec>
 #include <QDebug>
@@ -34,6 +36,7 @@
 #include "dthememanager.h"
 #include "dtkwidget_global.h"
 #include "dswitchbutton.h"
+#include "dtitlebar.h"
 #include "segmentedcontrol.h"
 
 #include <DApplication>
@@ -93,64 +96,127 @@ static void loadGxdeWidgetPage(QTabWidget *tabs, int index)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : DMainWindow(parent)
 {
-    DThemeManager *themeManager = DThemeManager::instance();
-
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->setContentsMargins(12, 12, 12, 12);
-    mainLayout->setSpacing(10);
+    mainLayout->setContentsMargins(16, 16, 16, 16);
+    mainLayout->setSpacing(12);
 
-    QHBoxLayout *styleLayout = new QHBoxLayout();
-    QPushButton *darkButton = new QPushButton("Dark", this);
-    QPushButton *lightBUtton = new QPushButton("Light", this);
-    QPushButton *systemThemeButton = new QPushButton("Follow System", this);
-    QPushButton *fullscreenButtons = new QPushButton("Fullscreen", this);
-    QLabel *hint = new QLabel("DTK2 Collections is split into sections and loads each section on demand.", this);
-
-    themeManager->setTheme(lightBUtton, "light");
-
-    connect(darkButton, &QPushButton::clicked, [ = ] {
-        themeManager->setTheme("dark");
-    });
-    connect(lightBUtton, &QPushButton::clicked, [ = ] {
-        themeManager->setTheme("light");
-    });
-    connect(systemThemeButton, &QPushButton::clicked, [ = ] {
-        themeManager->FollowSystemDefaultTheme();
-    });
-    connect(fullscreenButtons, &QPushButton::clicked, [ = ] {
-        if (!isFullScreen())
-        {
-            showFullScreen();
-        } else
-        {
-            showNormal();
-        }
-    });
-
-    styleLayout->addWidget(darkButton);
-    styleLayout->addWidget(lightBUtton);
-    styleLayout->addWidget(systemThemeButton);
-    styleLayout->addWidget(fullscreenButtons);
-    styleLayout->addSpacing(12);
-    styleLayout->addWidget(hint);
-    styleLayout->addStretch();
-
-    mainLayout->addLayout(styleLayout);
+    QLabel *hint = descriptionLabel("DTK2 示例按应用场景分类，右上角菜单可切换主题、背景和透明窗口，用于验证 Blur 与窗口背景。", this);
+    hint->setObjectName("OverviewHint");
+    mainLayout->addWidget(hint);
 
     initTabWidget();
     mainLayout->addWidget(m_mainTab);
 
     QWidget *centralWidget = new QWidget(this);
-    centralWidget->setAutoFillBackground(true);
-
+    centralWidget->setObjectName("CollectionsCentralWidget");
     centralWidget->setLayout(mainLayout);
 
+    initTitlebarMenu();
+    applyWindowPreset(DMainWindow::DefaultWindow);
+    applyDemoBackground(true);
     setCentralWidget(centralWidget);
-    setWindowTitle("DTK2 Widget Collections");
+    setWindowTitle("DTK2 组件示例");
+    titlebar()->setTitle(windowTitle());
     setMinimumSize(960, 640);
     resize(1180, 760);
+}
+
+void MainWindow::initTitlebarMenu()
+{
+    DThemeManager *themeManager = DThemeManager::instance();
+
+    m_titleMenu = new QMenu(this);
+    m_themeGroup = new QActionGroup(this);
+    m_themeGroup->setExclusive(true);
+
+    m_lightAction = m_titleMenu->addAction("浅色主题");
+    m_darkAction = m_titleMenu->addAction("深色主题");
+    m_systemThemeAction = m_titleMenu->addAction("跟随系统主题");
+    for (QAction *action : {m_lightAction, m_darkAction, m_systemThemeAction}) {
+        action->setCheckable(true);
+        m_themeGroup->addAction(action);
+    }
+
+    connect(m_lightAction, &QAction::triggered, this, [themeManager, this] {
+        themeManager->setTheme("light");
+        updateThemeActions();
+    });
+    connect(m_darkAction, &QAction::triggered, this, [themeManager, this] {
+        themeManager->setTheme("dark");
+        updateThemeActions();
+    });
+    connect(m_systemThemeAction, &QAction::triggered, this, [themeManager, this] {
+        themeManager->FollowSystemDefaultTheme();
+        updateThemeActions();
+    });
+
+    m_titleMenu->addSeparator();
+    m_backgroundAction = m_titleMenu->addAction("使用示例背景");
+    m_backgroundAction->setCheckable(true);
+    m_backgroundAction->setChecked(true);
+    connect(m_backgroundAction, &QAction::toggled, this, &MainWindow::applyDemoBackground);
+
+    m_transparentAction = m_titleMenu->addAction("透明内容背景");
+    m_transparentAction->setCheckable(true);
+    connect(m_transparentAction, &QAction::toggled, this, &MainWindow::setDemoBackgroundTransparent);
+
+    m_blurWindowAction = m_titleMenu->addAction("启用窗口 Blur");
+    m_blurWindowAction->setCheckable(true);
+    connect(m_blurWindowAction, &QAction::toggled, this, [this](bool enabled) {
+        setEnableBlurWindow(enabled);
+        setTranslucentBackground(enabled || (m_transparentAction && m_transparentAction->isChecked()));
+        titlebar()->setBackgroundTransparent(enabled);
+        titlebar()->setBlurBackground(enabled);
+    });
+
+    m_titleMenu->addSeparator();
+    QAction *fullscreenAction = m_titleMenu->addAction("切换全屏");
+    connect(fullscreenAction, &QAction::triggered, this, [this] {
+        isFullScreen() ? showNormal() : showFullScreen();
+    });
+
+    titlebar()->setMenu(m_titleMenu);
+    updateThemeActions();
+}
+
+void MainWindow::applyDemoBackground(bool enabled)
+{
+    setEnableWindowBackground(enabled);
+    if (centralWidget() && !(m_transparentAction && m_transparentAction->isChecked())) {
+        centralWidget()->setStyleSheet(enabled
+            ? "#CollectionsCentralWidget { background-image: url(:/images/default_background.jpg); background-position: center; }"
+            : QString());
+    }
+    background()->refresh();
+    refreshBackground();
+}
+
+void MainWindow::setDemoBackgroundTransparent(bool transparent)
+{
+    if (centralWidget()) {
+        centralWidget()->setAttribute(Qt::WA_TranslucentBackground, transparent);
+        centralWidget()->setAutoFillBackground(!transparent);
+        centralWidget()->setStyleSheet(transparent
+            ? "#CollectionsCentralWidget { background: transparent; }"
+            : (m_backgroundAction && m_backgroundAction->isChecked()
+                ? "#CollectionsCentralWidget { background-image: url(:/images/default_background.jpg); background-position: center; }"
+                : QString()));
+    }
+
+    setTranslucentBackground(transparent || (m_blurWindowAction && m_blurWindowAction->isChecked()));
+    titlebar()->setBackgroundTransparent(transparent);
+    refreshBackground();
+}
+
+void MainWindow::updateThemeActions()
+{
+    const QString theme = DThemeManager::instance()->theme(this);
+    if (m_lightAction)
+        m_lightAction->setChecked(theme != "dark");
+    if (m_darkAction)
+        m_darkAction->setChecked(theme == "dark");
 }
 
 void MainWindow::menuItemInvoked(QAction *action)
