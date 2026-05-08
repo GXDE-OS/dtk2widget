@@ -42,9 +42,18 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Consolidate duplicate app label classes into reusable DTK2 typography helpers or documented presets.
 - [ ] Migrate reusable icon/text/hover buttons from file manager and image viewer into generic button primitives.
 - [ ] Add a compact notification/tip surface that can replace editor/movie/image-viewer local toast-like widgets.
+- [ ] Collect and generalize control-center blur widgets into reusable DTK2 blur surfaces and panels.
+- [ ] Absorb system-assistant multi-tab/page-switching patterns into DTK2 after the current widget migration batch.
+- [ ] Absorb editor multi-tab document/tabbar patterns into DTK2 after the current widget migration batch.
 - [ ] Review whether `DMainWindow`/`DTitlebar` should expose a compact/blur/elevated preset instead of each app subclassing title bars.
 - [ ] Add an examples tab showing `DFrame`, `DCardWidget`, and `DFloatingWidget` in light/dark palettes.
 - [ ] Start replacing one application-local widget usage after the new API settles.
+
+## Deferred Optimization Tracks
+
+- Control center blur widgets: review `DBlurEffectWidget` usage in frame, account avatar overlays, quick control panels, and translucent frames; migrate reusable visual patterns rather than module-specific logic.
+- System assistant tabs/pages: extract page switching and multi-tab structure only after button/surface migration is stable.
+- Editor tabs: compare editor `Tabbar`, document tab behavior, and existing DTK2 `DTabBar`; move generally useful behaviors into DTK2 without editor-specific document state.
 
 ## Constraints
 
