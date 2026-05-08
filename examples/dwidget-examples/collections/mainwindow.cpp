@@ -27,6 +27,7 @@
 #include <QTextCodec>
 #include <QDebug>
 #include <QTemporaryFile>
+#include <QTimer>
 
 #include <functional>
 
@@ -87,9 +88,20 @@ static QFrame *useCaseCard(const QString &title, const QString &description, QWi
     return card;
 }
 
+static void makePageBackgroundTransparent(QWidget *widget)
+{
+    if (!widget)
+        return;
+
+    widget->setAttribute(Qt::WA_TranslucentBackground, true);
+    widget->setAutoFillBackground(false);
+    widget->setStyleSheet(QString());
+}
+
 static QWidget *exampleTabs(const QStringList &titles, QWidget *parent, const std::function<void(QStackedWidget *, int)> &loader)
 {
     QWidget *container = new QWidget(parent);
+    makePageBackgroundTransparent(container);
     QVBoxLayout *layout = new QVBoxLayout(container);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(10);
@@ -101,8 +113,10 @@ static QWidget *exampleTabs(const QStringList &titles, QWidget *parent, const st
     tabs->setFixedHeight(40);
 
     QStackedWidget *stack = new QStackedWidget(container);
+    makePageBackgroundTransparent(stack);
     for (const QString &title : titles) {
         QWidget *page = new QWidget(stack);
+        makePageBackgroundTransparent(page);
         stack->addWidget(page);
         tabs->addTab(title);
     }
@@ -178,12 +192,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setObjectName("CollectionsCentralWidget");
+    makePageBackgroundTransparent(centralWidget);
     centralWidget->setLayout(mainLayout);
 
     setCentralWidget(centralWidget);
     initTitlebarMenu();
     applyWindowPreset(DMainWindow::DefaultWindow);
     updateCentralBackground();
+    connect(DThemeManager::instance(), &DThemeManager::themeChanged, this, [this] {
+        updateCentralBackground();
+    });
     setWindowTitle("DTK2 组件示例");
     titlebar()->setTitle(windowTitle());
     setMinimumSize(960, 640);
@@ -197,6 +215,11 @@ void MainWindow::initTitlebarMenu()
     connect(fullscreenAction, &QAction::triggered, this, [this] {
         isFullScreen() ? showNormal() : showFullScreen();
     });
+    connect(m_titleMenu, &QMenu::triggered, this, [this] {
+        QTimer::singleShot(0, this, [this] {
+            updateCentralBackground();
+        });
+    });
 
     titlebar()->setMenu(m_titleMenu);
 }
@@ -204,15 +227,10 @@ void MainWindow::initTitlebarMenu()
 void MainWindow::updateCentralBackground()
 {
     background()->refresh();
-    const bool imageBackground = background()->isSetBackground();
-    const bool blurBackground = enableBlurWindow();
-
-    setEnableWindowBackground(imageBackground);
+    setEnableWindowBackground(true);
 
     if (centralWidget()) {
-        centralWidget()->setAttribute(Qt::WA_TranslucentBackground, imageBackground || blurBackground);
-        centralWidget()->setAutoFillBackground(!(imageBackground || blurBackground));
-        centralWidget()->setStyleSheet(QString());
+        makePageBackgroundTransparent(centralWidget());
         centralWidget()->setPalette(qApp->palette());
     }
 
@@ -288,6 +306,7 @@ void MainWindow::menuItemInvoked(QAction *action)
 void MainWindow::initTabWidget()
 {
     QWidget *mainTabs = new QWidget(this);
+    makePageBackgroundTransparent(mainTabs);
     QHBoxLayout *layout = new QHBoxLayout(mainTabs);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(12);
@@ -297,10 +316,13 @@ void MainWindow::initTabWidget()
     m_mainNav->setFixedWidth(156);
 
     m_mainStack = new QStackedWidget(mainTabs);
+    makePageBackgroundTransparent(m_mainStack);
     const QStringList sections = QStringList() << "总览" << "新增组件" << "基础控件" << "输入与编辑" << "列表与反馈" << "多媒体";
     for (const QString &section : sections) {
         m_mainNav->addItem(section);
-        m_mainStack->addWidget(new QWidget(m_mainStack));
+        QWidget *page = new QWidget(m_mainStack);
+        makePageBackgroundTransparent(page);
+        m_mainStack->addWidget(page);
     }
 
     layout->addWidget(m_mainNav);

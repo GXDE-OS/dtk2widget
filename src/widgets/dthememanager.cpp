@@ -153,13 +153,6 @@ static void refreshWidgetStyle(QWidget *widget)
     widget->update();
 }
 
-static void refreshApplicationWidgets()
-{
-    const QWidgetList widgets = qApp->allWidgets();
-    for (QWidget *widget : widgets)
-        refreshWidgetStyle(widget);
-}
-
 static void inseritStyle(QWidget *widget, const QWidget *baseWidget)
 {
     if (widget == baseWidget) {
@@ -305,6 +298,7 @@ public:
             } else {
                 widget->setStyleSheet(widget->styleSheet() + dtm->d_func()->getQssContent(themeurl));
             }
+            refreshWidgetStyle(widget);
         };
 
         dtm->connect(dtm, &DThemeManager::themeChanged,
@@ -381,7 +375,6 @@ public:
 
             if (themeChanged) {
                 Q_EMIT q->themeChanged(themeName);
-                refreshApplicationWidgets();
             }
         }
     }

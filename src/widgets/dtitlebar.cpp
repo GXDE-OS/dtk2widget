@@ -516,7 +516,7 @@ void DTitlebarPrivate::_q_addDefaultMenuItems()
     }
 
     if (!backgroundAction) {
-        backgroundAction = menu->addAction(qApp->translate("TitleBarMenu", "窗口背景与模糊"));
+        backgroundAction = menu->addAction(qApp->translate("TitleBarMenu", "设置窗口背景"));
         backgroundAction->setCheckable(true);
         QObject::connect(backgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_backgroundActionTriggered()));
     }
