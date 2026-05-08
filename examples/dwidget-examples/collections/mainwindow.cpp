@@ -16,6 +16,7 @@
  */
 
 #include <QHBoxLayout>
+#include <QFrame>
 #include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
@@ -61,6 +62,26 @@ static QLabel *descriptionLabel(const QString &text, QWidget *parent)
     return label;
 }
 
+static QFrame *useCaseCard(const QString &title, const QString &description, QWidget *parent)
+{
+    QFrame *card = new QFrame(parent);
+    card->setFrameShape(QFrame::StyledPanel);
+    card->setObjectName("UseCaseCard");
+
+    QVBoxLayout *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(14, 12, 14, 12);
+    layout->setSpacing(6);
+
+    QLabel *titleLabel = new QLabel(title, card);
+    QFont titleFont = titleLabel->font();
+    titleFont.setBold(true);
+    titleLabel->setFont(titleFont);
+    layout->addWidget(titleLabel);
+    layout->addWidget(descriptionLabel(description, card));
+
+    return card;
+}
+
 static QTabWidget *childTabs(QWidget *parent)
 {
     QTabWidget *tabs = new QTabWidget(parent);
@@ -80,7 +101,9 @@ static void loadGxdeWidgetPage(QTabWidget *tabs, int index)
 
     switch (index) {
     case 0:
-        layout->addWidget(descriptionLabel("Select Containers or Palettes below. Legacy WidgetsTab is intentionally not loaded here because it contains global monitor and MPRIS demos that can block diagnosis.", page));
+        layout->addWidget(descriptionLabel("这里集中展示近期从 GXDE 应用中抽取的可复用组件。每个页面只保留最小实用用例，便于直接复制到应用中验证。", page));
+        layout->addWidget(useCaseCard("容器与视觉", "用于设置页、详情页、列表分组和浮层：DCardWidget、DBackgroundGroup、DBlurSurface、DTabbedStackWidget。", page));
+        layout->addWidget(useCaseCard("调色板", "展示内置浅色/深色调色板，以及应用如何通过 DThemeManager 切换主题。", page));
         layout->addStretch();
         break;
     case 1:
@@ -90,7 +113,7 @@ static void loadGxdeWidgetPage(QTabWidget *tabs, int index)
         layout->addWidget(new PaletteTab(page));
         break;
     default:
-        layout->addWidget(descriptionLabel("Unknown GXDE widget page.", page));
+        layout->addWidget(descriptionLabel("未知新增组件页面。", page));
         break;
     }
 }
@@ -289,12 +312,12 @@ void MainWindow::initTabWidget()
 {
     m_mainTab = new QTabWidget(this);
     m_mainTab->setDocumentMode(true);
-    m_mainTab->addTab(new QWidget(m_mainTab), "Overview");
-    m_mainTab->addTab(new QWidget(m_mainTab), "GXDE Widgets");
-    m_mainTab->addTab(new QWidget(m_mainTab), "Basic Controls");
-    m_mainTab->addTab(new QWidget(m_mainTab), "Inputs");
-    m_mainTab->addTab(new QWidget(m_mainTab), "Effects & Lists");
-    m_mainTab->addTab(new QWidget(m_mainTab), "Multimedia");
+    m_mainTab->addTab(new QWidget(m_mainTab), "总览");
+    m_mainTab->addTab(new QWidget(m_mainTab), "新增组件");
+    m_mainTab->addTab(new QWidget(m_mainTab), "基础控件");
+    m_mainTab->addTab(new QWidget(m_mainTab), "输入与编辑");
+    m_mainTab->addTab(new QWidget(m_mainTab), "列表与反馈");
+    m_mainTab->addTab(new QWidget(m_mainTab), "多媒体");
 
     connect(m_mainTab, &QTabWidget::currentChanged, this, &MainWindow::loadSection);
     loadSection(0);
@@ -312,14 +335,17 @@ void MainWindow::loadSection(int index)
 
     switch (index) {
     case 0:
-        layout->addWidget(descriptionLabel("Open each section from the tabs above. Sections are loaded lazily so a broken demo area can be isolated without hiding the whole window.", page));
+        layout->addWidget(descriptionLabel("DTK2 示例按实际使用场景重新整理。优先展示最小可运行组合：一个标题、一段说明、一个控件或一组常见交互。", page));
+        layout->addWidget(useCaseCard("窗口与背景", "当前示例使用 DMainWindow。右上角菜单可切换浅色/深色主题、示例背景、透明内容背景和窗口 Blur。", page));
+        layout->addWidget(useCaseCard("业务页面骨架", "新增组件页演示卡片、分组、按钮、消息、标签页和浮层，适合设置中心、文件管理器、安装器等应用复用。", page));
+        layout->addWidget(useCaseCard("基础控件", "按钮、输入、滑块、进度、列表等旧示例保留为独立分类，避免一次加载过多组件。", page));
         layout->addStretch();
         break;
     case 1: {
         QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new QWidget(tabs), "Overview");
-        tabs->addTab(new QWidget(tabs), "Containers");
-        tabs->addTab(new QWidget(tabs), "Palettes");
+        tabs->addTab(new QWidget(tabs), "使用说明");
+        tabs->addTab(new QWidget(tabs), "容器与视觉");
+        tabs->addTab(new QWidget(tabs), "调色板");
         connect(tabs, &QTabWidget::currentChanged, tabs, [tabs](int childIndex) {
             loadGxdeWidgetPage(tabs, childIndex);
         });
@@ -329,26 +355,26 @@ void MainWindow::loadSection(int index)
     }
     case 2: {
         QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new LineTab(tabs), "Line");
-        tabs->addTab(new BarTab(tabs), "Bar");
-        tabs->addTab(new ButtonTab(tabs), "Button");
-        tabs->addTab(new ButtonListTab(tabs), "ButtonList");
-        tabs->addTab(new Segmentedcontrol(tabs), "Segmented Control");
+        tabs->addTab(new LineTab(tabs), "分割线");
+        tabs->addTab(new BarTab(tabs), "进度条");
+        tabs->addTab(new ButtonTab(tabs), "按钮");
+        tabs->addTab(new ButtonListTab(tabs), "按钮列表");
+        tabs->addTab(new Segmentedcontrol(tabs), "分段控制");
         layout->addWidget(tabs);
         break;
     }
     case 3: {
         QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new InputTab(tabs), "Input");
-        tabs->addTab(new SliderTab(tabs), "Slider");
+        tabs->addTab(new InputTab(tabs), "输入框");
+        tabs->addTab(new SliderTab(tabs), "滑块");
         layout->addWidget(tabs);
         break;
     }
     case 4: {
         QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new IndicatorTab(tabs), "Indicator");
-        tabs->addTab(new GraphicsEffectTab(tabs), "GraphicsEffect");
-        tabs->addTab(new SimpleListViewTab(tabs), "SimpleListView");
+        tabs->addTab(new IndicatorTab(tabs), "状态指示");
+        tabs->addTab(new GraphicsEffectTab(tabs), "图形效果");
+        tabs->addTab(new SimpleListViewTab(tabs), "列表视图");
         layout->addWidget(tabs);
         break;
     }
@@ -356,11 +382,11 @@ void MainWindow::loadSection(int index)
 #ifndef DTK_NO_MULTIMEDIA
         layout->addWidget(new CameraForm(page));
 #else
-        layout->addWidget(descriptionLabel("Multimedia examples are disabled in this build.", page));
+        layout->addWidget(descriptionLabel("当前构建禁用了多媒体示例。", page));
 #endif
         break;
     default:
-        layout->addWidget(descriptionLabel("Unknown section.", page));
+        layout->addWidget(descriptionLabel("未知分类。", page));
         break;
     }
 }

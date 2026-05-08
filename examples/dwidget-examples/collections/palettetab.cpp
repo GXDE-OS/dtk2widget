@@ -56,18 +56,18 @@ static QWidget *createPreview(const QString &title, DGuiApplicationHelper::Color
     cardLayout->setContentsMargins(18, 14, 18, 14);
     cardLayout->setSpacing(8);
     cardLayout->addWidget(new DSectionTitle(title, card));
-    DTypographyLabel *body = new DTypographyLabel("Palette-aware widgets use QPalette roles, so the same component code renders correctly in light and dark themes.", DTypographyLabel::Body, card);
+    DTypographyLabel *body = new DTypographyLabel("使用 QPalette 角色取色的组件可以在浅色和深色主题下复用同一套代码。", DTypographyLabel::Body, card);
     body->setWordWrap(true);
     cardLayout->addWidget(body);
-    cardLayout->addWidget(new QPushButton("Action", card), 0, Qt::AlignLeft);
+    cardLayout->addWidget(new QPushButton("操作", card), 0, Qt::AlignLeft);
     layout->addWidget(card);
 
     DBackgroundGroup *group = new DBackgroundGroup(new QVBoxLayout, page);
     group->setPalette(page->palette());
     group->layout()->setContentsMargins(0, 0, 0, 0);
     group->setItemMargins(QMargins(0, 0, 0, 0));
-    group->layout()->addWidget(row("Grouped row", "Shared rounded background follows the preview palette.", new DSwitchButton(group), group));
-    group->layout()->addWidget(row("Secondary text", "Caption text keeps contrast without custom colors.", new QPushButton("Open", group), group));
+    group->layout()->addWidget(row("分组行", "统一圆角背景跟随当前预览调色板。", new DSwitchButton(group), group));
+    group->layout()->addWidget(row("次要文字", "Caption 文本保持对比度，不需要应用硬编码颜色。", new QPushButton("打开", group), group));
     layout->addWidget(group);
 
     DBlurSurface *surface = new DBlurSurface(page);
@@ -75,8 +75,8 @@ static QWidget *createPreview(const QString &title, DGuiApplicationHelper::Color
     surface->setMaskAlpha(type == DGuiApplicationHelper::DarkType ? 120 : 82);
     QVBoxLayout *surfaceLayout = new QVBoxLayout(surface);
     surfaceLayout->setContentsMargins(18, 14, 18, 14);
-    surfaceLayout->addWidget(label("Blur surface", DTypographyLabel::Title, surface));
-    surfaceLayout->addWidget(label("Built-in palettes also feed blur masks and translucent panels.", DTypographyLabel::Caption, surface));
+    surfaceLayout->addWidget(label("Blur 面板", DTypographyLabel::Title, surface));
+    surfaceLayout->addWidget(label("内置调色板也会影响半透明遮罩和模糊面板的观感。", DTypographyLabel::Caption, surface));
     layout->addWidget(surface);
 
     layout->addStretch();
@@ -90,17 +90,17 @@ PaletteTab::PaletteTab(QWidget *parent)
     mainLayout->setContentsMargins(24, 24, 24, 24);
     mainLayout->setSpacing(14);
 
-    DTypographyLabel *heading = new DTypographyLabel("Built-in palette themes", DTypographyLabel::Title, this);
+    DTypographyLabel *heading = new DTypographyLabel("内置调色板主题", DTypographyLabel::Title, this);
     heading->setEmphasis(true);
     mainLayout->addWidget(heading);
-    DTypographyLabel *intro = new DTypographyLabel("DTK2 now has built-in light and dark QPalette presets. These previews render the same widgets under both palettes without relying on system ddark/dlight styles.", DTypographyLabel::Body, this);
+    DTypographyLabel *intro = new DTypographyLabel("DTK2 提供浅色和深色 QPalette 预设。这里用同一组组件分别套用两套调色板，验证应用不依赖系统 ddark/dlight 样式也能正确显示。", DTypographyLabel::Body, this);
     intro->setSecondary(true);
     intro->setWordWrap(true);
     mainLayout->addWidget(intro);
 
     QHBoxLayout *previewLayout = new QHBoxLayout;
     previewLayout->setSpacing(16);
-    previewLayout->addWidget(createPreview("Light palette", DGuiApplicationHelper::LightType, this));
-    previewLayout->addWidget(createPreview("Dark palette", DGuiApplicationHelper::DarkType, this));
+    previewLayout->addWidget(createPreview("浅色调色板", DGuiApplicationHelper::LightType, this));
+    previewLayout->addWidget(createPreview("深色调色板", DGuiApplicationHelper::DarkType, this));
     mainLayout->addLayout(previewLayout);
 }

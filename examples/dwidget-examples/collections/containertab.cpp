@@ -75,7 +75,7 @@ static void loadTabsPage(QTabWidget *tabs, int index)
 
     switch (index) {
     case 0:
-        layout->addWidget(createDescription("Open one tab component at a time. This isolates DTabbedStackWidget from DDocumentTabBar.", page));
+        layout->addWidget(createDescription("按需打开一个标签页组件。这里把页面堆叠和文档标签分开，便于验证 DTabBar 的实际使用路径。", page));
         layout->addStretch();
         break;
     case 1: {
@@ -83,12 +83,12 @@ static void loadTabsPage(QTabWidget *tabs, int index)
         QVBoxLayout *tabbedLayout = new QVBoxLayout(tabbedCard);
         tabbedLayout->setContentsMargins(18, 14, 18, 14);
         tabbedLayout->setSpacing(10);
-        tabbedLayout->addWidget(new DSectionTitle("DTabbedStackWidget", tabbedCard));
+        tabbedLayout->addWidget(new DSectionTitle("DTabbedStackWidget：标签页 + 页面堆叠", tabbedCard));
 
         DTabbedStackWidget *tabbedStack = new DTabbedStackWidget(tabbedCard);
-        tabbedStack->addPage(createRow("Home", "Start page content can keep its own monitor or refresh logic.", new QPushButton("Refresh", tabbedStack), tabbedStack), QIcon::fromTheme("go-home"), "Home");
-        tabbedStack->addPage(createRow("Cleaner", "Applications can switch pages without manually wiring tab and stack indexes.", new QPushButton("Scan", tabbedStack), tabbedStack), QIcon::fromTheme("edit-clear"), "Cleaner");
-        tabbedStack->addPage(createRow("Tools", "This covers the system-assistant titlebar tab plus stacked layout pattern.", new QPushButton("Open", tabbedStack), tabbedStack), QIcon::fromTheme("applications-system"), "Tools");
+        tabbedStack->addPage(createRow("首页", "适合首页、状态页等常驻内容。业务只需要提供页面 widget。", new QPushButton("刷新", tabbedStack), tabbedStack), QIcon::fromTheme("go-home"), "首页");
+        tabbedStack->addPage(createRow("清理", "标签与 QStackedWidget 索引自动同步，减少应用重复连线。", new QPushButton("扫描", tabbedStack), tabbedStack), QIcon::fromTheme("edit-clear"), "清理");
+        tabbedStack->addPage(createRow("工具", "覆盖系统助手、控制中心等常见的顶部标签页页面结构。", new QPushButton("打开", tabbedStack), tabbedStack), QIcon::fromTheme("applications-system"), "工具");
         tabbedLayout->addWidget(tabbedStack);
 
         layout->addWidget(tabbedCard);
@@ -100,7 +100,7 @@ static void loadTabsPage(QTabWidget *tabs, int index)
         QVBoxLayout *documentTabLayout = new QVBoxLayout(documentTabCard);
         documentTabLayout->setContentsMargins(18, 14, 18, 14);
         documentTabLayout->setSpacing(10);
-        documentTabLayout->addWidget(new DSectionTitle("DDocumentTabBar", documentTabCard));
+        documentTabLayout->addWidget(new DSectionTitle("DDocumentTabBar：文档标签", documentTabCard));
 
         DDocumentTabBar *documentTabBar = new DDocumentTabBar(documentTabCard);
         documentTabBar->setDragable(false);
@@ -111,14 +111,14 @@ static void loadTabsPage(QTabWidget *tabs, int index)
         documentTabBar->setDocumentModified(1, true);
         documentTabBar->setFixedHeight(40);
         documentTabLayout->addWidget(documentTabBar);
-        documentTabLayout->addWidget(createDescription("Document tabs are shown with drag and add-button disabled in the example to keep diagnostics focused.", documentTabCard));
+        documentTabLayout->addWidget(createDescription("最小用例：打开多个文档、记录 documentId、显示修改标记。示例中关闭拖拽和新增按钮，便于聚焦基础行为。", documentTabCard));
 
         layout->addWidget(documentTabCard);
         layout->addStretch();
         break;
     }
     default:
-        layout->addWidget(createDescription("Unknown tabs page.", page));
+        layout->addWidget(createDescription("未知标签页示例。", page));
         layout->addStretch();
         break;
     }
@@ -137,8 +137,8 @@ static void loadContainerPage(QTabWidget *tabs, int index)
 
     switch (index) {
     case 0:
-        layout->addWidget(createTitle("Container widgets", page));
-        layout->addWidget(createDescription("Open one component page at a time. This keeps startup light and helps isolate any widget that blocks the UI.", page));
+        layout->addWidget(createTitle("容器与视觉组件", page));
+        layout->addWidget(createDescription("每个页面只加载一个组件组。用最小实用场景展示如何在应用里复用，而不是堆叠所有演示控件。", page));
         layout->addStretch();
         break;
     case 1: {
@@ -147,7 +147,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         QVBoxLayout *plainLayout = new QVBoxLayout(plainFrame);
         plainLayout->setContentsMargins(18, 14, 18, 14);
         plainLayout->addWidget(createTitle("DFrame", plainFrame));
-        plainLayout->addWidget(createDescription("Palette-aware rounded base frame for simple grouped regions.", plainFrame));
+        plainLayout->addWidget(createDescription("用于简单分区的圆角基础框架，颜色跟随当前调色板。", plainFrame));
 
         DCardWidget *card = new DCardWidget(page);
         card->setMinimumHeight(116);
@@ -155,8 +155,8 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         cardLayout->setContentsMargins(18, 14, 18, 14);
         cardLayout->setSpacing(8);
         cardLayout->addWidget(createTitle("DCardWidget", card));
-        cardLayout->addWidget(createDescription("Use cards for content that needs slightly stronger emphasis than the page background.", card));
-        QPushButton *cardButton = new QPushButton("Primary action", card);
+        cardLayout->addWidget(createDescription("用于设置项、详情块、操作入口等需要比页面背景更突出的位置。", card));
+        QPushButton *cardButton = new QPushButton("主要操作", card);
         cardButton->setFixedWidth(140);
         cardLayout->addWidget(cardButton, 0, Qt::AlignLeft);
 
@@ -171,9 +171,9 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         group->setItemMargins(QMargins(0, 0, 0, 0));
         group->setItemSpacing(1);
         group->setMinimumHeight(166);
-        group->layout()->addWidget(createRow("DBackgroundGroup", "Paint a shared rounded background behind multiple rows.", new DSwitchButton(group), group));
-        group->layout()->addWidget(createRow("Separated but flat", "Rows keep clear hierarchy without custom per-app frames.", new QPushButton("Edit", group), group));
-        group->layout()->addWidget(createRow("Small radius", "Corners stay compact to match the current DTK2 visual style.", new QPushButton("Open", group), group));
+        group->layout()->addWidget(createRow("DBackgroundGroup", "为多行设置项绘制统一圆角背景。", new DSwitchButton(group), group));
+        group->layout()->addWidget(createRow("扁平分隔", "行之间保持层级清晰，不需要应用重复写 frame 样式。", new QPushButton("编辑", group), group));
+        group->layout()->addWidget(createRow("紧凑圆角", "适配 DTK2 当前更克制的视觉风格。", new QPushButton("打开", group), group));
         layout->addWidget(group);
         layout->addStretch();
         break;
@@ -184,10 +184,10 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         typographyLayout->setContentsMargins(18, 14, 18, 14);
         typographyLayout->setSpacing(8);
         typographyLayout->addWidget(new DSectionTitle("DTypographyLabel", typographyCard));
-        typographyLayout->addWidget(new DTypographyLabel("LargeTitle: page or dialog focus", DTypographyLabel::LargeTitle, typographyCard));
-        typographyLayout->addWidget(new DTypographyLabel("Title: grouped content title", DTypographyLabel::Title, typographyCard));
-        typographyLayout->addWidget(new DTypographyLabel("Body: normal readable copy", DTypographyLabel::Body, typographyCard));
-        DTypographyLabel *caption = new DTypographyLabel("Caption: supporting and secondary information", DTypographyLabel::Caption, typographyCard);
+        typographyLayout->addWidget(new DTypographyLabel("LargeTitle：页面或对话框主标题", DTypographyLabel::LargeTitle, typographyCard));
+        typographyLayout->addWidget(new DTypographyLabel("Title：分组标题", DTypographyLabel::Title, typographyCard));
+        typographyLayout->addWidget(new DTypographyLabel("Body：正文说明", DTypographyLabel::Body, typographyCard));
+        DTypographyLabel *caption = new DTypographyLabel("Caption：补充或次要信息", DTypographyLabel::Caption, typographyCard);
         caption->setSecondary(true);
         typographyLayout->addWidget(caption);
         layout->addWidget(typographyCard);
@@ -199,7 +199,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         QVBoxLayout *buttonLayout = new QVBoxLayout(buttonCard);
         buttonLayout->setContentsMargins(18, 14, 18, 14);
         buttonLayout->setSpacing(10);
-        buttonLayout->addWidget(new DSectionTitle("Hover and icon-text buttons", buttonCard));
+        buttonLayout->addWidget(new DSectionTitle("悬停按钮与图文按钮", buttonCard));
 
         QHBoxLayout *buttonRow = new QHBoxLayout;
         DHoverButton *hoverButton = new DHoverButton(buttonCard);
@@ -208,7 +208,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         hoverButton->setPressedIcon(QIcon::fromTheme("go-down"));
         hoverButton->setFixedSize(42, 32);
 
-        DIconTextButton *iconTextButton = new DIconTextButton(QIcon::fromTheme("document-open"), "Open file", buttonCard);
+        DIconTextButton *iconTextButton = new DIconTextButton(QIcon::fromTheme("document-open"), "打开文件", buttonCard);
         iconTextButton->setIconTextSpacing(8);
 
         DIconButton *iconButton = new DIconButton(QIcon::fromTheme("view-refresh"), buttonCard);
@@ -221,7 +221,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         buttonRow->addWidget(iconButton);
         buttonRow->addStretch();
         buttonLayout->addLayout(buttonRow);
-        buttonLayout->addWidget(createDescription("These cover repeated file-manager and viewer patterns without importing app-specific menu or theme logic.", buttonCard));
+        buttonLayout->addWidget(createDescription("覆盖文件管理器、图片查看器等常见图标按钮场景，避免应用重复实现 hover/pressed 图标逻辑。", buttonCard));
         layout->addWidget(buttonCard);
         layout->addStretch();
         break;
@@ -231,21 +231,21 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         QVBoxLayout *messageLayout = new QVBoxLayout(messageCard);
         messageLayout->setContentsMargins(18, 14, 18, 14);
         messageLayout->setSpacing(10);
-        messageLayout->addWidget(new DSectionTitle("DFloatingMessage", messageCard));
+        messageLayout->addWidget(new DSectionTitle("DFloatingMessage：窗口内消息", messageCard));
 
         DFloatingMessage *transientMessage = new DFloatingMessage(DFloatingMessage::TransientType, messageCard);
         transientMessage->setIcon(QIcon::fromTheme("dialog-information"));
-        transientMessage->setMessage("Transient message: auto closes after the configured duration.");
+        transientMessage->setMessage("临时消息：到达配置时长后自动关闭。");
         transientMessage->setDuration(5000);
 
         DFloatingMessage *residentMessage = new DFloatingMessage(DFloatingMessage::ResidentType, messageCard);
         residentMessage->setIcon(QIcon::fromTheme("dialog-warning"));
-        residentMessage->setMessage("Resident message: keeps focus until the user closes it.");
-        residentMessage->setActionWidget(new QPushButton("Action", residentMessage));
+        residentMessage->setMessage("常驻消息：保留在界面中，等待用户处理。");
+        residentMessage->setActionWidget(new QPushButton("处理", residentMessage));
 
         messageLayout->addWidget(transientMessage);
         messageLayout->addWidget(residentMessage);
-        messageLayout->addWidget(createDescription("Use this for reusable in-window notifications before moving app-specific toast logic into DTK2.", messageCard));
+        messageLayout->addWidget(createDescription("用于窗口内部通知，比全局 toast 更适合表单校验、任务状态和可恢复错误。", messageCard));
         layout->addWidget(messageCard);
         layout->addStretch();
         break;
@@ -264,7 +264,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         blurSurfaceLayout->setContentsMargins(18, 14, 18, 14);
         blurSurfaceLayout->setSpacing(6);
         blurSurfaceLayout->addWidget(createTitle("DBlurSurface", blurSurface));
-        blurSurfaceLayout->addWidget(createDescription("Reusable translucent panel for control-center style grouped content.", blurSurface));
+        blurSurfaceLayout->addWidget(createDescription("可复用半透明面板，适合控制中心、启动器和带背景图的设置页面。", blurSurface));
         blurAreaLayout->addWidget(blurSurface, 0, Qt::AlignCenter);
         layout->addWidget(blurArea);
         layout->addStretch();
@@ -273,9 +273,9 @@ static void loadContainerPage(QTabWidget *tabs, int index)
     case 7: {
         QTabWidget *tabPages = new QTabWidget(page);
         tabPages->setDocumentMode(true);
-        tabPages->addTab(new QWidget(tabPages), "Overview");
-        tabPages->addTab(new QWidget(tabPages), "Stacked Pages");
-        tabPages->addTab(new QWidget(tabPages), "Document Tabs");
+        tabPages->addTab(new QWidget(tabPages), "说明");
+        tabPages->addTab(new QWidget(tabPages), "页面堆叠");
+        tabPages->addTab(new QWidget(tabPages), "文档标签");
         QObject::connect(tabPages, &QTabWidget::currentChanged, tabPages, [tabPages](int childIndex) {
             loadTabsPage(tabPages, childIndex);
         });
@@ -298,7 +298,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         floatingLayout->setContentsMargins(4, 2, 4, 2);
         floatingLayout->setSpacing(4);
         floatingLayout->addWidget(createTitle("DFloatingWidget", floatingContent));
-        floatingLayout->addWidget(createDescription("Blur-capable elevated surface for popovers and transient panels.", floatingContent));
+        floatingLayout->addWidget(createDescription("带阴影和可选 Blur 的浮层，适合弹出面板、预览卡片和临时工具。", floatingContent));
         floating->setWidget(floatingContent);
         floating->setBlurBackgroundEnabled(true);
         floating->setFixedWidth(360);
@@ -309,7 +309,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         break;
     }
     default:
-        layout->addWidget(createDescription("Unknown container page.", page));
+        layout->addWidget(createDescription("未知容器组件。", page));
         layout->addStretch();
         break;
     }
@@ -323,15 +323,15 @@ ContainerTab::ContainerTab(QWidget *parent)
 
     QTabWidget *tabs = new QTabWidget(this);
     tabs->setDocumentMode(true);
-    tabs->addTab(new QWidget(tabs), "Overview");
-    tabs->addTab(new QWidget(tabs), "Frames");
-    tabs->addTab(new QWidget(tabs), "Groups");
-    tabs->addTab(new QWidget(tabs), "Typography");
-    tabs->addTab(new QWidget(tabs), "Buttons");
-    tabs->addTab(new QWidget(tabs), "Messages");
+    tabs->addTab(new QWidget(tabs), "说明");
+    tabs->addTab(new QWidget(tabs), "框架");
+    tabs->addTab(new QWidget(tabs), "分组");
+    tabs->addTab(new QWidget(tabs), "文字层级");
+    tabs->addTab(new QWidget(tabs), "按钮");
+    tabs->addTab(new QWidget(tabs), "消息");
     tabs->addTab(new QWidget(tabs), "Blur");
-    tabs->addTab(new QWidget(tabs), "Tabs");
-    tabs->addTab(new QWidget(tabs), "Floating");
+    tabs->addTab(new QWidget(tabs), "标签页");
+    tabs->addTab(new QWidget(tabs), "浮层");
 
     connect(tabs, &QTabWidget::currentChanged, tabs, [tabs](int index) {
         loadContainerPage(tabs, index);
