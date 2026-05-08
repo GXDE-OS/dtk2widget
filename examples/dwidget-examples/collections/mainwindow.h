@@ -20,6 +20,7 @@
 
 #include <QListWidget>
 #include <QStackedWidget>
+#include <QString>
 
 #include "dmainwindow.h"
 
@@ -70,6 +71,7 @@ private:
     QAction *m_removeWindowBackgroundAction = NULL;
     QAction *m_transparentAction = NULL;
     QAction *m_blurWindowAction = NULL;
+    QString m_windowBackgroundPath;
 };
 
 #endif // MAINWINDOW_H

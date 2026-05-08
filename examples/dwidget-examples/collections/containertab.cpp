@@ -11,6 +11,7 @@
 #include "dhoverbutton.h"
 #include "dicontextbutton.h"
 #include "dswitchbutton.h"
+#include "dtabbar.h"
 #include "dtabbedstackwidget.h"
 #include "dtypographylabel.h"
 
@@ -79,6 +80,59 @@ static void loadTabsPage(QTabWidget *tabs, int index)
         layout->addStretch();
         break;
     case 1: {
+        DCardWidget *tabBarCard = new DCardWidget(page);
+        QVBoxLayout *tabBarLayout = new QVBoxLayout(tabBarCard);
+        tabBarLayout->setContentsMargins(18, 14, 18, 14);
+        tabBarLayout->setSpacing(12);
+        tabBarLayout->addWidget(new DSectionTitle("DTabBar：基础标签栏", tabBarCard));
+
+        DTabBar *normalTabBar = new DTabBar(tabBarCard);
+        normalTabBar->setDrawBase(false);
+        normalTabBar->setVisibleAddButton(true);
+        normalTabBar->addTab(QIcon::fromTheme("go-home"), "首页");
+        normalTabBar->addTab(QIcon::fromTheme("folder"), "文件");
+        normalTabBar->addTab(QIcon::fromTheme("applications-system"), "工具");
+        normalTabBar->setCurrentIndex(0);
+        normalTabBar->setFixedHeight(40);
+        tabBarLayout->addWidget(normalTabBar);
+
+        DTabBar *closableTabBar = new DTabBar(tabBarCard);
+        closableTabBar->setDrawBase(false);
+        closableTabBar->setTabsClosable(true);
+        closableTabBar->setVisibleAddButton(false);
+        closableTabBar->addTab("未保存文档");
+        closableTabBar->addTab("下载任务");
+        closableTabBar->addTab("同步日志");
+        closableTabBar->setCurrentIndex(1);
+        closableTabBar->setFixedHeight(40);
+        tabBarLayout->addWidget(closableTabBar);
+
+        DTabBar *scrollTabBar = new DTabBar(tabBarCard);
+        scrollTabBar->setDrawBase(false);
+        scrollTabBar->setUsesScrollButtons(true);
+        scrollTabBar->setVisibleAddButton(false);
+        scrollTabBar->setFixedWidth(360);
+        scrollTabBar->setFixedHeight(40);
+        for (int i = 1; i <= 10; ++i)
+            scrollTabBar->addTab(QString("标签 %1").arg(i));
+        tabBarLayout->addWidget(scrollTabBar, 0, Qt::AlignLeft);
+
+        DTabBar *verticalTabBar = new DTabBar(tabBarCard);
+        verticalTabBar->setDrawBase(false);
+        verticalTabBar->setShape(QTabBar::RoundedWest);
+        verticalTabBar->setVisibleAddButton(false);
+        verticalTabBar->addTab("通用");
+        verticalTabBar->addTab("网络");
+        verticalTabBar->addTab("高级");
+        verticalTabBar->setFixedSize(120, 140);
+        tabBarLayout->addWidget(verticalTabBar, 0, Qt::AlignLeft);
+
+        tabBarLayout->addWidget(createDescription("展示 DTabBar 的新增按钮、关闭按钮、滚动按钮和纵向标签形态。", tabBarCard));
+        layout->addWidget(tabBarCard);
+        layout->addStretch();
+        break;
+    }
+    case 2: {
         DCardWidget *tabbedCard = new DCardWidget(page);
         QVBoxLayout *tabbedLayout = new QVBoxLayout(tabbedCard);
         tabbedLayout->setContentsMargins(18, 14, 18, 14);
@@ -95,7 +149,7 @@ static void loadTabsPage(QTabWidget *tabs, int index)
         layout->addStretch();
         break;
     }
-    case 2: {
+    case 3: {
         DCardWidget *documentTabCard = new DCardWidget(page);
         QVBoxLayout *documentTabLayout = new QVBoxLayout(documentTabCard);
         documentTabLayout->setContentsMargins(18, 14, 18, 14);
@@ -275,6 +329,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         tabPages->setDocumentMode(true);
         tabPages->setTabPosition(QTabWidget::West);
         tabPages->addTab(new QWidget(tabPages), "说明");
+        tabPages->addTab(new QWidget(tabPages), "基础标签栏");
         tabPages->addTab(new QWidget(tabPages), "页面堆叠");
         tabPages->addTab(new QWidget(tabPages), "文档标签");
         QObject::connect(tabPages, &QTabWidget::currentChanged, tabPages, [tabPages](int childIndex) {

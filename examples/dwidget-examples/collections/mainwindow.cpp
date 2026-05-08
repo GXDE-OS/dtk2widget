@@ -17,6 +17,7 @@
 
 #include <QHBoxLayout>
 #include <QFrame>
+#include <QFileDialog>
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
@@ -28,6 +29,7 @@
 #include <QFontDatabase>
 #include <QTextCodec>
 #include <QDebug>
+#include <QDir>
 #include <QTemporaryFile>
 
 #include <functional>
@@ -235,7 +237,18 @@ void MainWindow::initTitlebarMenu()
 
 void MainWindow::setWindowBackgroundMode(QAction *action)
 {
-    Q_UNUSED(action)
+    if (action == m_setWindowBackgroundAction) {
+        const QString fileName = QFileDialog::getOpenFileName(this,
+                                                              "选择窗口背景图片",
+                                                              m_windowBackgroundPath.isEmpty() ? QDir::homePath() : m_windowBackgroundPath,
+                                                              "图片文件 (*.jpg *.jpeg *.png *.bmp *.gif *.svg);;所有文件 (*.*)");
+        if (!fileName.isEmpty()) {
+            m_windowBackgroundPath = fileName;
+        } else if (m_windowBackgroundPath.isEmpty()) {
+            m_removeWindowBackgroundAction->setChecked(true);
+        }
+    }
+
     updateCentralBackground();
 }
 
@@ -259,8 +272,9 @@ void MainWindow::updateCentralBackground()
         if (transparentBackground || blurBackground) {
             centralWidget()->setStyleSheet(QString());
         } else if (imageBackground) {
-            centralWidget()->setStyleSheet("#CollectionsCentralWidget { background-image: url(:/images/default_background.jpg); background-position: center; }"
-                                           "#CollectionsCentralWidget QLabel { background: transparent; }");
+            const QString backgroundPath = m_windowBackgroundPath.isEmpty() ? ":/images/default_background.jpg" : m_windowBackgroundPath;
+            centralWidget()->setStyleSheet(QString("#CollectionsCentralWidget { background-image: url(\"%1\"); background-position: center; }"
+                                           "#CollectionsCentralWidget QLabel { background: transparent; }").arg(backgroundPath));
         } else {
             centralWidget()->setStyleSheet(QString());
         }
