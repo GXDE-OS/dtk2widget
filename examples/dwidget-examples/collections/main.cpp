@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
 #endif
 
     DApplication::loadDXcbPlugin();
+    DApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 
     DApplication a(argc, argv);
     Dtk::Core::DLogManager::registerConsoleAppender();
 
     a.loadTranslator();
-    a.setAttribute(Qt::AA_EnableHighDpiScaling, true);
     a.setTheme("light");
 #ifdef Q_OS_UNIX
     a.setOOMScoreAdj(500);

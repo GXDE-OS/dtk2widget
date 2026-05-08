@@ -149,6 +149,8 @@ MainWindow::MainWindow(QWidget *parent)
     centralWidget->setLayout(mainLayout);
 
     setCentralWidget(centralWidget);
+    setMinimumSize(960, 640);
+    resize(1180, 760);
 
     DTitlebar *titlebar = this->titlebar();
 
