@@ -917,13 +917,7 @@ bool DTabBarPrivate::eventFilter(QObject *watched, QEvent *event)
 
 QSize DTabBarPrivate::minimumSizeHint() const
 {
-    const QSize &hint = sizeHint();
-    QSize size = QTabBar::minimumSizeHint();
-
-    size.setWidth(qMin(size.width(), hint.width()));
-    size.setHeight(qMin(size.height(), hint.height()));
-
-    return size;
+    return QTabBar::minimumSizeHint();
 }
 
 void DTabBarPrivate::paintEvent(QPaintEvent *e)
