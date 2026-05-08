@@ -16,6 +16,7 @@
  */
 
 #include <QDebug>
+#include <QApplication>
 #include <QFile>
 #include <QFileInfo>
 #include <QWidget>
@@ -140,6 +141,23 @@ static void setStyle(QWidget *widget, QStyle *style)
             setStyle(cw, style);
         }
     }
+}
+
+static void refreshWidgetStyle(QWidget *widget)
+{
+    if (!widget || !widget->style())
+        return;
+
+    widget->style()->unpolish(widget);
+    widget->style()->polish(widget);
+    widget->update();
+}
+
+static void refreshApplicationWidgets()
+{
+    const QWidgetList widgets = qApp->allWidgets();
+    for (QWidget *widget : widgets)
+        refreshWidgetStyle(widget);
 }
 
 static void inseritStyle(QWidget *widget, const QWidget *baseWidget)
@@ -361,8 +379,10 @@ public:
                                                                      ? DGuiApplicationHelper::DarkType
                                                                      : DGuiApplicationHelper::LightType));
 
-            if (themeChanged)
+            if (themeChanged) {
                 Q_EMIT q->themeChanged(themeName);
+                refreshApplicationWidgets();
+            }
         }
     }
 
@@ -592,6 +612,8 @@ void DThemeManager::FollowSystemDefaultTheme()
         setTheme("dark");
         return;
     }
+
+    setTheme("light");
 }
 
 bool DThemeManager::eventFilter(QObject *watched, QEvent *event)
