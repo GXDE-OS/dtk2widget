@@ -84,6 +84,7 @@ private:
     void _q_aboutActionTriggered();
     void _q_quitActionTriggered();
     void _q_backgroundActionTriggered();
+    void _q_removeBackgroundActionTriggered();
     void _q_blurWindowActionToggled(bool checked);
 #endif
 
@@ -620,6 +621,22 @@ void DTitlebarPrivate::_q_backgroundActionTriggered()
     }
 
     dwin->setEnableWindowBackground(backgroundAction->isChecked());
+    dwin->refreshBackground();
+    updateAppearanceActions();
+}
+
+void DTitlebarPrivate::_q_removeBackgroundActionTriggered()
+{
+    D_QC(DTitlebar);
+    DMainWindow *dwin = q->m_dwindow;
+    if (!dwin || !dwin->background())
+        return;
+
+    dwin->background()->removeUserBackground(DMainWindowBackground::light,
+                                             DMainWindowBackground::BackgroundPlace::FullWindow);
+    dwin->background()->removeUserBackground(DMainWindowBackground::dark,
+                                             DMainWindowBackground::BackgroundPlace::FullWindow);
+    dwin->setEnableWindowBackground(false);
     dwin->refreshBackground();
     updateAppearanceActions();
 }
