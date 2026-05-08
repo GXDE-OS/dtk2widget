@@ -16,6 +16,7 @@
  */
 
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QMenu>
@@ -34,8 +35,6 @@
 #include "dtkwidget_global.h"
 #include "dswitchbutton.h"
 #include "segmentedcontrol.h"
-#include "dplatformwindowhandle.h"
-#include "dtitlebar.h"
 
 #include <DApplication>
 
@@ -43,7 +42,6 @@
 #include "buttonlisttab.h"
 #include "graphicseffecttab.h"
 #include "simplelistviewtab.h"
-#include "dtoast.h"
 
 #ifndef DTK_NO_MULTIMEDIA
 #include "cameraform.h"
@@ -52,28 +50,36 @@
 DCORE_USE_NAMESPACE
 DWIDGET_USE_NAMESPACE
 
+static QLabel *descriptionLabel(const QString &text, QWidget *parent)
+{
+    QLabel *label = new QLabel(text, parent);
+    label->setWordWrap(true);
+    label->setMargin(12);
+    return label;
+}
+
+static QTabWidget *childTabs(QWidget *parent)
+{
+    QTabWidget *tabs = new QTabWidget(parent);
+    tabs->setDocumentMode(true);
+    return tabs;
+}
+
 MainWindow::MainWindow(QWidget *parent)
-    : DMainWindow(parent)
+    : QMainWindow(parent)
 {
     DThemeManager *themeManager = DThemeManager::instance();
 
-    initTabWidget();
-
     QVBoxLayout *mainLayout = new QVBoxLayout();
-
-    mainLayout->setMargin(5);
-    mainLayout->addWidget(m_mainTab);
+    mainLayout->setContentsMargins(12, 12, 12, 12);
+    mainLayout->setSpacing(10);
 
     QHBoxLayout *styleLayout = new QHBoxLayout();
     QPushButton *darkButton = new QPushButton("Dark", this);
     QPushButton *lightBUtton = new QPushButton("Light", this);
     QPushButton *systemThemeButton = new QPushButton("Follow System", this);
-    QPushButton *enableButtons = new QPushButton("Enable Titlebar ", this);
-    QPushButton *disableButtons = new QPushButton("Disable Titlebar", this);
-    QPushButton *toggleMinMaxButtons = new QPushButton("Toggle MinMax", this);
     QPushButton *fullscreenButtons = new QPushButton("Fullscreen", this);
-    QPushButton *compactPresetButton = new QPushButton("Compact Preset", this);
-    QPushButton *elevatedPresetButton = new QPushButton("Elevated Preset", this);
+    QLabel *hint = new QLabel("DTK2 Collections is split into sections and loads each section on demand.", this);
 
     themeManager->setTheme(lightBUtton, "light");
 
@@ -86,15 +92,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(systemThemeButton, &QPushButton::clicked, [ = ] {
         themeManager->FollowSystemDefaultTheme();
     });
-    connect(enableButtons, &QPushButton::clicked, [ = ] {
-        titlebar()->setDisableFlags(Qt::Widget);
-    });
-    connect(disableButtons, &QPushButton::clicked, [ = ] {
-        titlebar()->setDisableFlags(Qt::WindowMinimizeButtonHint
-        | Qt::WindowCloseButtonHint
-        | Qt::WindowMaximizeButtonHint
-        | Qt::WindowSystemMenuHint);
-    });
     connect(fullscreenButtons, &QPushButton::clicked, [ = ] {
         if (!isFullScreen())
         {
@@ -104,40 +101,19 @@ MainWindow::MainWindow(QWidget *parent)
             showNormal();
         }
     });
-    connect(compactPresetButton, &QPushButton::clicked, [ = ] {
-        applyWindowPreset(DMainWindow::CompactWindow);
-    });
-    connect(elevatedPresetButton, &QPushButton::clicked, [ = ] {
-        applyWindowPreset(DMainWindow::ElevatedWindow);
-    });
-
-    connect(toggleMinMaxButtons, &QPushButton::clicked, [ = ] {
-        auto flags = windowFlags();
-        if (flags.testFlag(Qt::WindowMinimizeButtonHint))
-        {
-            flags  &= ~Qt::WindowMaximizeButtonHint;
-            flags  &= ~Qt::WindowMinimizeButtonHint;
-        } else
-        {
-            flags |= Qt::WindowMaximizeButtonHint;
-            flags |= Qt::WindowMinimizeButtonHint;
-        }
-        setWindowFlags(flags);
-        show();
-    });
 
     styleLayout->addWidget(darkButton);
     styleLayout->addWidget(lightBUtton);
     styleLayout->addWidget(systemThemeButton);
-    styleLayout->addWidget(enableButtons);
-    styleLayout->addWidget(disableButtons);
-    styleLayout->addWidget(toggleMinMaxButtons);
     styleLayout->addWidget(fullscreenButtons);
-    styleLayout->addWidget(compactPresetButton);
-    styleLayout->addWidget(elevatedPresetButton);
+    styleLayout->addSpacing(12);
+    styleLayout->addWidget(hint);
     styleLayout->addStretch();
 
     mainLayout->addLayout(styleLayout);
+
+    initTabWidget();
+    mainLayout->addWidget(m_mainTab);
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setAutoFillBackground(true);
@@ -145,42 +121,9 @@ MainWindow::MainWindow(QWidget *parent)
     centralWidget->setLayout(mainLayout);
 
     setCentralWidget(centralWidget);
+    setWindowTitle("DTK2 Widget Collections");
     setMinimumSize(960, 640);
     resize(1180, 760);
-
-    DTitlebar *titlebar = this->titlebar();
-
-    if (titlebar) {
-        titlebar->setMenu(new QMenu(titlebar));
-        titlebar->setSeparatorVisible(true);
-        titlebar->menu()->addAction("dfm-settings");
-        titlebar->menu()->addAction("dt-settings");
-        titlebar->menu()->addAction("testmenu1");
-        titlebar->menu()->addAction("testmenu2");
-        QMenu *menu = titlebar->menu()->addMenu("menu1");
-        menu->addAction("menu1->action1");
-        menu->addAction("menu1->action2");
-        connect(titlebar->menu(), &QMenu::triggered, this, &MainWindow::menuItemInvoked);
-
-        titlebar->setDisableFlags(Qt::WindowMinimizeButtonHint
-                                  | Qt::WindowMaximizeButtonHint
-                                  | Qt::WindowSystemMenuHint);
-        titlebar->setAutoHideOnFullscreen(true);
-    }
-
-    auto toast = new DToast(this);
-    toast->setText("Successfully close window");
-    toast->setIcon(":/images/light/images/window/close_press.svg");
-    QTimer::singleShot(1000, [ = ]() {
-        toast->pop();
-        toast->move((width() - toast->width()) / 2,
-                    (height() - toast->height()) / 2);
-    });
-    QTimer::singleShot(4000, [ = ]() {
-        toast->pop();
-    });
-
-    setEnableWindowBackground(false);
 }
 
 void MainWindow::menuItemInvoked(QAction *action)
@@ -252,56 +195,77 @@ void MainWindow::menuItemInvoked(QAction *action)
 void MainWindow::initTabWidget()
 {
     m_mainTab = new QTabWidget(this);
+    m_mainTab->setDocumentMode(true);
+    m_mainTab->addTab(new QWidget(m_mainTab), "Overview");
+    m_mainTab->addTab(new QWidget(m_mainTab), "GXDE Widgets");
+    m_mainTab->addTab(new QWidget(m_mainTab), "Basic Controls");
+    m_mainTab->addTab(new QWidget(m_mainTab), "Inputs");
+    m_mainTab->addTab(new QWidget(m_mainTab), "Effects & Lists");
+    m_mainTab->addTab(new QWidget(m_mainTab), "Multimedia");
 
-    LineTab *lineTab = new LineTab(this);
+    connect(m_mainTab, &QTabWidget::currentChanged, this, &MainWindow::loadSection);
+    loadSection(0);
+}
 
-    BarTab *barTab = new BarTab(this);
+void MainWindow::loadSection(int index)
+{
+    QWidget *page = m_mainTab->widget(index);
+    if (!page || page->property("loaded").toBool())
+        return;
 
-    ButtonTab *buttonTab = new ButtonTab(this);
+    page->setProperty("loaded", true);
+    QVBoxLayout *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(12, 12, 12, 12);
 
-    InputTab *inputTab = new InputTab(this);
-
-    SliderTab *sliderTab = new SliderTab(this);
-
-    IndicatorTab *indicatorTab = new IndicatorTab(this);
-
-    ButtonListTab *buttonListGroupTab = new ButtonListTab(this);
-
-    Segmentedcontrol *segmentedControl = new Segmentedcontrol(this);
-
-    WidgetsTab *widgetsTab = new WidgetsTab(this);
-
-    ContainerTab *containerTab = new ContainerTab(this);
-    PaletteTab *paletteTab = new PaletteTab(this);
-
+    switch (index) {
+    case 0:
+        layout->addWidget(descriptionLabel("Open each section from the tabs above. Sections are loaded lazily so a broken demo area can be isolated without hiding the whole window.", page));
+        layout->addStretch();
+        break;
+    case 1: {
+        QTabWidget *tabs = childTabs(page);
+        tabs->addTab(new WidgetsTab(tabs), "Widgets");
+        tabs->addTab(new ContainerTab(tabs), "Containers");
+        tabs->addTab(new PaletteTab(tabs), "Palettes");
+        layout->addWidget(tabs);
+        break;
+    }
+    case 2: {
+        QTabWidget *tabs = childTabs(page);
+        tabs->addTab(new LineTab(tabs), "Line");
+        tabs->addTab(new BarTab(tabs), "Bar");
+        tabs->addTab(new ButtonTab(tabs), "Button");
+        tabs->addTab(new ButtonListTab(tabs), "ButtonList");
+        tabs->addTab(new Segmentedcontrol(tabs), "Segmented Control");
+        layout->addWidget(tabs);
+        break;
+    }
+    case 3: {
+        QTabWidget *tabs = childTabs(page);
+        tabs->addTab(new InputTab(tabs), "Input");
+        tabs->addTab(new SliderTab(tabs), "Slider");
+        layout->addWidget(tabs);
+        break;
+    }
+    case 4: {
+        QTabWidget *tabs = childTabs(page);
+        tabs->addTab(new IndicatorTab(tabs), "Indicator");
+        tabs->addTab(new GraphicsEffectTab(tabs), "GraphicsEffect");
+        tabs->addTab(new SimpleListViewTab(tabs), "SimpleListView");
+        layout->addWidget(tabs);
+        break;
+    }
+    case 5:
 #ifndef DTK_NO_MULTIMEDIA
-    CameraForm *cameraform = new CameraForm(this);
+        layout->addWidget(new CameraForm(page));
+#else
+        layout->addWidget(descriptionLabel("Multimedia examples are disabled in this build.", page));
 #endif
-
-    GraphicsEffectTab *effectTab = new GraphicsEffectTab(this);
-
-    SimpleListViewTab *simplelistviewTab = new SimpleListViewTab(this);
-
-    m_mainTab->addTab(widgetsTab, "Widgets");
-    m_mainTab->addTab(containerTab, "Containers");
-    m_mainTab->addTab(paletteTab, "Palettes");
-    m_mainTab->addTab(effectTab, "GraphicsEffect");
-    m_mainTab->addTab(indicatorTab, "Indicator");
-    m_mainTab->addTab(lineTab, "Line");
-    m_mainTab->addTab(barTab, "Bar");
-    m_mainTab->addTab(buttonTab, "Button");
-    m_mainTab->addTab(inputTab, "Input");
-    m_mainTab->addTab(sliderTab, "Slider");
-
-    m_mainTab->addTab(buttonListGroupTab, "ButtonList");
-    m_mainTab->addTab(segmentedControl, "Segmented Control");
-#ifndef DTK_NO_MULTIMEDIA
-    m_mainTab->addTab(cameraform, "Camera View");
-#endif
-    m_mainTab->addTab(simplelistviewTab, "SimpleListView");
-
-    m_mainTab->setCurrentIndex(0);
-
+        break;
+    default:
+        layout->addWidget(descriptionLabel("Unknown section.", page));
+        break;
+    }
 }
 
 MainWindow::~MainWindow()

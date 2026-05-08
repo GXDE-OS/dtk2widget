@@ -18,13 +18,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QWidget>
-#include <QLabel>
+#include <QMainWindow>
 #include <QTabWidget>
-#include <QVBoxLayout>
-#include <qtypetraits.h>
-
-#include "widgets/dmainwindow.h"
 
 #include "bartab.h"
 #include "buttontab.h"
@@ -39,9 +34,7 @@
 
 class QAction;
 
-DWIDGET_USE_NAMESPACE
-
-class MainWindow : public DMainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -54,6 +47,7 @@ protected Q_SLOTS:
 
 private:
     void initTabWidget();
+    void loadSection(int index);
 
 private:
     QTabWidget *m_mainTab = NULL;
