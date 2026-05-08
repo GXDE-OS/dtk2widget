@@ -2021,6 +2021,14 @@ QSize DTabBar::tabSizeHint(int index) const
 
     QSize size = d->QTabBar::tabSizeHint(index);
 
+    if (verticalTabs(d->shape())) {
+        if (minimumWidth() == maximumWidth())
+            size.setWidth(qMax(size.width(), width()));
+    } else {
+        if (minimumHeight() == maximumHeight())
+            size.setHeight(qMax(size.height(), height()));
+    }
+
     const QSize &min = qApp->buildDtkVersion() > DTK_VERSION_CHECK(2, 0, 8, 1) ? minimumTabSizeHint(index) : DTabBar::minimumTabSizeHint(index);
     const QSize &max = qApp->buildDtkVersion() > DTK_VERSION_CHECK(2, 0, 8, 1) ? maximumTabSizeHint(index) : DTabBar::maximumTabSizeHint(index);
 
