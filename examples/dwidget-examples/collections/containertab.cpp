@@ -3,6 +3,7 @@
 #include "dbackgroundgroup.h"
 #include "dblursurface.h"
 #include "dcardwidget.h"
+#include "ddocumenttabbar.h"
 #include "dfloatingmessage.h"
 #include "dfloatingwidget.h"
 #include "dframe.h"
@@ -197,6 +198,22 @@ ContainerTab::ContainerTab(QWidget *parent)
     tabbedLayout->addWidget(tabbedStack);
     tabbedLayout->addWidget(createDescription("Use this for compact top-level page switching before adding app-specific titlebar or tray logic.", tabbedCard));
     mainLayout->addWidget(tabbedCard);
+
+    DCardWidget *documentTabCard = new DCardWidget(this);
+    QVBoxLayout *documentTabLayout = new QVBoxLayout(documentTabCard);
+    documentTabLayout->setContentsMargins(18, 14, 18, 14);
+    documentTabLayout->setSpacing(10);
+    documentTabLayout->addWidget(new DSectionTitle("DDocumentTabBar", documentTabCard));
+
+    DDocumentTabBar *documentTabBar = new DDocumentTabBar(documentTabCard);
+    documentTabBar->addDocument("/tmp/notes.txt", QIcon::fromTheme("text-x-generic"), "notes.txt");
+    documentTabBar->addDocument("/tmp/report.md", QIcon::fromTheme("text-markdown"), "report.md");
+    documentTabBar->addDocument("/tmp/readme.txt", QIcon::fromTheme("text-x-generic"), "readme.txt");
+    documentTabBar->setDocumentModified(1, true);
+    documentTabBar->setFixedHeight(40);
+    documentTabLayout->addWidget(documentTabBar);
+    documentTabLayout->addWidget(createDescription("Reusable document tab behavior from editor: document ids, modified marker, close current/others, next/previous navigation, and a right-click close menu.", documentTabCard));
+    mainLayout->addWidget(documentTabCard);
 
     QWidget *floatingArea = new QWidget(this);
     floatingArea->setMinimumHeight(156);
