@@ -65,6 +65,33 @@ static QTabWidget *childTabs(QWidget *parent)
     return tabs;
 }
 
+static void loadGxdeWidgetPage(QTabWidget *tabs, int index)
+{
+    QWidget *page = tabs->widget(index);
+    if (!page || page->property("loaded").toBool())
+        return;
+
+    page->setProperty("loaded", true);
+    QVBoxLayout *layout = new QVBoxLayout(page);
+    layout->setContentsMargins(12, 12, 12, 12);
+
+    switch (index) {
+    case 0:
+        layout->addWidget(descriptionLabel("Select Containers or Palettes below. Legacy WidgetsTab is intentionally not loaded here because it contains global monitor and MPRIS demos that can block diagnosis.", page));
+        layout->addStretch();
+        break;
+    case 1:
+        layout->addWidget(new ContainerTab(page));
+        break;
+    case 2:
+        layout->addWidget(new PaletteTab(page));
+        break;
+    default:
+        layout->addWidget(descriptionLabel("Unknown GXDE widget page.", page));
+        break;
+    }
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -224,9 +251,13 @@ void MainWindow::loadSection(int index)
         break;
     case 1: {
         QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new WidgetsTab(tabs), "Widgets");
-        tabs->addTab(new ContainerTab(tabs), "Containers");
-        tabs->addTab(new PaletteTab(tabs), "Palettes");
+        tabs->addTab(new QWidget(tabs), "Overview");
+        tabs->addTab(new QWidget(tabs), "Containers");
+        tabs->addTab(new QWidget(tabs), "Palettes");
+        connect(tabs, &QTabWidget::currentChanged, tabs, [tabs](int childIndex) {
+            loadGxdeWidgetPage(tabs, childIndex);
+        });
+        loadGxdeWidgetPage(tabs, 0);
         layout->addWidget(tabs);
         break;
     }
