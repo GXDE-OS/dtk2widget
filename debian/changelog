@@ -1,3 +1,9 @@
+dtkwidget2 (2:2.3.8) unstable; urgency=medium
+
+  * Add reusable GXDE widget building blocks and built-in palette themes.
+
+ -- GXDE Team <team@gxde.org>  Fri, 08 May 2026 00:00:00 +0800
+
 dtkwidget2 (2:2.3.7) unstable; urgency=medium
 
   * Fix DPushButton icon rendering with DTK2 styles.
