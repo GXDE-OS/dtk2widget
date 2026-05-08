@@ -24,8 +24,6 @@ DWIDGET_USE_NAMESPACE
 
 ButtonTab::ButtonTab(QWidget *parent) : QLabel(parent)
 {
-    setStyleSheet("ButtonTab{background-color: #252627;}");
-
     DArrowButton * arrowButton = new DArrowButton(this);
     arrowButton->setArrowDirection(DArrowButton::ArrowDown);
     arrowButton->move(5, 5);
@@ -43,10 +41,10 @@ ButtonTab::ButtonTab(QWidget *parent) : QLabel(parent)
     optionButton->move(110, 5);
 
     //////////////////////////////////////////////////////////////--DTextButton
-    DTextButton *textButton = new DTextButton("Test Text", this);
+    DTextButton *textButton = new DTextButton("文本按钮", this);
     textButton->move(5, 40);
 
-    DTextButton *textComplexButton = new DTextButton("Checked Button", this);
+    DTextButton *textComplexButton = new DTextButton("已选中按钮", this);
     textComplexButton->setCheckable(true);
     textComplexButton->setChecked(true);
     textComplexButton->move(5, 75);
@@ -68,10 +66,10 @@ ButtonTab::ButtonTab(QWidget *parent) : QLabel(parent)
     DSwitchButton *switchButton = new DSwitchButton(this);
     switchButton->move(85, 200);
 
-    DTK_WIDGET_NAMESPACE::DLinkButton *linkBtn = new DTK_WIDGET_NAMESPACE::DLinkButton("Link Button", this);
+    DTK_WIDGET_NAMESPACE::DLinkButton *linkBtn = new DTK_WIDGET_NAMESPACE::DLinkButton("链接按钮", this);
     linkBtn->move(10, 125);
 
-    DTK_WIDGET_NAMESPACE::DLinkButton *linkButton = new DTK_WIDGET_NAMESPACE::DLinkButton("Link Button", this);
+    DTK_WIDGET_NAMESPACE::DLinkButton *linkButton = new DTK_WIDGET_NAMESPACE::DLinkButton("链接按钮", this);
     linkButton->move(10, 155);
 
     /////////////////////////////////////////////////////////////////////////////

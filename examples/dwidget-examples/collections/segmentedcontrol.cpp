@@ -22,20 +22,16 @@ Segmentedcontrol::Segmentedcontrol(QWidget *parent) :
     QFrame(parent),
     segmentedControl(new DSegmentedControl(this))
 {
-    segmentedControl->addSegmented("page1");
-    segmentedControl->addSegmented("page2");
-    segmentedControl->addSegmented("page3");
+    segmentedControl->addSegmented("概览");
+    segmentedControl->addSegmented("详情");
+    segmentedControl->addSegmented("日志");
     segmentedControl->move(100, 50);
 
     QLabel *label = new QLabel(this);
-    QPalette pa = label->palette();
-    pa.setColor(QPalette::Foreground, Qt::white);
-    label->setPalette(pa);
     label->move(100, 150);
-    label->setText(QString("current paga %1").arg(segmentedControl->currentIndex()+1));
+    label->setText(QString("当前页：%1").arg(segmentedControl->currentIndex() + 1));
 
     connect(segmentedControl, &DSegmentedControl::currentChanged, [=](){
-        label->setText(QString("current paga %1").arg(segmentedControl->currentIndex()+1));
+        label->setText(QString("当前页：%1").arg(segmentedControl->currentIndex() + 1));
     });
 }
-

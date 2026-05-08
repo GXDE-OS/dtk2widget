@@ -35,7 +35,6 @@
 
 InputTab::InputTab(QWidget *parent) : QLabel(parent)
 {
-    setStyleSheet("InputTab{background-color: #252627;}");
     setFocusPolicy(Qt::ClickFocus);
 
     DTK_WIDGET_NAMESPACE::DPasswordEdit *pwdEdit = new DTK_WIDGET_NAMESPACE::DPasswordEdit(this);
@@ -55,23 +54,23 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
     //searchEdit->setSearchIcon(":/images/button.png");
     //searchEdit->setFixedWidth(300);
     searchEdit->move(20, 120);
-    searchEdit->setPlaceHolder("Tes");
+    searchEdit->setPlaceHolder("搜索内容");
     Dtk::Widget::DThemeManager::instance()->setTheme(searchEdit, "dark");
 
     DTK_WIDGET_NAMESPACE::DLineEdit *lineEdit = new DTK_WIDGET_NAMESPACE::DLineEdit(this);
-    lineEdit->setText("Test Alert Message");
+    lineEdit->setText("普通输入框");
     lineEdit->move(20, 180);
 //    lineEdit->setAlert(true);
 //    lineEdit->setFixedSize(200, 30);
     connect(lineEdit, &DTK_WIDGET_NAMESPACE::DLineEdit::focusChanged, [](bool focus) {qDebug() << "focus: " << focus;});
-    QTimer::singleShot(2000, nullptr, [=] {lineEdit->showAlertMessage("Test Alert Message !!");});
+    QTimer::singleShot(2000, nullptr, [=] {lineEdit->showAlertMessage("这是一条提示信息");});
 
     DTK_WIDGET_NAMESPACE::DFileChooserEdit *fileChooser = new DTK_WIDGET_NAMESPACE::DFileChooserEdit(this);
     fileChooser->move(150, 180);
     fileChooser->setDialogDisplayPosition(DTK_WIDGET_NAMESPACE::DFileChooserEdit::CurrentMonitorCenter);
 
     DTK_WIDGET_NAMESPACE::DLineEdit *lineEditAlert = new DTK_WIDGET_NAMESPACE::DLineEdit(this);
-    lineEditAlert->setText("AlertLineEdit");
+    lineEditAlert->setText("校验输入框");
     lineEditAlert->setAlert(true);
     lineEditAlert->setFixedSize(200, 30);
     lineEditAlert->move(20, 230);
@@ -109,16 +108,14 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
 #ifdef Q_OS_LINUX
     DTK_WIDGET_NAMESPACE::DPasswdEditAnimated *passwdEA = new DTK_WIDGET_NAMESPACE::DPasswdEditAnimated(this);
     passwdEA->move(500, 20);
-    QCheckBox *checkButton1 = new QCheckBox("show alert", this);
-    checkButton1->setStyleSheet("color: red");
+    QCheckBox *checkButton1 = new QCheckBox("显示警告", this);
     checkButton1->move(700, 20);
     connect(checkButton1, &QCheckBox::clicked, [=](bool checked){
-            if (checked) passwdEA->showAlert("button clicked!!!");
+            if (checked) passwdEA->showAlert("按钮已点击");
             else passwdEA->hideAlert();
         });
 
-    QCheckBox *checkButton2 = new QCheckBox("keyboard enable", this);
-    checkButton2->setStyleSheet("color: red");
+    QCheckBox *checkButton2 = new QCheckBox("启用键盘按钮", this);
     checkButton2->setChecked(true);
     checkButton2->move(700, 40);
     connect(checkButton2, &QCheckBox::clicked, [=](bool checked){
@@ -126,8 +123,7 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
             else passwdEA->setKeyboardButtonEnable(false);
         });
 
-    QCheckBox *checkButton3 = new QCheckBox("capslock enable", this);
-    checkButton3->setStyleSheet("color: red");
+    QCheckBox *checkButton3 = new QCheckBox("启用大写锁定提示", this);
     checkButton3->setChecked(true);
     checkButton3->move(700, 60);
     connect(checkButton3, &QCheckBox::clicked, [=](bool checked){
@@ -135,8 +131,7 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
             else passwdEA->setCapslockIndicatorEnable(false);
         });
 
-    QCheckBox *checkButton4 = new QCheckBox("eye enable", this);
-    checkButton4->setStyleSheet("color: red");
+    QCheckBox *checkButton4 = new QCheckBox("启用明文按钮", this);
     checkButton4->setChecked(true);
     checkButton4->move(700, 80);
     connect(checkButton4, &QCheckBox::clicked, [=](bool checked){
@@ -144,8 +139,7 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
             else passwdEA->setEyeButtonEnable(false);
         });
 
-    QCheckBox *checkButton5 = new QCheckBox("submit enable", this);
-    checkButton5->setStyleSheet("color: red");
+    QCheckBox *checkButton5 = new QCheckBox("启用提交按钮", this);
     checkButton5->setChecked(true);
     checkButton5->move(700, 100);
     connect(checkButton5, &QCheckBox::clicked, [=](bool checked){
@@ -153,8 +147,7 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
             else passwdEA->setSubmitButtonEnable(false);
         });
 
-    QCheckBox *checkButton6 = new QCheckBox("anim enable", this);
-    checkButton6->setStyleSheet("color: red");
+    QCheckBox *checkButton6 = new QCheckBox("启用加载动画", this);
     checkButton6->setChecked(true);
     checkButton6->move(700, 120);
     connect(checkButton6, &QCheckBox::clicked, [=](bool checked){
@@ -162,8 +155,7 @@ InputTab::InputTab(QWidget *parent) : QLabel(parent)
             else passwdEA->setLoadAnimEnable(false);
         });
 
-    QCheckBox *checkButton7 = new QCheckBox("abort auth", this);
-    checkButton7->setStyleSheet("color: red");
+    QCheckBox *checkButton7 = new QCheckBox("取消认证", this);
     checkButton7->setChecked(true);
     checkButton7->move(700, 140);
     connect(checkButton7, &QCheckBox::clicked, [=](){ passwdEA->abortAuth(); });

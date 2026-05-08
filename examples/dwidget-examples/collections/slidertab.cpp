@@ -22,8 +22,6 @@ DWIDGET_USE_NAMESPACE
 
 SliderTab::SliderTab(QWidget *parent) : QLabel(parent)
 {
-    setStyleSheet("SliderTab{background-color:  #1A1B1B}");
-
     DSlider * slider = new DSlider(Qt::Horizontal, this);
     slider->setFixedWidth(300);
     slider->setFixedHeight(40);
@@ -36,4 +34,3 @@ SliderTab::SliderTab(QWidget *parent) : QLabel(parent)
     sharpSlider->move(20, 100);
 
 }
-
