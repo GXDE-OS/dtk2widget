@@ -115,6 +115,7 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dplatformwindowhandle.h \
     $$PWD/dmainwindow.h \
     $$PWD/dblureffectwidget.h \
+    $$PWD/dblursurface.h \
     $$PWD/dpageindicator.h \
     $$PWD/dclipeffectwidget.h \
     $$PWD/dgraphicsclipeffect.h \
@@ -206,6 +207,7 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dplatformwindowhandle.cpp \
     $$PWD/dmainwindow.cpp \
     $$PWD/dblureffectwidget.cpp \
+    $$PWD/dblursurface.cpp \
     $$PWD/dpageindicator.cpp \
     $$PWD/dclipeffectwidget.cpp \
     $$PWD/dgraphicsclipeffect.cpp \
@@ -258,6 +260,7 @@ includes.files += \
     $$PWD/DAboutDialog \
     $$PWD/DApplication \
     $$PWD/DBlurEffectWidget \
+    $$PWD/DBlurSurface \
     $$PWD/DClipEffectWidget \
     $$PWD/DGraphicsDropShadowEffect \
     $$PWD/DPlatformWindowHandle \

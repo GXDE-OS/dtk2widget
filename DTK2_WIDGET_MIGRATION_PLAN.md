@@ -17,6 +17,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Added `DHoverButton` and `DIconTextButton` for repeated file-manager/viewer icon button patterns.
 - [x] Promoted dtk2 `DIconButton` as a reusable icon-only button while preserving deprecated `DButtonList` compatibility.
 - [x] Added `DFloatingMessage` for repeated editor/movie/viewer in-window notification and tip patterns.
+- [x] Added `DBlurSurface` for reusable control-center style translucent rounded panels backed by `DBlurEffectWidget`.
 - [x] Exported the new widgets through qmake sources and forwarding headers.
 - [x] Added a `Containers` tab to DTKExample/collections for `DFrame`, `DCardWidget`, `DFloatingWidget`, `DBackgroundGroup`, `DTypographyLabel`, and `DSectionTitle`.
 - [x] Verified with `qmake ../dtkwidget.pro` and `make -j2` from `dtk2widget/build`.
@@ -33,6 +34,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - `DIconTextButton`: push button with consistent centered icon/text spacing.
 - `DIconButton`: icon-only button with optional circle mode and notification dot.
 - `DFloatingMessage`: transient/resident floating message with icon, message text, optional action widget, blur background, and close handling.
+- `DBlurSurface`: reusable blur-backed rounded panel, `blurEnabled`, `maskAlpha`, `maskColor`, `blendMode`, and `blurBackground()`.
 
 ## Candidate Inventory
 
@@ -49,7 +51,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Consolidate duplicate app label classes into reusable DTK2 typography helpers or documented presets.
 - [x] Migrate reusable icon/text/hover buttons from file manager and image viewer into generic button primitives.
 - [x] Add a compact notification/tip surface that can replace editor/movie/image-viewer local toast-like widgets.
-- [ ] Collect and generalize control-center blur widgets into reusable DTK2 blur surfaces and panels.
+- [x] Collect and generalize control-center blur widgets into reusable DTK2 blur surfaces and panels.
 - [ ] Absorb system-assistant multi-tab/page-switching patterns into DTK2 after the current widget migration batch.
 - [ ] Absorb editor multi-tab document/tabbar patterns into DTK2 after the current widget migration batch.
 - [ ] Review whether `DMainWindow`/`DTitlebar` should expose a compact/blur/elevated preset instead of each app subclassing title bars.
@@ -58,7 +60,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 
 ## Deferred Optimization Tracks
 
-- Control center blur widgets: review `DBlurEffectWidget` usage in frame, account avatar overlays, quick control panels, and translucent frames; migrate reusable visual patterns rather than module-specific logic.
+- Control center blur widgets: first reusable surface is `DBlurSurface`; still review account avatar overlays and quick control panels for narrower reusable patterns rather than module-specific logic.
 - System assistant tabs/pages: extract page switching and multi-tab structure only after button/surface migration is stable.
 - Editor tabs: compare editor `Tabbar`, document tab behavior, and existing DTK2 `DTabBar`; move generally useful behaviors into DTK2 without editor-specific document state.
 

@@ -1,6 +1,7 @@
 #include "containertab.h"
 
 #include "dbackgroundgroup.h"
+#include "dblursurface.h"
 #include "dcardwidget.h"
 #include "dfloatingmessage.h"
 #include "dfloatingwidget.h"
@@ -164,6 +165,23 @@ ContainerTab::ContainerTab(QWidget *parent)
     messageLayout->addWidget(residentMessage);
     messageLayout->addWidget(createDescription("Use this for reusable in-window notifications before moving app-specific toast logic into DTK2.", messageCard));
     mainLayout->addWidget(messageCard);
+
+    QWidget *blurArea = new QWidget(this);
+    blurArea->setMinimumHeight(142);
+    blurArea->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #d9ecff, stop:0.48 #f4e7ff, stop:1 #fff0d7); border-radius: 6px;");
+    QHBoxLayout *blurAreaLayout = new QHBoxLayout(blurArea);
+    blurAreaLayout->setContentsMargins(28, 22, 28, 22);
+
+    DBlurSurface *blurSurface = new DBlurSurface(blurArea);
+    blurSurface->setFixedWidth(420);
+    blurSurface->setMaskAlpha(96);
+    QVBoxLayout *blurSurfaceLayout = new QVBoxLayout(blurSurface);
+    blurSurfaceLayout->setContentsMargins(18, 14, 18, 14);
+    blurSurfaceLayout->setSpacing(6);
+    blurSurfaceLayout->addWidget(createTitle("DBlurSurface", blurSurface));
+    blurSurfaceLayout->addWidget(createDescription("Reusable translucent panel for control-center style grouped content. It manages the blur widget, rounded mask, tint, and restrained shadow.", blurSurface));
+    blurAreaLayout->addWidget(blurSurface, 0, Qt::AlignCenter);
+    mainLayout->addWidget(blurArea);
 
     QWidget *floatingArea = new QWidget(this);
     floatingArea->setMinimumHeight(156);
