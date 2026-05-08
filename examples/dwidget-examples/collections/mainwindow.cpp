@@ -258,6 +258,8 @@ void MainWindow::initTabWidget()
 
     WidgetsTab *widgetsTab = new WidgetsTab(this);
 
+    ContainerTab *containerTab = new ContainerTab(this);
+
 #ifndef DTK_NO_MULTIMEDIA
     CameraForm *cameraform = new CameraForm(this);
 #endif
@@ -267,6 +269,7 @@ void MainWindow::initTabWidget()
     SimpleListViewTab *simplelistviewTab = new SimpleListViewTab(this);
 
     m_mainTab->addTab(widgetsTab, "Widgets");
+    m_mainTab->addTab(containerTab, "Containers");
     m_mainTab->addTab(effectTab, "GraphicsEffect");
     m_mainTab->addTab(indicatorTab, "Indicator");
     m_mainTab->addTab(lineTab, "Line");

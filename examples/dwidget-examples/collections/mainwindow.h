@@ -33,6 +33,7 @@
 #include "slidertab.h"
 #include "indicatortab.h"
 #include "widgetstab.h"
+#include "containertab.h"
 
 
 class QAction;

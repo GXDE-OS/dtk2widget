@@ -41,6 +41,7 @@ SOURCES += main.cpp\
     slidertab.cpp \
     buttonlisttab.cpp \
     segmentedcontrol.cpp\
+    containertab.cpp \
     indicatortab.cpp \
     widgetstab.cpp \
     simplelistviewtab.cpp \
@@ -58,6 +59,7 @@ HEADERS  += mainwindow.h \
     slidertab.h \
     buttonlisttab.h \
     segmentedcontrol.h \
+    containertab.h \
     indicatortab.h \
     widgetstab.h \
     simplelistviewtab.h \

@@ -58,6 +58,10 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dconstants.h \
     $$PWD/dseparatorhorizontal.h \
     $$PWD/dseparatorvertical.h \
+    $$PWD/dframe.h \
+    $$PWD/dcardwidget.h \
+    $$PWD/dfloatingwidget.h \
+    $$PWD/dbackgroundgroup.h \
     $$PWD/dbaseline.h \
     $$PWD/dheaderline.h \
     $$PWD/dbaseexpand.h \
@@ -142,6 +146,10 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dapplication.cpp \
     $$PWD/dseparatorhorizontal.cpp \
     $$PWD/dseparatorvertical.cpp \
+    $$PWD/dframe.cpp \
+    $$PWD/dcardwidget.cpp \
+    $$PWD/dfloatingwidget.cpp \
+    $$PWD/dbackgroundgroup.cpp \
     $$PWD/dbaseline.cpp \
     $$PWD/dheaderline.cpp \
     $$PWD/dbaseexpand.cpp \
@@ -275,4 +283,8 @@ includes.files += \
     $$PWD/DMessageBox \
     $$PWD/DToolButton \
     $$PWD/DProgressBar \
+    $$PWD/DFrame \
+    $$PWD/DCardWidget \
+    $$PWD/DFloatingWidget \
+    $$PWD/DBackgroundGroup \
     $$PWD/DApplicationSettings
