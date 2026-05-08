@@ -55,11 +55,6 @@ DWIDGET_USE_NAMESPACE
 MainWindow::MainWindow(QWidget *parent)
     : DMainWindow(parent)
 {
-    auto flags = windowFlags() & ~Qt::WindowMaximizeButtonHint;
-    flags = flags & ~Qt::WindowMinimizeButtonHint;
-    setWindowFlags(flags);
-    setAttribute(Qt::WA_TranslucentBackground);
-
     DThemeManager *themeManager = DThemeManager::instance();
 
     initTabWidget();
@@ -145,6 +140,7 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->addLayout(styleLayout);
 
     QWidget *centralWidget = new QWidget(this);
+    centralWidget->setAutoFillBackground(true);
 
     centralWidget->setLayout(mainLayout);
 
@@ -184,7 +180,7 @@ MainWindow::MainWindow(QWidget *parent)
         toast->pop();
     });
 
-    setEnableWindowBackground(1);
+    setEnableWindowBackground(false);
 }
 
 void MainWindow::menuItemInvoked(QAction *action)
