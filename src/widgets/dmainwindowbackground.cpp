@@ -20,8 +20,8 @@ void DMainWindowBackground::drawInWidget(QPainter *painter)
         // 防止空指针导致崩溃
         return;
     }
-    // 只有在设置了壁纸才会渲染
     if (!m_isSetBackground) {
+        painter->fillRect(m_dmainWindow->rect(), m_dmainWindow->palette().color(QPalette::Window));
         return;
     }
     QString theme = DThemeManager::instance()->theme(m_dmainWindow);
