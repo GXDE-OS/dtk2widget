@@ -89,6 +89,4 @@ INCLUDEPATH += $$PWD/../../../src/widgets
 INCLUDEPATH += $$PWD/../../../src/util
 DEPENDPATH += $$PWD/../../../src
 
-CONFIG(debug, debug|release) {
-    unix:QMAKE_RPATHDIR += $$OUT_PWD/../../../src
-}
+unix:QMAKE_RPATHDIR += $$OUT_PWD/../../../src
