@@ -18,15 +18,19 @@
 #include <QHBoxLayout>
 #include <QFrame>
 #include <QLabel>
+#include <QListWidget>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QMenu>
 #include <QAction>
 #include <QActionGroup>
+#include <QStackedWidget>
 #include <QFontDatabase>
 #include <QTextCodec>
 #include <QDebug>
 #include <QTemporaryFile>
+
+#include <functional>
 
 #include "qsettingbackend.h"
 #include "dsettingsdialog.h"
@@ -82,14 +86,39 @@ static QFrame *useCaseCard(const QString &title, const QString &description, QWi
     return card;
 }
 
-static QTabWidget *childTabs(QWidget *parent)
+static QWidget *sideTabs(const QStringList &titles, QWidget *parent, const std::function<void(QStackedWidget *, int)> &loader)
 {
-    QTabWidget *tabs = new QTabWidget(parent);
-    tabs->setDocumentMode(true);
-    return tabs;
+    QWidget *container = new QWidget(parent);
+    QHBoxLayout *layout = new QHBoxLayout(container);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(12);
+
+    QListWidget *nav = new QListWidget(container);
+    nav->setObjectName("ExampleSideNav");
+    nav->setFixedWidth(150);
+    nav->setFrameShape(QFrame::NoFrame);
+    nav->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    QStackedWidget *stack = new QStackedWidget(container);
+    for (const QString &title : titles) {
+        nav->addItem(title);
+        stack->addWidget(new QWidget(stack));
+    }
+
+    QObject::connect(nav, &QListWidget::currentRowChanged, stack, [stack, loader](int row) {
+        if (row < 0)
+            return;
+        stack->setCurrentIndex(row);
+        loader(stack, row);
+    });
+
+    layout->addWidget(nav);
+    layout->addWidget(stack, 1);
+    nav->setCurrentRow(0);
+    return container;
 }
 
-static void loadGxdeWidgetPage(QTabWidget *tabs, int index)
+static void loadGxdeWidgetPage(QStackedWidget *tabs, int index)
 {
     QWidget *page = tabs->widget(index);
     if (!page || page->property("loaded").toBool())
@@ -125,21 +154,21 @@ MainWindow::MainWindow(QWidget *parent)
     mainLayout->setContentsMargins(16, 16, 16, 16);
     mainLayout->setSpacing(12);
 
-    QLabel *hint = descriptionLabel("DTK2 示例按应用场景分类，右上角菜单可切换主题、背景和透明窗口，用于验证 Blur 与窗口背景。", this);
+    QLabel *hint = descriptionLabel("DTK2 示例按应用场景分类，右上角菜单可切换主题和窗口背景模式，用于验证背景、透明窗口与 Blur。", this);
     hint->setObjectName("OverviewHint");
     mainLayout->addWidget(hint);
 
     initTabWidget();
-    mainLayout->addWidget(m_mainTab);
+    mainLayout->addWidget(m_mainStack->parentWidget());
 
     QWidget *centralWidget = new QWidget(this);
     centralWidget->setObjectName("CollectionsCentralWidget");
     centralWidget->setLayout(mainLayout);
 
+    setCentralWidget(centralWidget);
     initTitlebarMenu();
     applyWindowPreset(DMainWindow::DefaultWindow);
-    applyDemoBackground(true);
-    setCentralWidget(centralWidget);
+    updateCentralBackground();
     setWindowTitle("DTK2 组件示例");
     titlebar()->setTitle(windowTitle());
     setMinimumSize(960, 640);
@@ -154,9 +183,10 @@ void MainWindow::initTitlebarMenu()
     m_themeGroup = new QActionGroup(this);
     m_themeGroup->setExclusive(true);
 
-    m_lightAction = m_titleMenu->addAction("浅色主题");
-    m_darkAction = m_titleMenu->addAction("深色主题");
-    m_systemThemeAction = m_titleMenu->addAction("跟随系统主题");
+    QMenu *themeMenu = m_titleMenu->addMenu("主题");
+    m_lightAction = themeMenu->addAction("浅色主题");
+    m_darkAction = themeMenu->addAction("深色主题");
+    m_systemThemeAction = themeMenu->addAction("跟随系统主题");
     for (QAction *action : {m_lightAction, m_darkAction, m_systemThemeAction}) {
         action->setCheckable(true);
         m_themeGroup->addAction(action);
@@ -164,35 +194,34 @@ void MainWindow::initTitlebarMenu()
 
     connect(m_lightAction, &QAction::triggered, this, [themeManager, this] {
         themeManager->setTheme("light");
+        updateCentralBackground();
         updateThemeActions();
     });
     connect(m_darkAction, &QAction::triggered, this, [themeManager, this] {
         themeManager->setTheme("dark");
+        updateCentralBackground();
         updateThemeActions();
     });
     connect(m_systemThemeAction, &QAction::triggered, this, [themeManager, this] {
         themeManager->FollowSystemDefaultTheme();
+        updateCentralBackground();
         updateThemeActions();
     });
 
-    m_titleMenu->addSeparator();
-    m_backgroundAction = m_titleMenu->addAction("使用示例背景");
-    m_backgroundAction->setCheckable(true);
-    m_backgroundAction->setChecked(true);
-    connect(m_backgroundAction, &QAction::toggled, this, &MainWindow::applyDemoBackground);
+    QMenu *backgroundMenu = m_titleMenu->addMenu("窗口背景");
+    m_backgroundGroup = new QActionGroup(this);
+    m_backgroundGroup->setExclusive(true);
 
-    m_transparentAction = m_titleMenu->addAction("透明内容背景");
-    m_transparentAction->setCheckable(true);
-    connect(m_transparentAction, &QAction::toggled, this, &MainWindow::setDemoBackgroundTransparent);
-
-    m_blurWindowAction = m_titleMenu->addAction("启用窗口 Blur");
-    m_blurWindowAction->setCheckable(true);
-    connect(m_blurWindowAction, &QAction::toggled, this, [this](bool enabled) {
-        setEnableBlurWindow(enabled);
-        setTranslucentBackground(enabled || (m_transparentAction && m_transparentAction->isChecked()));
-        titlebar()->setBackgroundTransparent(enabled);
-        titlebar()->setBlurBackground(enabled);
-    });
+    m_setWindowBackgroundAction = backgroundMenu->addAction("设置窗口背景");
+    m_removeWindowBackgroundAction = backgroundMenu->addAction("移除窗口背景");
+    m_transparentAction = backgroundMenu->addAction("透明背景");
+    m_blurWindowAction = backgroundMenu->addAction("窗口 Blur");
+    for (QAction *action : {m_setWindowBackgroundAction, m_removeWindowBackgroundAction, m_transparentAction, m_blurWindowAction}) {
+        action->setCheckable(true);
+        m_backgroundGroup->addAction(action);
+    }
+    m_setWindowBackgroundAction->setChecked(true);
+    connect(m_backgroundGroup, &QActionGroup::triggered, this, &MainWindow::setWindowBackgroundMode);
 
     m_titleMenu->addSeparator();
     QAction *fullscreenAction = m_titleMenu->addAction("切换全屏");
@@ -204,32 +233,39 @@ void MainWindow::initTitlebarMenu()
     updateThemeActions();
 }
 
-void MainWindow::applyDemoBackground(bool enabled)
+void MainWindow::setWindowBackgroundMode(QAction *action)
 {
-    setEnableWindowBackground(enabled);
-    if (centralWidget() && !(m_transparentAction && m_transparentAction->isChecked())) {
-        centralWidget()->setStyleSheet(enabled
-            ? "#CollectionsCentralWidget { background-image: url(:/images/default_background.jpg); background-position: center; }"
-            : QString());
-    }
-    background()->refresh();
-    refreshBackground();
+    Q_UNUSED(action)
+    updateCentralBackground();
 }
 
-void MainWindow::setDemoBackgroundTransparent(bool transparent)
+void MainWindow::updateCentralBackground()
 {
+    const bool imageBackground = !m_setWindowBackgroundAction || m_setWindowBackgroundAction->isChecked();
+    const bool transparentBackground = m_transparentAction && m_transparentAction->isChecked();
+    const bool blurBackground = m_blurWindowAction && m_blurWindowAction->isChecked();
+
+    setEnableWindowBackground(imageBackground);
+    setEnableBlurWindow(blurBackground);
+    setTranslucentBackground(transparentBackground || blurBackground);
+    titlebar()->setBackgroundTransparent(transparentBackground || blurBackground);
+    titlebar()->setBlurBackground(blurBackground);
+
     if (centralWidget()) {
-        centralWidget()->setAttribute(Qt::WA_TranslucentBackground, transparent);
-        centralWidget()->setAutoFillBackground(!transparent);
-        centralWidget()->setStyleSheet(transparent
-            ? "#CollectionsCentralWidget { background: transparent; }"
-            : (m_backgroundAction && m_backgroundAction->isChecked()
-                ? "#CollectionsCentralWidget { background-image: url(:/images/default_background.jpg); background-position: center; }"
-                : QString()));
+        centralWidget()->setAttribute(Qt::WA_TranslucentBackground, transparentBackground || blurBackground);
+        centralWidget()->setAutoFillBackground(!(transparentBackground || blurBackground));
+        if (transparentBackground || blurBackground) {
+            centralWidget()->setStyleSheet(QString());
+        } else if (imageBackground) {
+            centralWidget()->setStyleSheet("#CollectionsCentralWidget { background-image: url(:/images/default_background.jpg); background-position: center; }"
+                                           "#CollectionsCentralWidget QLabel { background: transparent; }");
+        } else {
+            centralWidget()->setStyleSheet(QString());
+        }
+        centralWidget()->setPalette(qApp->palette());
     }
 
-    setTranslucentBackground(transparent || (m_blurWindowAction && m_blurWindowAction->isChecked()));
-    titlebar()->setBackgroundTransparent(transparent);
+    background()->refresh();
     refreshBackground();
 }
 
@@ -310,22 +346,39 @@ void MainWindow::menuItemInvoked(QAction *action)
 
 void MainWindow::initTabWidget()
 {
-    m_mainTab = new QTabWidget(this);
-    m_mainTab->setDocumentMode(true);
-    m_mainTab->addTab(new QWidget(m_mainTab), "总览");
-    m_mainTab->addTab(new QWidget(m_mainTab), "新增组件");
-    m_mainTab->addTab(new QWidget(m_mainTab), "基础控件");
-    m_mainTab->addTab(new QWidget(m_mainTab), "输入与编辑");
-    m_mainTab->addTab(new QWidget(m_mainTab), "列表与反馈");
-    m_mainTab->addTab(new QWidget(m_mainTab), "多媒体");
+    QWidget *mainTabs = new QWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout(mainTabs);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(12);
 
-    connect(m_mainTab, &QTabWidget::currentChanged, this, &MainWindow::loadSection);
-    loadSection(0);
+    m_mainNav = new QListWidget(mainTabs);
+    m_mainNav->setObjectName("MainExampleNav");
+    m_mainNav->setFixedWidth(156);
+    m_mainNav->setFrameShape(QFrame::NoFrame);
+    m_mainNav->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    m_mainStack = new QStackedWidget(mainTabs);
+    const QStringList sections = QStringList() << "总览" << "新增组件" << "基础控件" << "输入与编辑" << "列表与反馈" << "多媒体";
+    for (const QString &section : sections) {
+        m_mainNav->addItem(section);
+        m_mainStack->addWidget(new QWidget(m_mainStack));
+    }
+
+    layout->addWidget(m_mainNav);
+    layout->addWidget(m_mainStack, 1);
+
+    connect(m_mainNav, &QListWidget::currentRowChanged, this, [this](int index) {
+        if (index < 0)
+            return;
+        m_mainStack->setCurrentIndex(index);
+        loadSection(index);
+    });
+    m_mainNav->setCurrentRow(0);
 }
 
 void MainWindow::loadSection(int index)
 {
-    QWidget *page = m_mainTab->widget(index);
+    QWidget *page = m_mainStack->widget(index);
     if (!page || page->property("loaded").toBool())
         return;
 
@@ -336,46 +389,64 @@ void MainWindow::loadSection(int index)
     switch (index) {
     case 0:
         layout->addWidget(descriptionLabel("DTK2 示例按实际使用场景重新整理。优先展示最小可运行组合：一个标题、一段说明、一个控件或一组常见交互。", page));
-        layout->addWidget(useCaseCard("窗口与背景", "当前示例使用 DMainWindow。右上角菜单可切换浅色/深色主题、示例背景、透明内容背景和窗口 Blur。", page));
+        layout->addWidget(useCaseCard("窗口与背景", "当前示例使用 DMainWindow。右上角菜单可切换浅色/深色主题，并在设置窗口背景、移除窗口背景、透明背景和窗口 Blur 之间切换。", page));
         layout->addWidget(useCaseCard("业务页面骨架", "新增组件页演示卡片、分组、按钮、消息、标签页和浮层，适合设置中心、文件管理器、安装器等应用复用。", page));
         layout->addWidget(useCaseCard("基础控件", "按钮、输入、滑块、进度、列表等旧示例保留为独立分类，避免一次加载过多组件。", page));
         layout->addStretch();
         break;
     case 1: {
-        QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new QWidget(tabs), "使用说明");
-        tabs->addTab(new QWidget(tabs), "容器与视觉");
-        tabs->addTab(new QWidget(tabs), "调色板");
-        connect(tabs, &QTabWidget::currentChanged, tabs, [tabs](int childIndex) {
-            loadGxdeWidgetPage(tabs, childIndex);
-        });
-        loadGxdeWidgetPage(tabs, 0);
-        layout->addWidget(tabs);
+        layout->addWidget(sideTabs(QStringList() << "使用说明" << "容器与视觉" << "调色板", page, loadGxdeWidgetPage));
         break;
     }
     case 2: {
-        QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new LineTab(tabs), "分割线");
-        tabs->addTab(new BarTab(tabs), "进度条");
-        tabs->addTab(new ButtonTab(tabs), "按钮");
-        tabs->addTab(new ButtonListTab(tabs), "按钮列表");
-        tabs->addTab(new Segmentedcontrol(tabs), "分段控制");
-        layout->addWidget(tabs);
+        layout->addWidget(sideTabs(QStringList() << "分割线" << "进度条" << "按钮" << "按钮列表" << "分段控制", page,
+            [](QStackedWidget *stack, int childIndex) {
+                QWidget *child = stack->widget(childIndex);
+                if (!child || child->property("loaded").toBool())
+                    return;
+                child->setProperty("loaded", true);
+                QVBoxLayout *childLayout = new QVBoxLayout(child);
+                childLayout->setContentsMargins(0, 0, 0, 0);
+                switch (childIndex) {
+                case 0: childLayout->addWidget(new LineTab(child)); break;
+                case 1: childLayout->addWidget(new BarTab(child)); break;
+                case 2: childLayout->addWidget(new ButtonTab(child)); break;
+                case 3: childLayout->addWidget(new ButtonListTab(child)); break;
+                case 4: childLayout->addWidget(new Segmentedcontrol(child)); break;
+                default: break;
+                }
+            }));
         break;
     }
     case 3: {
-        QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new InputTab(tabs), "输入框");
-        tabs->addTab(new SliderTab(tabs), "滑块");
-        layout->addWidget(tabs);
+        layout->addWidget(sideTabs(QStringList() << "输入框" << "滑块", page,
+            [](QStackedWidget *stack, int childIndex) {
+                QWidget *child = stack->widget(childIndex);
+                if (!child || child->property("loaded").toBool())
+                    return;
+                child->setProperty("loaded", true);
+                QVBoxLayout *childLayout = new QVBoxLayout(child);
+                childLayout->setContentsMargins(0, 0, 0, 0);
+                childLayout->addWidget(childIndex == 0 ? static_cast<QWidget *>(new InputTab(child)) : static_cast<QWidget *>(new SliderTab(child)));
+            }));
         break;
     }
     case 4: {
-        QTabWidget *tabs = childTabs(page);
-        tabs->addTab(new IndicatorTab(tabs), "状态指示");
-        tabs->addTab(new GraphicsEffectTab(tabs), "图形效果");
-        tabs->addTab(new SimpleListViewTab(tabs), "列表视图");
-        layout->addWidget(tabs);
+        layout->addWidget(sideTabs(QStringList() << "状态指示" << "图形效果" << "列表视图", page,
+            [](QStackedWidget *stack, int childIndex) {
+                QWidget *child = stack->widget(childIndex);
+                if (!child || child->property("loaded").toBool())
+                    return;
+                child->setProperty("loaded", true);
+                QVBoxLayout *childLayout = new QVBoxLayout(child);
+                childLayout->setContentsMargins(0, 0, 0, 0);
+                switch (childIndex) {
+                case 0: childLayout->addWidget(new IndicatorTab(child)); break;
+                case 1: childLayout->addWidget(new GraphicsEffectTab(child)); break;
+                case 2: childLayout->addWidget(new SimpleListViewTab(child)); break;
+                default: break;
+                }
+            }));
         break;
     }
     case 5:

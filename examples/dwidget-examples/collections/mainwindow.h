@@ -18,7 +18,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QTabWidget>
+#include <QListWidget>
+#include <QStackedWidget>
 
 #include "dmainwindow.h"
 
@@ -52,18 +53,21 @@ private:
     void initTitlebarMenu();
     void initTabWidget();
     void loadSection(int index);
-    void applyDemoBackground(bool enabled);
-    void setDemoBackgroundTransparent(bool transparent);
+    void setWindowBackgroundMode(QAction *action);
+    void updateCentralBackground();
     void updateThemeActions();
 
 private:
-    QTabWidget *m_mainTab = NULL;
+    QListWidget *m_mainNav = NULL;
+    QStackedWidget *m_mainStack = NULL;
     QMenu *m_titleMenu = NULL;
     QActionGroup *m_themeGroup = NULL;
+    QActionGroup *m_backgroundGroup = NULL;
     QAction *m_lightAction = NULL;
     QAction *m_darkAction = NULL;
     QAction *m_systemThemeAction = NULL;
-    QAction *m_backgroundAction = NULL;
+    QAction *m_setWindowBackgroundAction = NULL;
+    QAction *m_removeWindowBackgroundAction = NULL;
     QAction *m_transparentAction = NULL;
     QAction *m_blurWindowAction = NULL;
 };

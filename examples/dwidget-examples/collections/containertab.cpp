@@ -273,6 +273,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
     case 7: {
         QTabWidget *tabPages = new QTabWidget(page);
         tabPages->setDocumentMode(true);
+        tabPages->setTabPosition(QTabWidget::West);
         tabPages->addTab(new QWidget(tabPages), "说明");
         tabPages->addTab(new QWidget(tabPages), "页面堆叠");
         tabPages->addTab(new QWidget(tabPages), "文档标签");
@@ -323,6 +324,7 @@ ContainerTab::ContainerTab(QWidget *parent)
 
     QTabWidget *tabs = new QTabWidget(this);
     tabs->setDocumentMode(true);
+    tabs->setTabPosition(QTabWidget::West);
     tabs->addTab(new QWidget(tabs), "说明");
     tabs->addTab(new QWidget(tabs), "框架");
     tabs->addTab(new QWidget(tabs), "分组");
