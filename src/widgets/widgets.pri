@@ -61,6 +61,7 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dframe.h \
     $$PWD/dcardwidget.h \
     $$PWD/dfloatingwidget.h \
+    $$PWD/dfloatingmessage.h \
     $$PWD/dbackgroundgroup.h \
     $$PWD/dbaseline.h \
     $$PWD/dheaderline.h \
@@ -152,6 +153,7 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dframe.cpp \
     $$PWD/dcardwidget.cpp \
     $$PWD/dfloatingwidget.cpp \
+    $$PWD/dfloatingmessage.cpp \
     $$PWD/dbackgroundgroup.cpp \
     $$PWD/dbaseline.cpp \
     $$PWD/dheaderline.cpp \
@@ -288,10 +290,12 @@ includes.files += \
     $$PWD/DApplicationHelper \
     $$PWD/DMessageBox \
     $$PWD/DToolButton \
+    $$PWD/DIconButton \
     $$PWD/DProgressBar \
     $$PWD/DFrame \
     $$PWD/DCardWidget \
     $$PWD/DFloatingWidget \
+    $$PWD/DFloatingMessage \
     $$PWD/DBackgroundGroup \
     $$PWD/DTypographyLabel \
     $$PWD/DSectionTitle \

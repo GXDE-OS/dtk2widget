@@ -15,6 +15,8 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Added `DBackgroundGroup` to provide dtk5-like grouped row backgrounds without depending on dtk5 `DStyle`.
 - [x] Added `DTypographyLabel` and `DSectionTitle` to replace repeated app-local small/normal/large/section title label patterns.
 - [x] Added `DHoverButton` and `DIconTextButton` for repeated file-manager/viewer icon button patterns.
+- [x] Promoted dtk2 `DIconButton` as a reusable icon-only button while preserving deprecated `DButtonList` compatibility.
+- [x] Added `DFloatingMessage` for repeated editor/movie/viewer in-window notification and tip patterns.
 - [x] Exported the new widgets through qmake sources and forwarding headers.
 - [x] Added a `Containers` tab to DTKExample/collections for `DFrame`, `DCardWidget`, `DFloatingWidget`, `DBackgroundGroup`, `DTypographyLabel`, and `DSectionTitle`.
 - [x] Verified with `qmake ../dtkwidget.pro` and `make -j2` from `dtk2widget/build`.
@@ -29,6 +31,8 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - `DSectionTitle`: section header with compact title text and trailing separator line.
 - `DHoverButton`: icon button with normal/hover/pressed icon states.
 - `DIconTextButton`: push button with consistent centered icon/text spacing.
+- `DIconButton`: icon-only button with optional circle mode and notification dot.
+- `DFloatingMessage`: transient/resident floating message with icon, message text, optional action widget, blur background, and close handling.
 
 ## Candidate Inventory
 
@@ -44,7 +48,7 @@ Collect reusable widgets and window building blocks that are currently duplicate
 - [x] Add a grouped-background/list-section container similar to dtk5 `DBackgroundGroup`, but implemented without depending on dtk5 `DStyle`.
 - [x] Consolidate duplicate app label classes into reusable DTK2 typography helpers or documented presets.
 - [x] Migrate reusable icon/text/hover buttons from file manager and image viewer into generic button primitives.
-- [ ] Add a compact notification/tip surface that can replace editor/movie/image-viewer local toast-like widgets.
+- [x] Add a compact notification/tip surface that can replace editor/movie/image-viewer local toast-like widgets.
 - [ ] Collect and generalize control-center blur widgets into reusable DTK2 blur surfaces and panels.
 - [ ] Absorb system-assistant multi-tab/page-switching patterns into DTK2 after the current widget migration batch.
 - [ ] Absorb editor multi-tab document/tabbar patterns into DTK2 after the current widget migration batch.

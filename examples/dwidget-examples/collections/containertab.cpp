@@ -2,8 +2,10 @@
 
 #include "dbackgroundgroup.h"
 #include "dcardwidget.h"
+#include "dfloatingmessage.h"
 #include "dfloatingwidget.h"
 #include "dframe.h"
+#include "dbuttonlist.h"
 #include "dhoverbutton.h"
 #include "dicontextbutton.h"
 #include "dswitchbutton.h"
@@ -128,12 +130,40 @@ ContainerTab::ContainerTab(QWidget *parent)
     DIconTextButton *iconTextButton = new DIconTextButton(QIcon::fromTheme("document-open"), "Open file", buttonCard);
     iconTextButton->setIconTextSpacing(8);
 
+    DIconButton *iconButton = new DIconButton(QIcon::fromTheme("view-refresh"), buttonCard);
+    iconButton->setCircleEnabled(true);
+    iconButton->setNewNotification(true);
+    iconButton->setFixedSize(34, 34);
+    iconButton->setToolTip("DIconButton supports circle mode and notification dot");
+
     buttonRow->addWidget(hoverButton);
     buttonRow->addWidget(iconTextButton);
+    buttonRow->addWidget(iconButton);
     buttonRow->addStretch();
     buttonLayout->addLayout(buttonRow);
     buttonLayout->addWidget(createDescription("These cover repeated file-manager and viewer patterns without importing app-specific menu or theme logic.", buttonCard));
     mainLayout->addWidget(buttonCard);
+
+    DCardWidget *messageCard = new DCardWidget(this);
+    QVBoxLayout *messageLayout = new QVBoxLayout(messageCard);
+    messageLayout->setContentsMargins(18, 14, 18, 14);
+    messageLayout->setSpacing(10);
+    messageLayout->addWidget(new DSectionTitle("DFloatingMessage", messageCard));
+
+    DFloatingMessage *transientMessage = new DFloatingMessage(DFloatingMessage::TransientType, messageCard);
+    transientMessage->setIcon(QIcon::fromTheme("dialog-information"));
+    transientMessage->setMessage("Transient message: auto closes after the configured duration.");
+    transientMessage->setDuration(5000);
+
+    DFloatingMessage *residentMessage = new DFloatingMessage(DFloatingMessage::ResidentType, messageCard);
+    residentMessage->setIcon(QIcon::fromTheme("dialog-warning"));
+    residentMessage->setMessage("Resident message: keeps focus until the user closes it.");
+    residentMessage->setActionWidget(new QPushButton("Action", residentMessage));
+
+    messageLayout->addWidget(transientMessage);
+    messageLayout->addWidget(residentMessage);
+    messageLayout->addWidget(createDescription("Use this for reusable in-window notifications before moving app-specific toast logic into DTK2.", messageCard));
+    mainLayout->addWidget(messageCard);
 
     QWidget *floatingArea = new QWidget(this);
     floatingArea->setMinimumHeight(156);

@@ -26,10 +26,34 @@
 #include <QLabel>
 #include <QPoint>
 #include <QResizeEvent>
+#include <QKeyEvent>
+#include <QPainter>
+#include <QStyleOptionButton>
 #include <QEvent>
 #include <QDebug>
 
 DWIDGET_BEGIN_NAMESPACE
+
+DIconButton::DIconButton(QWidget *parent)
+    : QPushButton(parent)
+    , m_iconLabel(new QLabel(this))
+{
+    setFlat(true);
+    setIconSize(QSize(20, 20));
+    m_iconLabel->hide();
+}
+
+DIconButton::DIconButton(const QIcon &icon, QWidget *parent)
+    : DIconButton(parent)
+{
+    setIcon(icon);
+}
+
+DIconButton::DIconButton(QStyle::StandardPixmap iconType, QWidget *parent)
+    : DIconButton(parent)
+{
+    setIcon(iconType);
+}
 
 DIconButton::DIconButton(const QString &Icon, const QString &text, QWidget *parent):
     QPushButton(text, parent),
@@ -38,6 +62,47 @@ DIconButton::DIconButton(const QString &Icon, const QString &text, QWidget *pare
 {
     initIconLabel();
     initConnect();
+}
+
+bool DIconButton::circleEnabled() const
+{
+    return m_circleEnabled;
+}
+
+bool DIconButton::hasNewNotification() const
+{
+    return m_newNotification;
+}
+
+void DIconButton::setIcon(const QIcon &icon)
+{
+    QPushButton::setIcon(icon);
+    updateGeometry();
+    update();
+}
+
+void DIconButton::setIcon(QStyle::StandardPixmap iconType)
+{
+    setIcon(style()->standardIcon(iconType, nullptr, this));
+}
+
+void DIconButton::setCircleEnabled(bool enabled)
+{
+    if (m_circleEnabled == enabled)
+        return;
+
+    m_circleEnabled = enabled;
+    updateGeometry();
+    update();
+}
+
+void DIconButton::setNewNotification(bool hasNotification)
+{
+    if (m_newNotification == hasNotification)
+        return;
+
+    m_newNotification = hasNotification;
+    update();
 }
 
 void DIconButton::initConnect(){
@@ -55,6 +120,51 @@ void DIconButton::initIconLabel(){
 
 void DIconButton::setIconLeftMargin(int leftMargin){
     m_iconLabel->move(leftMargin, y());
+}
+
+QSize DIconButton::sizeHint() const
+{
+    const QSize base = QPushButton::sizeHint();
+    const int side = qMax(base.width(), base.height());
+    return m_circleEnabled ? QSize(side, side) : base;
+}
+
+void DIconButton::paintEvent(QPaintEvent *event)
+{
+    if (!m_circleEnabled && !m_newNotification) {
+        QPushButton::paintEvent(event);
+        return;
+    }
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    if (m_circleEnabled) {
+        QStyleOptionButton option;
+        initStyleOption(&option);
+        QColor background = palette().color(QPalette::Button);
+        if (option.state & QStyle::State_MouseOver)
+            background = palette().color(QPalette::Light);
+        if (option.state & QStyle::State_Sunken)
+            background = palette().color(QPalette::Mid);
+
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(background);
+        painter.drawEllipse(rect().adjusted(1, 1, -1, -1));
+
+        const QSize iconSz = iconSize().isValid() ? iconSize() : QSize(20, 20);
+        const QRect iconArea(QPoint((width() - iconSz.width()) / 2, (height() - iconSz.height()) / 2), iconSz);
+        const QIcon::Mode mode = isEnabled() ? (underMouse() ? QIcon::Active : QIcon::Normal) : QIcon::Disabled;
+        icon().paint(&painter, iconArea, Qt::AlignCenter, mode, isChecked() ? QIcon::On : QIcon::Off);
+    } else {
+        QPushButton::paintEvent(event);
+    }
+
+    if (m_newNotification) {
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(QColor(255, 87, 87));
+        painter.drawEllipse(QRect(width() - 9, 3, 6, 6));
+    }
 }
 
 void DIconButton::resizeEvent(QResizeEvent *event){
@@ -88,6 +198,23 @@ void DIconButton::enterEvent(QEvent *event){
 void DIconButton::leaveEvent(QEvent *event){
     Q_EMIT mouseLeaved(text());
     QPushButton::leaveEvent(event);
+}
+
+void DIconButton::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        if (hasFocus()) {
+            click();
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+
+    QPushButton::keyPressEvent(event);
 }
 
 /*!

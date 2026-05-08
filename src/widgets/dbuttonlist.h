@@ -20,6 +20,8 @@
 
 #include <QListWidget>
 #include <QPushButton>
+#include <QStyle>
+#include <QIcon>
 #include "dtkwidget_global.h"
 
 class QButtonGroup;
@@ -27,14 +29,30 @@ class QLabel;
 class QPoint;
 class QResizeEvent;
 class QEvent;
+class QKeyEvent;
 
 DWIDGET_BEGIN_NAMESPACE
 
-class DIconButton : public QPushButton
+class LIBDTKWIDGETSHARED_EXPORT DIconButton : public QPushButton
 {
     Q_OBJECT
+    Q_PROPERTY(bool circleEnabled READ circleEnabled WRITE setCircleEnabled)
+    Q_PROPERTY(bool newNotification READ hasNewNotification WRITE setNewNotification)
+
 public:
+    explicit DIconButton(QWidget *parent = Q_NULLPTR);
+    explicit DIconButton(const QIcon &icon, QWidget *parent = Q_NULLPTR);
+    explicit DIconButton(QStyle::StandardPixmap iconType, QWidget *parent = Q_NULLPTR);
     DIconButton(const QString &Icon, const QString &text, QWidget *parent = Q_NULLPTR);
+
+    bool circleEnabled() const;
+    bool hasNewNotification() const;
+
+public Q_SLOTS:
+    void setIcon(const QIcon &icon);
+    void setIcon(QStyle::StandardPixmap iconType);
+    void setCircleEnabled(bool enabled);
+    void setNewNotification(bool hasNotification);
 
     void initIconLabel();
     void initConnect();
@@ -48,14 +66,19 @@ Q_SIGNALS:
     void mouseLeaved(QString label);
 
 protected:
+    QSize sizeHint() const Q_DECL_OVERRIDE;
+    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
     void resizeEvent(QResizeEvent *event);
     void enterEvent(QEvent *event);
     void leaveEvent(QEvent *event);
+    void keyPressEvent(QKeyEvent *event) Q_DECL_OVERRIDE;
 
 private:
     QLabel *m_iconLabel;
     QString m_icon;
     QString m_text;
+    bool m_circleEnabled = false;
+    bool m_newNotification = false;
 };
 
 class LIBDTKWIDGETSHARED_EXPORT DButtonList : public QListWidget
