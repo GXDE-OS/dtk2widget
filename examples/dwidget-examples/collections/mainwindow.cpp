@@ -23,7 +23,6 @@
 #include <QMenu>
 #include <QAction>
 #include <QStackedWidget>
-#include <QTabWidget>
 #include <QFontDatabase>
 #include <QTextCodec>
 #include <QDebug>
@@ -41,6 +40,7 @@
 #include "dthememanager.h"
 #include "dtkwidget_global.h"
 #include "dswitchbutton.h"
+#include "dtabbar.h"
 #include "dtitlebar.h"
 #include "dverticallistwidget.h"
 #include "segmentedcontrol.h"
@@ -89,25 +89,36 @@ static QFrame *useCaseCard(const QString &title, const QString &description, QWi
 
 static QWidget *exampleTabs(const QStringList &titles, QWidget *parent, const std::function<void(QStackedWidget *, int)> &loader)
 {
-    QTabWidget *tabs = new QTabWidget(parent);
+    QWidget *container = new QWidget(parent);
+    QVBoxLayout *layout = new QVBoxLayout(container);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(10);
+
+    DTabBar *tabs = new DTabBar(container);
     tabs->setObjectName("ExampleTabs");
-    QStackedWidget *stack = new QStackedWidget(tabs);
+    tabs->setDrawBase(false);
+    tabs->setVisibleAddButton(false);
+    tabs->setFixedHeight(40);
+
+    QStackedWidget *stack = new QStackedWidget(container);
     for (const QString &title : titles) {
         QWidget *page = new QWidget(stack);
         stack->addWidget(page);
-        tabs->addTab(page, title);
+        tabs->addTab(title);
     }
 
-    QObject::connect(tabs, &QTabWidget::currentChanged, stack, [stack, loader](int row) {
+    QObject::connect(tabs, &DTabBar::currentChanged, stack, [stack, loader](int row) {
         if (row < 0)
             return;
         stack->setCurrentIndex(row);
         loader(stack, row);
     });
 
+    layout->addWidget(tabs);
+    layout->addWidget(stack, 1);
     tabs->setCurrentIndex(0);
     loader(stack, 0);
-    return tabs;
+    return container;
 }
 
 static void loadGxdeWidgetPage(QStackedWidget *tabs, int index)

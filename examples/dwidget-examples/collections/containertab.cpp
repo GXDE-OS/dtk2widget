@@ -21,8 +21,11 @@
 #include <QPalette>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QTabWidget>
+#include <QStackedWidget>
+#include <QTabBar>
 #include <QVBoxLayout>
+
+#include <functional>
 
 DWIDGET_USE_NAMESPACE
 
@@ -63,7 +66,40 @@ static QWidget *createRow(const QString &title, const QString &description, QWid
     return row;
 }
 
-static void loadTabsPage(QTabWidget *tabs, int index)
+static QWidget *createSideTabs(const QStringList &titles, QWidget *parent, const std::function<void(QStackedWidget *, int)> &loader)
+{
+    QWidget *container = new QWidget(parent);
+    QHBoxLayout *layout = new QHBoxLayout(container);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(10);
+
+    DTabBar *tabs = new DTabBar(container);
+    tabs->setDrawBase(false);
+    tabs->setVisibleAddButton(false);
+    tabs->setShape(QTabBar::RoundedWest);
+    tabs->setFixedWidth(124);
+
+    QStackedWidget *stack = new QStackedWidget(container);
+    for (const QString &title : titles) {
+        stack->addWidget(new QWidget(stack));
+        tabs->addTab(title);
+    }
+
+    QObject::connect(tabs, &DTabBar::currentChanged, stack, [stack, loader](int index) {
+        if (index < 0)
+            return;
+        stack->setCurrentIndex(index);
+        loader(stack, index);
+    });
+
+    layout->addWidget(tabs);
+    layout->addWidget(stack, 1);
+    tabs->setCurrentIndex(0);
+    loader(stack, 0);
+    return container;
+}
+
+static void loadTabsPage(QStackedWidget *tabs, int index)
 {
     QWidget *page = tabs->widget(index);
     if (!page || page->property("loaded").toBool())
@@ -178,7 +214,7 @@ static void loadTabsPage(QTabWidget *tabs, int index)
     }
 }
 
-static void loadContainerPage(QTabWidget *tabs, int index)
+static void loadContainerPage(QStackedWidget *tabs, int index)
 {
     QWidget *page = tabs->widget(index);
     if (!page || page->property("loaded").toBool())
@@ -325,19 +361,7 @@ static void loadContainerPage(QTabWidget *tabs, int index)
         break;
     }
     case 7: {
-        QTabWidget *tabPages = new QTabWidget(page);
-        tabPages->setDocumentMode(true);
-        tabPages->setTabPosition(QTabWidget::West);
-        tabPages->addTab(new QWidget(tabPages), "说明");
-        tabPages->addTab(new QWidget(tabPages), "基础标签栏");
-        tabPages->addTab(new QWidget(tabPages), "页面堆叠");
-        tabPages->addTab(new QWidget(tabPages), "文档标签");
-        QObject::connect(tabPages, &QTabWidget::currentChanged, tabPages, [tabPages](int childIndex) {
-            loadTabsPage(tabPages, childIndex);
-        });
-
-        layout->addWidget(tabPages);
-        loadTabsPage(tabPages, 0);
+        layout->addWidget(createSideTabs(QStringList() << "说明" << "基础标签栏" << "页面堆叠" << "文档标签", page, loadTabsPage));
         layout->addStretch();
         break;
     }
@@ -377,23 +401,5 @@ ContainerTab::ContainerTab(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    QTabWidget *tabs = new QTabWidget(this);
-    tabs->setDocumentMode(true);
-    tabs->setTabPosition(QTabWidget::West);
-    tabs->addTab(new QWidget(tabs), "说明");
-    tabs->addTab(new QWidget(tabs), "框架");
-    tabs->addTab(new QWidget(tabs), "分组");
-    tabs->addTab(new QWidget(tabs), "文字层级");
-    tabs->addTab(new QWidget(tabs), "按钮");
-    tabs->addTab(new QWidget(tabs), "消息");
-    tabs->addTab(new QWidget(tabs), "Blur");
-    tabs->addTab(new QWidget(tabs), "标签页");
-    tabs->addTab(new QWidget(tabs), "浮层");
-
-    connect(tabs, &QTabWidget::currentChanged, tabs, [tabs](int index) {
-        loadContainerPage(tabs, index);
-    });
-
-    mainLayout->addWidget(tabs);
-    loadContainerPage(tabs, 0);
+    mainLayout->addWidget(createSideTabs(QStringList() << "说明" << "框架" << "分组" << "文字层级" << "按钮" << "消息" << "Blur" << "标签页" << "浮层", this, loadContainerPage));
 }
