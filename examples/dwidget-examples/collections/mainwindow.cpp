@@ -76,6 +76,8 @@ MainWindow::MainWindow(QWidget *parent)
     QPushButton *disableButtons = new QPushButton("Disable Titlebar", this);
     QPushButton *toggleMinMaxButtons = new QPushButton("Toggle MinMax", this);
     QPushButton *fullscreenButtons = new QPushButton("Fullscreen", this);
+    QPushButton *compactPresetButton = new QPushButton("Compact Preset", this);
+    QPushButton *elevatedPresetButton = new QPushButton("Elevated Preset", this);
 
     themeManager->setTheme(lightBUtton, "light");
 
@@ -103,6 +105,12 @@ MainWindow::MainWindow(QWidget *parent)
             showNormal();
         }
     });
+    connect(compactPresetButton, &QPushButton::clicked, [ = ] {
+        applyWindowPreset(DMainWindow::CompactWindow);
+    });
+    connect(elevatedPresetButton, &QPushButton::clicked, [ = ] {
+        applyWindowPreset(DMainWindow::ElevatedWindow);
+    });
 
     connect(toggleMinMaxButtons, &QPushButton::clicked, [ = ] {
         auto flags = windowFlags();
@@ -125,6 +133,8 @@ MainWindow::MainWindow(QWidget *parent)
     styleLayout->addWidget(disableButtons);
     styleLayout->addWidget(toggleMinMaxButtons);
     styleLayout->addWidget(fullscreenButtons);
+    styleLayout->addWidget(compactPresetButton);
+    styleLayout->addWidget(elevatedPresetButton);
     styleLayout->addStretch();
 
     mainLayout->addLayout(styleLayout);

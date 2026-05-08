@@ -37,6 +37,7 @@
 #include "../platforms/x11/xutil.h"
 #endif
 #include "daboutdialog.h"
+#include "dblureffectwidget.h"
 #include "private/dapplication_p.h"
 #include "dthememanager.h"
 #include "util/dwindowmanagerhelper.h"
@@ -114,6 +115,7 @@ private:
     bool                mousePressed    = false;
     bool                embedMode       = false;
     bool                autoHideOnFullscreen = false;
+    DBlurEffectWidget   *blurWidget = Q_NULLPTR;
 
     D_DECLARE_PUBLIC(DTitlebar)
 };
@@ -825,6 +827,11 @@ void DTitlebar::resizeEvent(QResizeEvent *event)
     d->closeButton->setFixedHeight(event->size().height());
     d->separatorTop->setFixedWidth(event->size().width());
     d->separator->setFixedWidth(event->size().width());
+    if (d->blurWidget) {
+        d->blurWidget->resize(event->size());
+        d->blurWidget->setBlurRectXRadius(0);
+        d->blurWidget->setBlurRectYRadius(0);
+    }
     return QWidget::resizeEvent(event);
 }
 
@@ -939,6 +946,63 @@ void DTitlebar::setBackgroundTransparent(bool transparent)
     setProperty("transparent", transparent);
 }
 
+void DTitlebar::setBlurBackground(bool blurBackground)
+{
+    D_D(DTitlebar);
+
+    if (bool(d->blurWidget) == blurBackground)
+        return;
+
+    if (blurBackground) {
+        d->blurWidget = new DBlurEffectWidget(this);
+        d->blurWidget->setFocusPolicy(Qt::NoFocus);
+        d->blurWidget->setAttribute(Qt::WA_TransparentForMouseEvents);
+        d->blurWidget->setBlendMode(DBlurEffectWidget::InWindowBlend);
+        d->blurWidget->setMaskAlpha(72);
+        d->blurWidget->setMaskColor(palette().color(QPalette::Window));
+        d->blurWidget->resize(size());
+        d->blurWidget->lower();
+        d->blurWidget->show();
+    } else {
+        d->blurWidget->deleteLater();
+        d->blurWidget = Q_NULLPTR;
+    }
+
+    setAutoFillBackground(!blurBackground);
+    update();
+}
+
+void DTitlebar::applyStylePreset(DTitlebar::StylePreset preset)
+{
+    switch (preset) {
+    case CompactStyle:
+        setFixedHeight(36);
+        setBackgroundTransparent(true);
+        setBlurBackground(false);
+        setSeparatorVisible(false);
+        break;
+    case TransparentStyle:
+        setFixedHeight(DefaultTitlebarHeight);
+        setBackgroundTransparent(true);
+        setBlurBackground(false);
+        setSeparatorVisible(false);
+        break;
+    case ElevatedStyle:
+        setFixedHeight(DefaultTitlebarHeight);
+        setBackgroundTransparent(true);
+        setBlurBackground(true);
+        setSeparatorVisible(true);
+        break;
+    case DefaultStyle:
+    default:
+        setFixedHeight(DefaultTitlebarHeight);
+        setBackgroundTransparent(false);
+        setBlurBackground(false);
+        setSeparatorVisible(true);
+        break;
+    }
+}
+
 /*!
  * \~english @brief DTitlebar::setSeparatorVisible sets the bottom separator of the title
  * bar and the window contents to be visible or not.
@@ -1027,6 +1091,18 @@ bool DTitlebar::separatorVisible() const
 {
     D_DC(DTitlebar);
     return d->separator->isVisible();
+}
+
+bool DTitlebar::blurBackground() const
+{
+    D_DC(DTitlebar);
+    return d->blurWidget;
+}
+
+DBlurEffectWidget *DTitlebar::blurBackgroundWidget() const
+{
+    D_DC(DTitlebar);
+    return d->blurWidget;
 }
 
 /*!

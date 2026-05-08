@@ -603,6 +603,44 @@ void DMainWindow::setEnableWindowBackground(bool background)
     }
 }
 
+void DMainWindow::applyWindowPreset(DMainWindow::WindowPreset preset)
+{
+    switch (preset) {
+    case CompactWindow:
+        titlebar()->applyStylePreset(DTitlebar::CompactStyle);
+        setWindowRadius(6);
+        setBorderWidth(1);
+        setEnableBlurWindow(false);
+        setEnableWindowBackground(false);
+        break;
+    case BlurWindow:
+        titlebar()->applyStylePreset(DTitlebar::TransparentStyle);
+        setWindowRadius(6);
+        setBorderWidth(1);
+        setEnableBlurWindow(true);
+        setEnableWindowBackground(true);
+        break;
+    case ElevatedWindow:
+        titlebar()->applyStylePreset(DTitlebar::ElevatedStyle);
+        setWindowRadius(8);
+        setBorderWidth(1);
+        setShadowRadius(28);
+        setShadowOffset(QPoint(0, 8));
+        setShadowColor(QColor(0, 0, 0, 96));
+        setEnableBlurWindow(true);
+        setEnableWindowBackground(true);
+        break;
+    case DefaultWindow:
+    default:
+        titlebar()->applyStylePreset(DTitlebar::DefaultStyle);
+        setWindowRadius(0);
+        setBorderWidth(0);
+        setEnableBlurWindow(false);
+        setEnableWindowBackground(false);
+        break;
+    }
+}
+
 #ifdef Q_OS_MAC
 void DMainWindow::setWindowFlags(Qt::WindowFlags type)
 {

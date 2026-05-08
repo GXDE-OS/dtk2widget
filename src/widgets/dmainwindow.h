@@ -50,6 +50,15 @@ class LIBDTKWIDGETSHARED_EXPORT DMainWindow : public QMainWindow, public DTK_COR
     Q_PROPERTY(bool autoInputMaskByClipPath READ autoInputMaskByClipPath WRITE setAutoInputMaskByClipPath NOTIFY autoInputMaskByClipPathChanged)
 
 public:
+    enum WindowPreset {
+        DefaultWindow,
+        CompactWindow,
+        BlurWindow,
+        ElevatedWindow
+    };
+
+    Q_ENUMS(WindowPreset)
+
     explicit DMainWindow(QWidget *parent = 0);
 
     DTitlebar *titlebar() const;
@@ -102,6 +111,7 @@ public Q_SLOTS:
     void setEnableBlurWindow(bool enableBlurWindow);
     void setAutoInputMaskByClipPath(bool autoInputMaskByClipPath);
     void setEnableWindowBackground(bool background);
+    void applyWindowPreset(WindowPreset preset);
 
     // TODO: remove it if there is an batter sulotion
 #ifdef Q_OS_MAC

@@ -29,10 +29,21 @@
 DWIDGET_BEGIN_NAMESPACE
 
 class DTitlebarPrivate;
+class DBlurEffectWidget;
 class LIBDTKWIDGETSHARED_EXPORT DTitlebar : public QFrame, public DTK_CORE_NAMESPACE::DObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool blurBackground READ blurBackground WRITE setBlurBackground)
 public:
+    enum StylePreset {
+        DefaultStyle,
+        CompactStyle,
+        TransparentStyle,
+        ElevatedStyle
+    };
+
+    Q_ENUMS(StylePreset)
+
     explicit DTitlebar(QWidget *parent = Q_NULLPTR);
 
 #ifndef QT_NO_MENU
@@ -48,6 +59,8 @@ public:
 
     int buttonAreaWidth() const;
     bool separatorVisible() const;
+    bool blurBackground() const;
+    DBlurEffectWidget *blurBackgroundWidget() const;
 
     bool autoHideOnFullscreen() const;
     void setAutoHideOnFullscreen(bool autohide);
@@ -82,6 +95,8 @@ Q_SIGNALS:
 public Q_SLOTS:
     void setFixedHeight(int h);
     void setBackgroundTransparent(bool transparent);
+    void setBlurBackground(bool blurBackground);
+    void applyStylePreset(StylePreset preset);
     void setSeparatorVisible(bool visible);
     void setTitle(const QString &title);
     void setIcon(const QIcon &icon);
