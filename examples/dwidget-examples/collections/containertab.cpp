@@ -4,6 +4,8 @@
 #include "dcardwidget.h"
 #include "dfloatingwidget.h"
 #include "dframe.h"
+#include "dhoverbutton.h"
+#include "dicontextbutton.h"
 #include "dswitchbutton.h"
 #include "dtypographylabel.h"
 
@@ -108,6 +110,30 @@ ContainerTab::ContainerTab(QWidget *parent)
     caption->setSecondary(true);
     typographyLayout->addWidget(caption);
     mainLayout->addWidget(typographyCard);
+
+    DCardWidget *buttonCard = new DCardWidget(this);
+    QVBoxLayout *buttonLayout = new QVBoxLayout(buttonCard);
+    buttonLayout->setContentsMargins(18, 14, 18, 14);
+    buttonLayout->setSpacing(10);
+    buttonLayout->addWidget(new DSectionTitle("Hover and icon-text buttons", buttonCard));
+
+    QHBoxLayout *buttonRow = new QHBoxLayout;
+    DHoverButton *hoverButton = new DHoverButton(buttonCard);
+    hoverButton->setNormalIcon(QIcon::fromTheme("go-previous"));
+    hoverButton->setHoverIcon(QIcon::fromTheme("go-next"));
+    hoverButton->setPressedIcon(QIcon::fromTheme("go-down"));
+    hoverButton->setFixedSize(42, 32);
+    hoverButton->setToolTip("DHoverButton swaps icons by state");
+
+    DIconTextButton *iconTextButton = new DIconTextButton(QIcon::fromTheme("document-open"), "Open file", buttonCard);
+    iconTextButton->setIconTextSpacing(8);
+
+    buttonRow->addWidget(hoverButton);
+    buttonRow->addWidget(iconTextButton);
+    buttonRow->addStretch();
+    buttonLayout->addLayout(buttonRow);
+    buttonLayout->addWidget(createDescription("These cover repeated file-manager and viewer patterns without importing app-specific menu or theme logic.", buttonCard));
+    mainLayout->addWidget(buttonCard);
 
     QWidget *floatingArea = new QWidget(this);
     floatingArea->setMinimumHeight(156);

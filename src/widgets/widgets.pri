@@ -71,6 +71,8 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dbuttonlist.h \
     $$PWD/dimagebutton.h \
     $$PWD/dtextbutton.h \
+    $$PWD/dhoverbutton.h \
+    $$PWD/dicontextbutton.h \
     $$PWD/dloadingindicator.h \
     $$PWD/dsearchedit.h \
     $$PWD/dswitchbutton.h \
@@ -160,6 +162,8 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dbuttonlist.cpp \
     $$PWD/dimagebutton.cpp \
     $$PWD/dtextbutton.cpp \
+    $$PWD/dhoverbutton.cpp \
+    $$PWD/dicontextbutton.cpp \
     $$PWD/dloadingindicator.cpp \
     $$PWD/dsearchedit.cpp \
     $$PWD/dswitchbutton.cpp\
@@ -291,4 +295,6 @@ includes.files += \
     $$PWD/DBackgroundGroup \
     $$PWD/DTypographyLabel \
     $$PWD/DSectionTitle \
+    $$PWD/DHoverButton \
+    $$PWD/DIconTextButton \
     $$PWD/DApplicationSettings
