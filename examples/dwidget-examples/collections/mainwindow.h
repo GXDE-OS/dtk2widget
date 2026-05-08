@@ -18,11 +18,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QListWidget>
 #include <QStackedWidget>
 #include <QString>
 
 #include "dmainwindow.h"
+#include "dverticallistwidget.h"
 
 #include "bartab.h"
 #include "buttontab.h"
@@ -36,7 +36,6 @@
 
 
 class QAction;
-class QActionGroup;
 class QMenu;
 
 class MainWindow : public Dtk::Widget::DMainWindow
@@ -54,24 +53,12 @@ private:
     void initTitlebarMenu();
     void initTabWidget();
     void loadSection(int index);
-    void setWindowBackgroundMode(QAction *action);
     void updateCentralBackground();
-    void updateThemeActions();
 
 private:
-    QListWidget *m_mainNav = NULL;
+    Dtk::Widget::DVerticalListWidget *m_mainNav = NULL;
     QStackedWidget *m_mainStack = NULL;
     QMenu *m_titleMenu = NULL;
-    QActionGroup *m_themeGroup = NULL;
-    QActionGroup *m_backgroundGroup = NULL;
-    QAction *m_lightAction = NULL;
-    QAction *m_darkAction = NULL;
-    QAction *m_systemThemeAction = NULL;
-    QAction *m_setWindowBackgroundAction = NULL;
-    QAction *m_removeWindowBackgroundAction = NULL;
-    QAction *m_transparentAction = NULL;
-    QAction *m_blurWindowAction = NULL;
-    QString m_windowBackgroundPath;
 };
 
 #endif // MAINWINDOW_H

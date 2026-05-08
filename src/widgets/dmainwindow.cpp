@@ -636,7 +636,7 @@ void DMainWindow::applyWindowPreset(DMainWindow::WindowPreset preset)
         setWindowRadius(0);
         setBorderWidth(0);
         setEnableBlurWindow(false);
-        setEnableWindowBackground(false);
+        setEnableWindowBackground(true);
         break;
     }
 }
@@ -655,8 +655,8 @@ DMainWindow::DMainWindow(DMainWindowPrivate &dd, QWidget *parent)
 {
     d_func()->init();
 
-    // 默认启用背景
-    setEnableWindowBackground(0);
+    // Default DMainWindow menus expose the shared appearance options.
+    setEnableWindowBackground(true);
     background()->setUseGlobalBackground(1);
 
     background()->setMainWindow(this);

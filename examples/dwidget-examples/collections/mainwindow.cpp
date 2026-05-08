@@ -17,19 +17,16 @@
 
 #include <QHBoxLayout>
 #include <QFrame>
-#include <QFileDialog>
 #include <QLabel>
-#include <QListWidget>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QMenu>
 #include <QAction>
-#include <QActionGroup>
 #include <QStackedWidget>
+#include <QTabWidget>
 #include <QFontDatabase>
 #include <QTextCodec>
 #include <QDebug>
-#include <QDir>
 #include <QTemporaryFile>
 
 #include <functional>
@@ -40,10 +37,12 @@
 #include "dsettings.h"
 
 #include "dslider.h"
+#include "dapplicationsettings.h"
 #include "dthememanager.h"
 #include "dtkwidget_global.h"
 #include "dswitchbutton.h"
 #include "dtitlebar.h"
+#include "dverticallistwidget.h"
 #include "segmentedcontrol.h"
 
 #include <DApplication>
@@ -88,36 +87,27 @@ static QFrame *useCaseCard(const QString &title, const QString &description, QWi
     return card;
 }
 
-static QWidget *sideTabs(const QStringList &titles, QWidget *parent, const std::function<void(QStackedWidget *, int)> &loader)
+static QWidget *exampleTabs(const QStringList &titles, QWidget *parent, const std::function<void(QStackedWidget *, int)> &loader)
 {
-    QWidget *container = new QWidget(parent);
-    QHBoxLayout *layout = new QHBoxLayout(container);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(12);
-
-    QListWidget *nav = new QListWidget(container);
-    nav->setObjectName("ExampleSideNav");
-    nav->setFixedWidth(150);
-    nav->setFrameShape(QFrame::NoFrame);
-    nav->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    QStackedWidget *stack = new QStackedWidget(container);
+    QTabWidget *tabs = new QTabWidget(parent);
+    tabs->setObjectName("ExampleTabs");
+    QStackedWidget *stack = new QStackedWidget(tabs);
     for (const QString &title : titles) {
-        nav->addItem(title);
-        stack->addWidget(new QWidget(stack));
+        QWidget *page = new QWidget(stack);
+        stack->addWidget(page);
+        tabs->addTab(page, title);
     }
 
-    QObject::connect(nav, &QListWidget::currentRowChanged, stack, [stack, loader](int row) {
+    QObject::connect(tabs, &QTabWidget::currentChanged, stack, [stack, loader](int row) {
         if (row < 0)
             return;
         stack->setCurrentIndex(row);
         loader(stack, row);
     });
 
-    layout->addWidget(nav);
-    layout->addWidget(stack, 1);
-    nav->setCurrentRow(0);
-    return container;
+    tabs->setCurrentIndex(0);
+    loader(stack, 0);
+    return tabs;
 }
 
 static void loadGxdeWidgetPage(QStackedWidget *tabs, int index)
@@ -131,12 +121,24 @@ static void loadGxdeWidgetPage(QStackedWidget *tabs, int index)
     layout->setContentsMargins(12, 12, 12, 12);
 
     switch (index) {
-    case 0:
+    case 0: {
         layout->addWidget(descriptionLabel("这里集中展示近期从 GXDE 应用中抽取的可复用组件。每个页面只保留最小实用用例，便于直接复制到应用中验证。", page));
         layout->addWidget(useCaseCard("容器与视觉", "用于设置页、详情页、列表分组和浮层：DCardWidget、DBackgroundGroup、DBlurSurface、DTabbedStackWidget。", page));
+        layout->addWidget(useCaseCard("应用设置", "DApplicationSettings 可加载 GXDE 文件管理器同类的 JS 设置模板，并交给 DSettingsDialog 自动生成设置窗口。", page));
         layout->addWidget(useCaseCard("调色板", "展示内置浅色/深色调色板，以及应用如何通过 DThemeManager 切换主题。", page));
+        QPushButton *settingsButton = new QPushButton("打开文件管理器风格设置", page);
+        QObject::connect(settingsButton, &QPushButton::clicked, page, [page] {
+            QTemporaryFile tmpFile;
+            tmpFile.open();
+            auto backend = new Dtk::Core::QSettingBackend(tmpFile.fileName());
+            DSettingsDialog *dialog = DApplicationSettings::createDialog(":/resources/data/file-manager-settings.js", backend, "FileManagerSettings", page);
+            if (dialog)
+                dialog->exec();
+        });
+        layout->addWidget(settingsButton, 0, Qt::AlignLeft);
         layout->addStretch();
         break;
+    }
     case 1:
         layout->addWidget(new ContainerTab(page));
         break;
@@ -179,118 +181,31 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::initTitlebarMenu()
 {
-    DThemeManager *themeManager = DThemeManager::instance();
-
     m_titleMenu = new QMenu(this);
-    m_themeGroup = new QActionGroup(this);
-    m_themeGroup->setExclusive(true);
-
-    QMenu *themeMenu = m_titleMenu->addMenu("主题");
-    m_lightAction = themeMenu->addAction("浅色主题");
-    m_darkAction = themeMenu->addAction("深色主题");
-    m_systemThemeAction = themeMenu->addAction("跟随系统主题");
-    for (QAction *action : {m_lightAction, m_darkAction, m_systemThemeAction}) {
-        action->setCheckable(true);
-        m_themeGroup->addAction(action);
-    }
-
-    connect(m_lightAction, &QAction::triggered, this, [themeManager, this] {
-        themeManager->setTheme("light");
-        updateCentralBackground();
-        updateThemeActions();
-    });
-    connect(m_darkAction, &QAction::triggered, this, [themeManager, this] {
-        themeManager->setTheme("dark");
-        updateCentralBackground();
-        updateThemeActions();
-    });
-    connect(m_systemThemeAction, &QAction::triggered, this, [themeManager, this] {
-        themeManager->FollowSystemDefaultTheme();
-        updateCentralBackground();
-        updateThemeActions();
-    });
-
-    QMenu *backgroundMenu = m_titleMenu->addMenu("窗口背景");
-    m_backgroundGroup = new QActionGroup(this);
-    m_backgroundGroup->setExclusive(true);
-
-    m_setWindowBackgroundAction = backgroundMenu->addAction("设置窗口背景");
-    m_removeWindowBackgroundAction = backgroundMenu->addAction("移除窗口背景");
-    m_transparentAction = backgroundMenu->addAction("透明背景");
-    m_blurWindowAction = backgroundMenu->addAction("窗口 Blur");
-    for (QAction *action : {m_setWindowBackgroundAction, m_removeWindowBackgroundAction, m_transparentAction, m_blurWindowAction}) {
-        action->setCheckable(true);
-        m_backgroundGroup->addAction(action);
-    }
-    m_setWindowBackgroundAction->setChecked(true);
-    connect(m_backgroundGroup, &QActionGroup::triggered, this, &MainWindow::setWindowBackgroundMode);
-
-    m_titleMenu->addSeparator();
     QAction *fullscreenAction = m_titleMenu->addAction("切换全屏");
     connect(fullscreenAction, &QAction::triggered, this, [this] {
         isFullScreen() ? showNormal() : showFullScreen();
     });
 
     titlebar()->setMenu(m_titleMenu);
-    updateThemeActions();
-}
-
-void MainWindow::setWindowBackgroundMode(QAction *action)
-{
-    if (action == m_setWindowBackgroundAction) {
-        const QString fileName = QFileDialog::getOpenFileName(this,
-                                                              "选择窗口背景图片",
-                                                              m_windowBackgroundPath.isEmpty() ? QDir::homePath() : m_windowBackgroundPath,
-                                                              "图片文件 (*.jpg *.jpeg *.png *.bmp *.gif *.svg);;所有文件 (*.*)");
-        if (!fileName.isEmpty()) {
-            m_windowBackgroundPath = fileName;
-        } else if (m_windowBackgroundPath.isEmpty()) {
-            m_removeWindowBackgroundAction->setChecked(true);
-        }
-    }
-
-    updateCentralBackground();
 }
 
 void MainWindow::updateCentralBackground()
 {
-    const bool imageBackground = !m_setWindowBackgroundAction || m_setWindowBackgroundAction->isChecked();
-    const bool transparentBackground = m_transparentAction && m_transparentAction->isChecked();
-    const bool blurBackground = m_blurWindowAction && m_blurWindowAction->isChecked();
+    background()->refresh();
+    const bool imageBackground = background()->isSetBackground();
+    const bool blurBackground = enableBlurWindow();
 
-    // Keep DMainWindow's built-in background actions hidden; this example owns
-    // background switching through the titlebar submenu above.
-    setEnableWindowBackground(false);
-    setEnableBlurWindow(blurBackground);
-    setTranslucentBackground(transparentBackground || blurBackground);
-    titlebar()->setBackgroundTransparent(transparentBackground || blurBackground);
-    titlebar()->setBlurBackground(blurBackground);
+    setEnableWindowBackground(imageBackground);
 
     if (centralWidget()) {
-        centralWidget()->setAttribute(Qt::WA_TranslucentBackground, transparentBackground || blurBackground);
-        centralWidget()->setAutoFillBackground(!(transparentBackground || blurBackground));
-        if (transparentBackground || blurBackground) {
-            centralWidget()->setStyleSheet(QString());
-        } else if (imageBackground) {
-            const QString backgroundPath = m_windowBackgroundPath.isEmpty() ? ":/images/default_background.jpg" : m_windowBackgroundPath;
-            centralWidget()->setStyleSheet(QString("#CollectionsCentralWidget { background-image: url(\"%1\"); background-position: center; }"
-                                           "#CollectionsCentralWidget QLabel { background: transparent; }").arg(backgroundPath));
-        } else {
-            centralWidget()->setStyleSheet(QString());
-        }
+        centralWidget()->setAttribute(Qt::WA_TranslucentBackground, imageBackground || blurBackground);
+        centralWidget()->setAutoFillBackground(!(imageBackground || blurBackground));
+        centralWidget()->setStyleSheet(QString());
         centralWidget()->setPalette(qApp->palette());
     }
 
     refreshBackground();
-}
-
-void MainWindow::updateThemeActions()
-{
-    const QString theme = DThemeManager::instance()->theme(this);
-    if (m_lightAction)
-        m_lightAction->setChecked(theme != "dark");
-    if (m_darkAction)
-        m_darkAction->setChecked(theme == "dark");
 }
 
 void MainWindow::menuItemInvoked(QAction *action)
@@ -366,11 +281,9 @@ void MainWindow::initTabWidget()
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(12);
 
-    m_mainNav = new QListWidget(mainTabs);
+    m_mainNav = new DVerticalListWidget(mainTabs);
     m_mainNav->setObjectName("MainExampleNav");
     m_mainNav->setFixedWidth(156);
-    m_mainNav->setFrameShape(QFrame::NoFrame);
-    m_mainNav->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     m_mainStack = new QStackedWidget(mainTabs);
     const QStringList sections = QStringList() << "总览" << "新增组件" << "基础控件" << "输入与编辑" << "列表与反馈" << "多媒体";
@@ -382,7 +295,7 @@ void MainWindow::initTabWidget()
     layout->addWidget(m_mainNav);
     layout->addWidget(m_mainStack, 1);
 
-    connect(m_mainNav, &QListWidget::currentRowChanged, this, [this](int index) {
+    connect(m_mainNav, &DVerticalListWidget::currentRowChanged, this, [this](int index) {
         if (index < 0)
             return;
         m_mainStack->setCurrentIndex(index);
@@ -404,17 +317,17 @@ void MainWindow::loadSection(int index)
     switch (index) {
     case 0:
         layout->addWidget(descriptionLabel("DTK2 示例按实际使用场景重新整理。优先展示最小可运行组合：一个标题、一段说明、一个控件或一组常见交互。", page));
-        layout->addWidget(useCaseCard("窗口与背景", "当前示例使用 DMainWindow。右上角菜单可切换浅色/深色主题，并在设置窗口背景、移除窗口背景、透明背景和窗口 Blur 之间切换。", page));
+        layout->addWidget(useCaseCard("窗口与背景", "当前示例使用 DMainWindow。右上角菜单可切换浅色/深色主题、窗口背景图片和窗口 Blur。", page));
         layout->addWidget(useCaseCard("业务页面骨架", "新增组件页演示卡片、分组、按钮、消息、标签页和浮层，适合设置中心、文件管理器、安装器等应用复用。", page));
         layout->addWidget(useCaseCard("基础控件", "按钮、输入、滑块、进度、列表等旧示例保留为独立分类，避免一次加载过多组件。", page));
         layout->addStretch();
         break;
     case 1: {
-        layout->addWidget(sideTabs(QStringList() << "使用说明" << "容器与视觉" << "调色板", page, loadGxdeWidgetPage));
+        layout->addWidget(exampleTabs(QStringList() << "使用说明" << "容器与视觉" << "调色板", page, loadGxdeWidgetPage));
         break;
     }
     case 2: {
-        layout->addWidget(sideTabs(QStringList() << "分割线" << "进度条" << "按钮" << "按钮列表" << "分段控制", page,
+        layout->addWidget(exampleTabs(QStringList() << "分割线" << "进度条" << "按钮" << "按钮列表" << "分段控制", page,
             [](QStackedWidget *stack, int childIndex) {
                 QWidget *child = stack->widget(childIndex);
                 if (!child || child->property("loaded").toBool())
@@ -434,7 +347,7 @@ void MainWindow::loadSection(int index)
         break;
     }
     case 3: {
-        layout->addWidget(sideTabs(QStringList() << "输入框" << "滑块", page,
+        layout->addWidget(exampleTabs(QStringList() << "输入框" << "滑块", page,
             [](QStackedWidget *stack, int childIndex) {
                 QWidget *child = stack->widget(childIndex);
                 if (!child || child->property("loaded").toBool())
@@ -447,7 +360,7 @@ void MainWindow::loadSection(int index)
         break;
     }
     case 4: {
-        layout->addWidget(sideTabs(QStringList() << "状态指示" << "图形效果" << "列表视图", page,
+        layout->addWidget(exampleTabs(QStringList() << "状态指示" << "图形效果" << "列表视图", page,
             [](QStackedWidget *stack, int childIndex) {
                 QWidget *child = stack->widget(childIndex);
                 if (!child || child->property("loaded").toBool())

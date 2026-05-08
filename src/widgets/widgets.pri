@@ -97,6 +97,7 @@ HEADERS += $$PWD/dslider.h\
     $$PWD/dgraphicsgloweffect.h \
     $$PWD/dbasebutton.h \
     $$PWD/dlistwidget.h \
+    $$PWD/dverticallistwidget.h \
     $$PWD/dboxwidget.h \
     $$PWD/dcircleprogress.h \
     $$PWD/dstackwidget.h \
@@ -191,6 +192,7 @@ SOURCES += $$PWD/dslider.cpp \
     $$PWD/dgraphicsgloweffect.cpp \
     $$PWD/dbasebutton.cpp \
     $$PWD/dlistwidget.cpp \
+    $$PWD/dverticallistwidget.cpp \
     $$PWD/dboxwidget.cpp \
     $$PWD/dcircleprogress.cpp \
     $$PWD/dstackwidget.cpp \
@@ -310,4 +312,5 @@ includes.files += \
     $$PWD/DSectionTitle \
     $$PWD/DHoverButton \
     $$PWD/DIconTextButton \
-    $$PWD/DApplicationSettings
+    $$PWD/DApplicationSettings \
+    $$PWD/DVerticalListWidget
