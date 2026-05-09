@@ -371,12 +371,12 @@ public:
                 Q_EMIT q->themeChanged(themeName);
             }
 
-            if (style)
-                qApp->setStyle(style);
-
             qApp->setPalette(DGuiApplicationHelper::standardPalette(themeName == "dark"
                                                                      ? DGuiApplicationHelper::DarkType
                                                                      : DGuiApplicationHelper::LightType));
+
+            if (style)
+                qApp->setStyle(style);
         }
     }
 
