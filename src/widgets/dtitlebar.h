@@ -64,6 +64,12 @@ public:
     bool menuIsDisabled() const;
     void setMenuDisabled(bool disabled);
 
+    bool themeMenuIsVisible() const;
+    void setThemeMenuVisible(bool visible);
+
+    bool backgroundMenuIsVisible() const;
+    void setBackgroundMenuVisible(bool visible);
+
     void setDisableFlags(Qt::WindowFlags flags);
     Qt::WindowFlags disableFlags() const;
 

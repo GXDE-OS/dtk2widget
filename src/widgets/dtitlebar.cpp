@@ -122,6 +122,8 @@ private:
     bool                mousePressed    = false;
     bool                embedMode       = false;
     bool                autoHideOnFullscreen = false;
+    bool                themeMenuVisible = true;
+    bool                backgroundMenuVisible = true;
 
     D_DECLARE_PUBLIC(DTitlebar)
 };
@@ -641,6 +643,8 @@ void DTitlebarPrivate::updateAppearanceActions()
         lightThemeAction->setChecked(theme != "dark");
     if (darkThemeAction)
         darkThemeAction->setChecked(theme == "dark");
+    if (themeMenu)
+        themeMenu->menuAction()->setVisible(themeMenuVisible);
 
     if (backgroundAction) {
         bool hasBackground = false;
@@ -651,7 +655,7 @@ void DTitlebarPrivate::updateAppearanceActions()
 
         QSignalBlocker blocker(backgroundAction);
         Q_UNUSED(blocker)
-        backgroundAction->setVisible(dwin);
+        backgroundAction->setVisible(backgroundMenuVisible && dwin);
         backgroundAction->setChecked(hasBackground && dwin && dwin->enableBlurWindow());
     }
 }
@@ -1221,6 +1225,32 @@ void DTitlebar::setMenuDisabled(bool disabled)
 {
     D_D(DTitlebar);
     d->optionButton->setDisabled(disabled);
+}
+
+bool DTitlebar::themeMenuIsVisible() const
+{
+    D_DC(DTitlebar);
+    return d->themeMenuVisible;
+}
+
+void DTitlebar::setThemeMenuVisible(bool visible)
+{
+    D_D(DTitlebar);
+    d->themeMenuVisible = visible;
+    d->updateAppearanceActions();
+}
+
+bool DTitlebar::backgroundMenuIsVisible() const
+{
+    D_DC(DTitlebar);
+    return d->backgroundMenuVisible;
+}
+
+void DTitlebar::setBackgroundMenuVisible(bool visible)
+{
+    D_D(DTitlebar);
+    d->backgroundMenuVisible = visible;
+    d->updateAppearanceActions();
 }
 
 

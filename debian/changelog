@@ -1,3 +1,10 @@
+dtkwidget2 (2:2.4~rebase1) unstable; urgency=medium
+
+  * Rebase DTK2 menu theme/background controls.
+  * Add APIs to hide default titlebar theme and background menu entries.
+
+ -- GXDE Team <team@gxde.org>  Sat, 09 May 2026 22:20:00 +0800
+
 dtkwidget2 (2:2.3.7) unstable; urgency=medium
 
   * Fix DPushButton icon rendering with DTK2 styles.
