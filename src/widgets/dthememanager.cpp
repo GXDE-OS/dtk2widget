@@ -365,17 +365,18 @@ public:
         if (!normalizedTheme.isEmpty()) {
             const bool themeChanged = themeName != normalizedTheme;
 
-            if (style)
-                qApp->setStyle(style);
-
             themeName = normalizedTheme;
-            qApp->setPalette(DGuiApplicationHelper::standardPalette(themeName == "dark"
-                                                                     ? DGuiApplicationHelper::DarkType
-                                                                     : DGuiApplicationHelper::LightType));
 
             if (themeChanged) {
                 Q_EMIT q->themeChanged(themeName);
             }
+
+            if (style)
+                qApp->setStyle(style);
+
+            qApp->setPalette(DGuiApplicationHelper::standardPalette(themeName == "dark"
+                                                                     ? DGuiApplicationHelper::DarkType
+                                                                     : DGuiApplicationHelper::LightType));
         }
     }
 
@@ -422,12 +423,12 @@ public:
             widget->setProperty("_d_dtk_theme", "dark");
         }
 
-        if (style) {
-            setStyle(widget, style);
-        }
-
         if (old_theme != theme) {
             emitThemeChanged(q, widget, theme);
+        }
+
+        if (style) {
+            setStyle(widget, style);
         }
     }
 };
