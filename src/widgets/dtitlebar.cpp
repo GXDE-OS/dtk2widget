@@ -21,8 +21,10 @@
 #include <QMenu>
 #include <QHBoxLayout>
 #include <QApplication>
+#include <QActionGroup>
 #include <QMouseEvent>
 #include <QProcess>
+#include <QSignalBlocker>
 
 #include <DObjectPrivate>
 
@@ -61,6 +63,7 @@ private:
     // hide title will make eventFilter not work, instead set Height to zero
     bool isVisableOnFullscreen();
     bool isEnableBackgroundAction();
+    void updateAppearanceActions();
     void hideOnFullscreen();
     void showOnFullscreen();
 
@@ -101,8 +104,13 @@ private:
 
 #ifndef QT_NO_MENU
     QMenu               *menu                   = Q_NULLPTR;
+    QMenu               *themeMenu              = Q_NULLPTR;
+    QActionGroup        *themeActionGroup       = Q_NULLPTR;
     QAction             *helpAction             = Q_NULLPTR;
     QAction             *aboutAction            = Q_NULLPTR;
+    QAction             *lightThemeAction       = Q_NULLPTR;
+    QAction             *darkThemeAction        = Q_NULLPTR;
+    QAction             *systemThemeAction      = Q_NULLPTR;
     QAction             *backgroundAction       = Q_NULLPTR;
     QAction             *removeBackgroundAction = Q_NULLPTR;
     QAction             *quitAction             = Q_NULLPTR;
@@ -474,21 +482,53 @@ void DTitlebarPrivate::_q_addDefaultMenuItems()
         q->setMenu(new QMenu(q));
     }
 
-    if (!backgroundAction) {
+    if (!themeMenu) {
         menu->addSeparator();
-        backgroundAction = new QAction(qApp->translate("TitleBarMenu", "Set Background"), menu);
+        themeMenu = menu->addMenu(qApp->translate("TitleBarMenu", "主题"));
+        themeActionGroup = new QActionGroup(themeMenu);
+        themeActionGroup->setExclusive(true);
+
+        lightThemeAction = themeMenu->addAction(qApp->translate("TitleBarMenu", "浅色主题"));
+        darkThemeAction = themeMenu->addAction(qApp->translate("TitleBarMenu", "深色主题"));
+        systemThemeAction = themeMenu->addAction(qApp->translate("TitleBarMenu", "跟随系统主题"));
+
+        for (QAction *action : {lightThemeAction, darkThemeAction, systemThemeAction}) {
+            action->setCheckable(true);
+            themeActionGroup->addAction(action);
+        }
+
+        QObject::connect(lightThemeAction, &QAction::triggered, q, [this, q] {
+            DThemeManager::instance()->setTheme("light");
+            if (DMainWindow *dwin = q->m_dwindow)
+                dwin->refreshBackground();
+            updateAppearanceActions();
+        });
+        QObject::connect(darkThemeAction, &QAction::triggered, q, [this, q] {
+            DThemeManager::instance()->setTheme("dark");
+            if (DMainWindow *dwin = q->m_dwindow)
+                dwin->refreshBackground();
+            updateAppearanceActions();
+        });
+        QObject::connect(systemThemeAction, &QAction::triggered, q, [this, q] {
+            DThemeManager::instance()->FollowSystemDefaultTheme();
+            if (DMainWindow *dwin = q->m_dwindow)
+                dwin->refreshBackground();
+            updateAppearanceActions();
+        });
+    }
+
+    if (!backgroundAction) {
+        backgroundAction = new QAction(qApp->translate("TitleBarMenu", "设置窗口背景"), menu);
+        backgroundAction->setCheckable(true);
         QObject::connect(backgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_backgroundActionTriggered()));
         menu->addAction(backgroundAction);
-        backgroundAction->setVisible(isEnableBackgroundAction());
     }
 
     if (!removeBackgroundAction) {
-        removeBackgroundAction = new QAction(qApp->translate("TitleBarMenu", "Remove Background"), menu);
-        QObject::connect(removeBackgroundAction, SIGNAL(triggered(bool)), q, SLOT(_q_removeBackgroundActionTriggered()));
-        menu->addAction(removeBackgroundAction);
-        removeBackgroundAction->setVisible(isEnableBackgroundAction());
+        removeBackgroundAction = Q_NULLPTR;
     }
 
+    updateAppearanceActions();
 
     // add help menu item.
     if (!helpAction && DApplicationPrivate::isUserManualExists()) {
@@ -545,9 +585,13 @@ void DTitlebarPrivate::_q_removeBackgroundActionTriggered()
             dwin->background()->removeUserBackground(DMainWindowBackground::light,
                                                   DMainWindowBackground::BackgroundPlace::FullWindow);
             dwin->background()->removeUserBackground(DMainWindowBackground::dark,
-                                                  DMainWindowBackground::BackgroundPlace::FullWindow);
+                DMainWindowBackground::BackgroundPlace::FullWindow);
         }
+        dwin->setEnableWindowBackground(false);
+        dwin->setEnableBlurWindow(false);
+        dwin->setTranslucentBackground(false);
         dwin->refreshBackground();
+        updateAppearanceActions();
     }
 }
 
@@ -555,23 +599,60 @@ void DTitlebarPrivate::_q_backgroundActionTriggered()
 {
     D_QC(DTitlebar);
     DMainWindow *dwin = q->m_dwindow;
-    if (dwin) {
-        if (dwin->background()) {
-            QString fileName = DFileDialog::getOpenFileName(NULL,
-                                         QObject::tr("Choose the background image file"),
-                                         QDir::homePath(),
-                                         QObject::tr("Image file (*.jpg *.jpeg *.png *.bmp *.gif *.svg);;"
-                                                     "All file (*.*)"));
-            if (QFile::exists(fileName)) {
-                dwin->background()->setUserBackground(DMainWindowBackground::light,
-                                                      fileName,
-                                                      DMainWindowBackground::BackgroundPlace::FullWindow);
-                dwin->background()->setUserBackground(DMainWindowBackground::dark,
-                                                      fileName,
-                                                      DMainWindowBackground::BackgroundPlace::FullWindow);
-            }
+    if (!dwin || !dwin->background()) {
+        return;
+    }
+
+    if (!backgroundAction->isChecked()) {
+        _q_removeBackgroundActionTriggered();
+        return;
+    }
+
+    QString fileName = DFileDialog::getOpenFileName(NULL,
+                                 QObject::tr("选择窗口背景图片"),
+                                 QDir::homePath(),
+                                 QObject::tr("图片文件 (*.jpg *.jpeg *.png *.bmp *.gif *.svg);;"
+                                             "所有文件 (*.*)"));
+    if (QFile::exists(fileName)) {
+        dwin->background()->setUserBackground(DMainWindowBackground::light,
+                                              fileName,
+                                              DMainWindowBackground::BackgroundPlace::FullWindow);
+        dwin->background()->setUserBackground(DMainWindowBackground::dark,
+                                              fileName,
+                                              DMainWindowBackground::BackgroundPlace::FullWindow);
+        dwin->setEnableWindowBackground(true);
+        dwin->setEnableBlurWindow(true);
+        dwin->setTranslucentBackground(true);
+    } else {
+        dwin->background()->refresh();
+    }
+
+    dwin->refreshBackground();
+    updateAppearanceActions();
+}
+
+void DTitlebarPrivate::updateAppearanceActions()
+{
+    D_QC(DTitlebar);
+    DMainWindow *dwin = q->m_dwindow;
+
+    const QString theme = DThemeManager::instance()->theme(q);
+    if (lightThemeAction)
+        lightThemeAction->setChecked(theme != "dark");
+    if (darkThemeAction)
+        darkThemeAction->setChecked(theme == "dark");
+
+    if (backgroundAction) {
+        bool hasBackground = false;
+        if (dwin && dwin->background()) {
+            dwin->background()->refresh();
+            hasBackground = dwin->background()->isSetBackground();
         }
-        dwin->refreshBackground();
+
+        QSignalBlocker blocker(backgroundAction);
+        Q_UNUSED(blocker)
+        backgroundAction->setVisible(dwin);
+        backgroundAction->setChecked(hasBackground && dwin && dwin->enableBlurWindow());
     }
 }
 
@@ -708,6 +789,7 @@ void DTitlebar::showMenu()
     D_D(DTitlebar);
 
     if (d->menu) {
+        d->updateAppearanceActions();
         d->optionButton->setState(DImageButton::Normal);
         d->menu->exec(d->optionButton->mapToGlobal(d->optionButton->rect().bottomLeft()));
     }
@@ -741,10 +823,7 @@ void DTitlebar::setDMainWindow(DMainWindow *window)
 {
     D_D(DTitlebar);
     this->m_dwindow = window;
-    if (d->backgroundAction && d->removeBackgroundAction) {
-        d->backgroundAction->setVisible(d->isEnableBackgroundAction());
-        d->removeBackgroundAction->setVisible(d->isEnableBackgroundAction());
-    }
+    d->updateAppearanceActions();
 }
 
 void DTitlebar::mousePressEvent(QMouseEvent *event)
