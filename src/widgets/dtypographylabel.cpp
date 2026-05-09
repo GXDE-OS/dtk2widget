@@ -114,7 +114,7 @@ void DTypographyLabel::updatePalette()
     QPalette p = palette();
     QColor color = p.color(QPalette::WindowText);
     if (m_secondary)
-        color.setAlpha(150);
+        color.setAlpha(200);
     p.setColor(QPalette::WindowText, color);
     setPalette(p);
 }

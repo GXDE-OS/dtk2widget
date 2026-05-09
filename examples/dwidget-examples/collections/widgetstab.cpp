@@ -29,7 +29,7 @@ using Dtk::Widget::DRegionMonitor;
 
 WidgetsTab::WidgetsTab(QWidget *parent) : QLabel(parent)
 {
-    setStyleSheet("WidgetsTab {background-color:#252627;} QCheckBox {color:#666;}");
+    setStyleSheet("WidgetsTab {background-color:#252627;}");
 
 #ifdef Q_OS_LINUX
     DRegionMonitor *rm = new DRegionMonitor(this);
