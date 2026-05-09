@@ -1,4 +1,4 @@
-dtkwidget2 (2:2.3.99~alpha3) unstable; urgency=medium
+dtkwidget2 (2:2.3.99~alpha4) unstable; urgency=medium
 
   * Fix theme switching ordering: emit themeChanged and setPalette before setStyle.
 
