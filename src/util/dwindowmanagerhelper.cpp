@@ -18,6 +18,11 @@
 #include "dwindowmanagerhelper.h"
 #include "dforeignwindow.h"
 
+#ifdef Q_OS_LINUX
+#include "dapplication.h"
+#include "private/dkwinblur.h"
+#endif
+
 #include <DObjectPrivate>
 #include <QGuiApplication>
 
@@ -477,6 +482,15 @@ void DWindowManagerHelper::popupSystemWindowMenu(const QWindow *window)
  */
 bool DWindowManagerHelper::hasBlurWindow() const
 {
+#ifdef Q_OS_LINUX
+    // Wayland 下 dxcb 的 platformFunction 取不到，改问窗管有没有提供
+    // org_kde_kwin_blur 协议。这个值会决定 DBlurEffectWidget 用不用半透明的
+    // 遮罩色，判断错了模糊出来是一片不透明的底色。
+    if (DApplication::isWayland()) {
+        return DKWinBlurManager::instance()->isValid();
+    }
+#endif
+
     QFunctionPointer wmHasBlurWindow = Q_NULLPTR;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)

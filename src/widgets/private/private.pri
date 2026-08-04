@@ -12,14 +12,20 @@ linux{
         $$PWD/mpris/dbusinterface.cpp \
         $$PWD/mpris/dbusmpris.cpp
 
-    # dde_shell 协议：Wayland 下用来通知窗管不要画标题栏
+    # Wayland 协议：通知窗管不要画标题栏（dde_shell）、模糊窗口背景（kwin blur）
     HEADERS += \
         $$PWD/ddeshellmanager.h \
-        $$PWD/../wayland/dde-shell-client-protocol.h
+        $$PWD/dkwinblur.h \
+        $$PWD/dmenueffect.h \
+        $$PWD/../wayland/dde-shell-client-protocol.h \
+        $$PWD/../wayland/blur-client-protocol.h
 
     SOURCES += \
         $$PWD/ddeshellmanager.cpp \
-        $$PWD/../wayland/dde-shell-client-protocol.c
+        $$PWD/dkwinblur.cpp \
+        $$PWD/dmenueffect.cpp \
+        $$PWD/../wayland/dde-shell-client-protocol.c \
+        $$PWD/../wayland/blur-client-protocol.c
 
     INCLUDEPATH += $$PWD/../wayland
     LIBS += -lwayland-client

@@ -26,7 +26,12 @@
 #include <QPainterPath>
 #include <QBackingStore>
 #include <QPaintEvent>
+#include <QWindow>
 #include <QDebug>
+
+#ifdef Q_OS_LINUX
+#include "private/dkwinblur.h"
+#endif
 
 #include <qpa/qplatformbackingstore.h>
 
@@ -131,6 +136,54 @@ bool DBlurEffectWidgetPrivate::updateWindowBlurArea(QWidget *topLevelWidget)
     }
 
     QList<const DBlurEffectWidget *> blurEffectWidgetList = blurEffectWidgetHash.values(topLevelWidget);
+
+#ifdef Q_OS_LINUX
+    // Wayland 下 DPlatformWindowHandle 的模糊接口来自 dxcb 插件，取不到，
+    // 改用窗管提供的 org_kde_kwin_blur 协议
+    if (DApplication::isWayland()) {
+        QWindow *window = topLevelWidget->windowHandle();
+
+        if (!window || !DKWinBlurManager::instance()->isValid()) {
+            return false;
+        }
+
+        QRegion region;
+
+        Q_FOREACH (const DBlurEffectWidget *w, blurEffectWidgetList) {
+            if (!w->d_func()->blurEnabled || !w->isVisible()) {
+                continue;
+            }
+
+            // 有控件铺满整个窗口时，直接模糊整个窗口
+            if (w->d_func()->isFull()) {
+                region = QRegion(topLevelWidget->rect());
+                break;
+            }
+
+            QRect r = w->rect();
+            r.moveTopLeft(w->mapTo(topLevelWidget, r.topLeft()));
+
+            // org_kde_kwin_blur 只接受矩形区域，圆角和裁剪路径按外接矩形近似
+            if (!w->d_func()->maskPath.isEmpty()) {
+                r &= w->d_func()->maskPath.boundingRect().toRect().translated(r.topLeft());
+            }
+
+            region += r;
+        }
+
+        if (region.isEmpty()) {
+            DKWinBlurManager::instance()->clearBlur(window);
+        } else {
+            DKWinBlurManager::instance()->setBlur(window, region);
+        }
+
+        if (blurEffectWidgetList.isEmpty()) {
+            blurEffectWidgetHash.remove(topLevelWidget);
+        }
+
+        return true;
+    }
+#endif
 
     bool isExistMaskPath = false;
 

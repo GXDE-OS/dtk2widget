@@ -49,6 +49,10 @@
 #include "dapplication.h"
 #include "dthememanager.h"
 #include "private/dapplication_p.h"
+
+#ifdef Q_OS_LINUX
+#include "private/dmenueffect.h"
+#endif
 #include "daboutdialog.h"
 
 #ifdef Q_OS_UNIX
@@ -1145,6 +1149,18 @@ static inline bool basePrintPropertiesDialog(const QWidget *w)
 
 bool DApplication::notify(QObject *obj, QEvent *event)
 {
+#ifdef Q_OS_LINUX
+    // Wayland 下菜单的圆角、投影、模糊没有 dxcb 可依赖，只能自己画。
+    // 必须挂在 QEvent::Polish：菜单是在这之后才量尺寸的，晚了留白会算错。
+    if (event->type() == QEvent::Polish && isWayland()) {
+        if (QMenu *menu = qobject_cast<QMenu *>(obj)) {
+            if (!menu->testAttribute(Qt::WA_SetStyle)) {
+                DMenuEffect::install(menu);
+            }
+        }
+    }
+#endif
+
     if (event->type() == QEvent::PolishRequest) {
         // Fixed the style for the menu widget to dlight
         // ugly code will no longer needed.
@@ -1152,12 +1168,19 @@ bool DApplication::notify(QObject *obj, QEvent *event)
 
         if (QMenu *menu = qobject_cast<QMenu *>(obj)) {
             if (!menu->testAttribute(Qt::WA_SetStyle)) {
-                if (!light_style) {
-                    light_style = QStyleFactory::create("dlight");
-                }
+#ifdef Q_OS_LINUX
+                if (isWayland()) {
+                    DMenuEffect::install(menu);
+                } else
+#endif
+                {
+                    if (!light_style) {
+                        light_style = QStyleFactory::create("dlight");
+                    }
 
-                if (light_style) {
-                    menu->setStyle(light_style);
+                    if (light_style) {
+                        menu->setStyle(light_style);
+                    }
                 }
             }
         }
