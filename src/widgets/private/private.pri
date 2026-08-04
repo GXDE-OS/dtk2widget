@@ -11,6 +11,18 @@ linux{
         $$PWD/mpris/dmprismonitor.cpp \
         $$PWD/mpris/dbusinterface.cpp \
         $$PWD/mpris/dbusmpris.cpp
+
+    # dde_shell 协议：Wayland 下用来通知窗管不要画标题栏
+    HEADERS += \
+        $$PWD/ddeshellmanager.h \
+        $$PWD/../wayland/dde-shell-client-protocol.h
+
+    SOURCES += \
+        $$PWD/ddeshellmanager.cpp \
+        $$PWD/../wayland/dde-shell-client-protocol.c
+
+    INCLUDEPATH += $$PWD/../wayland
+    LIBS += -lwayland-client
 }
 
 HEADERS += \

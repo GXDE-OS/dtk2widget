@@ -23,6 +23,10 @@
 #include "private/dmainwindow_p.h"
 #include "private/dapplication_p.h"
 
+#ifdef Q_OS_LINUX
+#include "private/ddeshellmanager.h"
+#endif
+
 #include <QKeySequence>
 #include <QShortcut>
 #include <QWindow>
@@ -38,6 +42,27 @@
 #define SHADOW_COLOR_ACTIVE QColor(0, 0, 0, 255 * 60/100)
 
 DWIDGET_BEGIN_NAMESPACE
+
+/*!
+ * \~chinese \brief keepFramelessOnWayland 保证窗口始终带有 Qt::FramelessWindowHint。
+ *
+ * \~chinese Wayland 下 DMainWindow 的标题栏由 DTitlebar 自行绘制，窗口必须始终带有
+ * \~chinese Qt::FramelessWindowHint，否则窗管会另外再画一个标题栏，出现双标题栏。
+ * \~chinese 而 QWidget::setWindowFlags 是整体覆盖窗口的 flags，应用调用它时（例如
+ * \~chinese setWindowFlags(Qt::Window | Qt::WindowCloseButtonHint)）很容易把这个标志
+ * \~chinese 丢掉，所以此处需要重新补上。
+ */
+static void keepFramelessOnWayland(QWidget *window)
+{
+    // 使用 dxcb 时标题栏由平台插件负责隐藏，无需 Qt::FramelessWindowHint
+    if (!DApplication::isWayland() || DApplication::isDXcbPlatform()) {
+        return;
+    }
+
+    if (!window->windowFlags().testFlag(Qt::FramelessWindowHint)) {
+        window->QWidget::setWindowFlag(Qt::FramelessWindowHint, true);
+    }
+}
 
 DMainWindowPrivate::DMainWindowPrivate(DMainWindow *qq)
     : DObjectPrivate(qq)
@@ -57,8 +82,9 @@ DMainWindowPrivate::DMainWindowPrivate(DMainWindow *qq)
             titlebar->setEmbedMode(true);
         }
         else {
-            // Wayland 下隐藏窗口管理器提供的标题栏
-            qq->setWindowFlags(Qt::X11BypassWindowManagerHint);
+            // Wayland 下隐藏窗口管理器提供的标题栏。
+            // 注意此处只能追加 Qt::FramelessWindowHint，不能整体覆盖窗口的 flags，
+            // 否则会丢掉窗口类型等信息。
             qq->setWindowFlags(qq->windowFlags() | Qt::FramelessWindowHint);
         }
 
@@ -119,10 +145,14 @@ void DMainWindowPrivate::init()
         });
     }
 
-    // 仅在 Wayland 下使用 
+    // 仅在 Wayland 下使用
     // TODO: mouseReleaseEvent 事件依旧存在问题: https://bbs.deepin.org.cn/zh/post/279273
     if (DApplication::isWayland()) {
         titlebar->setDMainWindow(q);
+#ifdef Q_OS_LINUX
+        // 直接告诉窗管不要画标题栏，这样用旧头文件编译的程序也一样生效
+        DDdeShellManager::watchWindow(q);
+#endif
     }
     background->setMainWindow(q);
 }
@@ -603,13 +633,41 @@ void DMainWindow::setEnableWindowBackground(bool background)
     }
 }
 
-#ifdef Q_OS_MAC
+/*!
+ * \~chinese \brief DMainWindow::setVisible
+ *
+ * \~chinese QWidget::setWindowFlags 不是虚函数，已经编译好的应用调用它时走的是
+ * \~chinese QWidget 的版本，DMainWindow 的重载拦不住，Qt::FramelessWindowHint 照样会被
+ * \~chinese 覆盖掉。setVisible 是虚函数，窗口在这里还没有真正创建（平台窗口是在
+ * \~chinese QWidget::create() 里建的），此时补回标志既不会重建窗口也不会闪烁，
+ * \~chinese 而且对无需重新编译的老程序同样有效。
+ */
+void DMainWindow::setVisible(bool visible)
+{
+    if (visible) {
+        keepFramelessOnWayland(this);
+    }
+
+    QMainWindow::setVisible(visible);
+}
+
 void DMainWindow::setWindowFlags(Qt::WindowFlags type)
 {
     QMainWindow::setWindowFlags(type);
+    keepFramelessOnWayland(this);
+#ifdef Q_OS_MAC
     OSX::HideWindowTitlebar(winId());
-}
 #endif
+}
+
+void DMainWindow::setWindowFlag(Qt::WindowType type, bool on)
+{
+    QMainWindow::setWindowFlag(type, on);
+    keepFramelessOnWayland(this);
+#ifdef Q_OS_MAC
+    OSX::HideWindowTitlebar(winId());
+#endif
+}
 
 DMainWindow::DMainWindow(DMainWindowPrivate &dd, QWidget *parent)
     : QMainWindow(parent)
@@ -626,11 +684,8 @@ DMainWindow::DMainWindow(DMainWindowPrivate &dd, QWidget *parent)
 
     titlebar()->setDMainWindow(this);
 
-    if (DApplication::isWayland()) {
-        // Wayland 下禁用窗管提供的标题栏
-        setWindowFlag(Qt::FramelessWindowHint, true);
-    }
-
+    // Wayland 下禁用窗管提供的标题栏
+    keepFramelessOnWayland(this);
 }
 
 void DMainWindow::resizeEvent(QResizeEvent *event)

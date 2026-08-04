@@ -67,6 +67,12 @@ public:
     inline void setGeometry(int x, int y, int width, int height)
     { setGeometry(QRect(x, y, width, height));}
 
+    void setWindowFlags(Qt::WindowFlags type);
+    void setWindowFlag(Qt::WindowType type, bool on = true);
+
+    // 虚函数，是唯一能拦住"已编译好的应用直接调 QWidget::setWindowFlags"的时机
+    void setVisible(bool visible) override;
+
 public Q_SLOTS:
     void moveToCenter();
     void moveToTopRight();

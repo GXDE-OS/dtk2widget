@@ -36,6 +36,10 @@
 #include "dapplication.h"
 #include "dblureffectwidget.h"
 
+#ifdef Q_OS_LINUX
+#include "private/ddeshellmanager.h"
+#endif
+
 DWIDGET_BEGIN_NAMESPACE
 
 DAbstractDialogPrivate::DAbstractDialogPrivate(DAbstractDialog *qq):
@@ -66,6 +70,13 @@ void DAbstractDialogPrivate::init()
     } else {
         q->setWindowFlags(q->windowFlags() | Qt::FramelessWindowHint);
         q->setBorderColor(QColor(0, 0, 0));
+
+#ifdef Q_OS_LINUX
+        if (DApplication::isWayland()) {
+            // 直接告诉窗管不要画标题栏，这样用旧头文件编译的程序也一样生效
+            DDdeShellManager::watchWindow(q);
+        }
+#endif
     }
 
     windowTitle = new QLabel(q);
@@ -261,6 +272,55 @@ void DAbstractDialog::setGeometry(const QRect &rect)
     D_D(DAbstractDialog);
 
     d->mouseMoved = true;
+}
+
+/*!
+ * \~chinese \brief DAbstractDialog::setWindowFlags
+ *
+ * \~chinese 对话框的标题栏由自身绘制，窗口必须始终带有 Qt::FramelessWindowHint，
+ * \~chinese 否则窗管（Wayland 下尤为明显）会另外再画一个标题栏，出现双标题栏。
+ * \~chinese QWidget::setWindowFlags 是整体覆盖窗口的 flags，很容易把这个标志丢掉，
+ * \~chinese 所以此处需要重新补上。
+ */
+void DAbstractDialog::setWindowFlags(Qt::WindowFlags type)
+{
+    D_DC(DAbstractDialog);
+
+    QDialog::setWindowFlags(type);
+
+    // 使用 dxcb 时标题栏由平台插件负责隐藏，无需 Qt::FramelessWindowHint
+    if (!d->handle) {
+        QDialog::setWindowFlag(Qt::FramelessWindowHint, true);
+    }
+}
+
+void DAbstractDialog::setWindowFlag(Qt::WindowType type, bool on)
+{
+    D_DC(DAbstractDialog);
+
+    QDialog::setWindowFlag(type, on);
+
+    if (!d->handle) {
+        QDialog::setWindowFlag(Qt::FramelessWindowHint, true);
+    }
+}
+
+/*!
+ * \~chinese \brief DAbstractDialog::setVisible
+ *
+ * \~chinese QWidget::setWindowFlags 不是虚函数，已经编译好的应用调用它时走的是
+ * \~chinese QWidget 的版本，上面的重载拦不住。setVisible 是虚函数，且此时平台窗口
+ * \~chinese 还没有创建，在这里补回标志对老程序同样有效。
+ */
+void DAbstractDialog::setVisible(bool visible)
+{
+    D_DC(DAbstractDialog);
+
+    if (visible && !d->handle) {
+        QDialog::setWindowFlag(Qt::FramelessWindowHint, true);
+    }
+
+    QDialog::setVisible(visible);
 }
 
 /**

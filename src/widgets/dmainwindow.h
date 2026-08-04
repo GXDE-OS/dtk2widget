@@ -83,6 +83,9 @@ public:
     void resizeEvent(QResizeEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
+    // 虚函数，是唯一能拦住"已编译好的应用直接调 QWidget::setWindowFlags"的时机
+    void setVisible(bool visible) override;
+
 public Q_SLOTS:
     void setWindowRadius(int windowRadius);
 
@@ -103,10 +106,11 @@ public Q_SLOTS:
     void setAutoInputMaskByClipPath(bool autoInputMaskByClipPath);
     void setEnableWindowBackground(bool background);
 
+    // 重载以保证 Wayland 下窗口始终带有 Qt::FramelessWindowHint，
+    // 否则窗管会再画一个标题栏，和 DTitlebar 一起变成双标题栏
     // TODO: remove it if there is an batter sulotion
-#ifdef Q_OS_MAC
     void setWindowFlags(Qt::WindowFlags type);
-#endif
+    void setWindowFlag(Qt::WindowType type, bool on = true);
 
 Q_SIGNALS:
     void windowRadiusChanged();
