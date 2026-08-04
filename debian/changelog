@@ -1,3 +1,10 @@
+dtkwidget2 (2:2.5~gxde1) unstable; urgency=medium
+
+  * Fixed double titlebar under Wayland.
+  * Added menu blur support.
+
+ -- CharOfString <root@charofstring.cc>  Tue, 04 Aug 2026 14:51:22 +0800
+
 dtkwidget2 (2:2.4~rebase1) unstable; urgency=medium
 
   * Rebase DTK2 menu theme/background controls.
