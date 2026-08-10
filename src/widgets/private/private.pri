@@ -17,6 +17,7 @@ linux{
         $$PWD/ddeshellmanager.h \
         $$PWD/dkwinblur.h \
         $$PWD/dmenueffect.h \
+        $$PWD/dxsettings.h \
         $$PWD/../wayland/dde-shell-client-protocol.h \
         $$PWD/../wayland/blur-client-protocol.h
 
@@ -24,11 +25,13 @@ linux{
         $$PWD/ddeshellmanager.cpp \
         $$PWD/dkwinblur.cpp \
         $$PWD/dmenueffect.cpp \
+        $$PWD/dxsettings.cpp \
         $$PWD/../wayland/dde-shell-client-protocol.c \
         $$PWD/../wayland/blur-client-protocol.c
 
     INCLUDEPATH += $$PWD/../wayland
-    LIBS += -lwayland-client
+    # xcb 用于在 wayland 下通过 XWayland 读取 XSETTINGS 里的图标主题名
+    LIBS += -lwayland-client -lxcb
 }
 
 HEADERS += \

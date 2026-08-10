@@ -1,3 +1,10 @@
+dtkwidget2 (2:2.5~gxde2) UNRELEASED; urgency=medium
+
+  * 修复dtk2应用半透明异常的问题
+  * 修复dtk2应用图标加载异常的问题
+
+ -- gfdgd_xi <3025613752@qq.com>  Mon, 10 Aug 2026 15:30:52 +0800
+
 dtkwidget2 (2:2.5~gxde1) unstable; urgency=medium
 
   * Fixed double titlebar under Wayland.

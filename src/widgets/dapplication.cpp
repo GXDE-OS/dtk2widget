@@ -65,10 +65,13 @@
 
 #ifdef Q_OS_LINUX
 #include "startupnotificationmonitor.h"
+#include "private/dxsettings.h"
 
 #include <DDBusSender>
 
 #include <QGSettings>
+#include <QSettings>
+#include <QIcon>
 #endif
 
 #include <QStyleFactory>
@@ -405,6 +408,26 @@ DApplication::DApplication(int &argc, char **argv) :
     }
 
 #ifdef Q_OS_LINUX
+    // 修复 wayland 下图标加载异常的问题
+    // wayland 下没有 xsettings 桥接，Qt 拿不到系统图标主题名，QIcon::themeName() 为空，
+    // QIcon::fromTheme() 便找不到任何图标。这里主动从 XSETTINGS 读取，
+    // 读不到再退回 deepin qt-theme 配置文件。
+    if (isWayland()) {
+        QString iconTheme = DXSettings::xsettingsString(QStringLiteral(
+            "Net/IconThemeName"));
+
+        if (iconTheme.isEmpty()) {
+            QSettings qtSettings(QSettings::IniFormat, QSettings::UserScope,
+                "deepin", "qt-theme");
+            qtSettings.beginGroup("Theme");
+            iconTheme = qtSettings.value("IconThemeName").toString();
+        }
+
+        if (!iconTheme.isEmpty()) {
+            QIcon::setThemeName(iconTheme);
+        }
+    }
+
     // set qpixmap cache limit
     if (QGSettings::isSchemaInstalled("com.deepin.dde.dapplication"))
     {
