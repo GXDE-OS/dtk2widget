@@ -56,6 +56,14 @@ public:
     void setNoTitleBar(QWindow* window, bool noTitleBar);
 
     /*!
+     * \~chinese \brief 通过 dde_shell 告诉窗管窗口的圆角半径。
+     *
+     * \~chinese 窗管按此半径裁剪模糊区域，否则圆角之外仍会被模糊，
+     * \~chinese 表现为圆角处露出一圈方角的半透明底。
+     */
+    void setWindowRadius(QWindow* window, int radius);
+
+    /*!
      * \~chinese \brief 给 window 装一个事件过滤器，在它的窗口创建后设置 NoTitleBar。
      *
      * \~chinese 用事件过滤器而不是重写虚函数：已经编译好的子类，其虚表在编译时就定死了，

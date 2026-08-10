@@ -31,6 +31,7 @@
 
 #ifdef Q_OS_LINUX
 #include "private/dkwinblur.h"
+#include "private/ddeshellmanager.h"
 #endif
 
 #include <qpa/qplatformbackingstore.h>
@@ -148,6 +149,7 @@ bool DBlurEffectWidgetPrivate::updateWindowBlurArea(QWidget *topLevelWidget)
         }
 
         QRegion region;
+        int windowRadius = 0;
 
         Q_FOREACH (const DBlurEffectWidget *w, blurEffectWidgetList) {
             if (!w->d_func()->blurEnabled || !w->isVisible()) {
@@ -157,6 +159,7 @@ bool DBlurEffectWidgetPrivate::updateWindowBlurArea(QWidget *topLevelWidget)
             // 有控件铺满整个窗口时，直接模糊整个窗口
             if (w->d_func()->isFull()) {
                 region = QRegion(topLevelWidget->rect());
+                windowRadius = w->d_func()->blurRectXRadius;
                 break;
             }
 
@@ -174,6 +177,8 @@ bool DBlurEffectWidgetPrivate::updateWindowBlurArea(QWidget *topLevelWidget)
         if (region.isEmpty()) {
             DKWinBlurManager::instance()->clearBlur(window);
         } else {
+            // 让窗管按同样的圆角裁剪模糊区域，否则圆角外会露出方角的模糊底
+            DDdeShellManager::instance()->setWindowRadius(window, windowRadius);
             DKWinBlurManager::instance()->setBlur(window, region);
         }
 
@@ -484,6 +489,8 @@ DBlurEffectWidget::DBlurEffectWidget(QWidget *parent)
 
     if (DApplication::isWayland()) {
         setWindowFlag(Qt::FramelessWindowHint, true);
+        // setWindowFlag 可能重建窗口并丢掉透明属性，重新设置一次
+        setAttribute(Qt::WA_TranslucentBackground);
     }
 }
 
@@ -578,6 +585,22 @@ int DBlurEffectWidget::blurRectYRadius() const
 QColor DBlurEffectWidget::maskColor() const
 {
     D_DC(DBlurEffectWidget);
+
+#ifdef Q_OS_LINUX
+    // Wayland 下 DWindowManagerHelper::hasBlurWindow()/hasComposite() 查的是 X11 属性，
+    // 拿不到就会退回不透明的 MASK_COLOR_ALPHA_DEFAULT，把窗管做好的模糊整个盖住。
+    // 此处只要窗管支持 org_kde_kwin_blur，就按用户设置的 maskAlpha 走。
+    if (DApplication::isWayland() && DKWinBlurManager::instance()->isValid()) {
+        switch ((int)d->maskColorType) {
+        case DarkColor:
+            return QColor(0, 0, 0, d->maskAlpha);
+        case LightColor:
+            return QColor(255, 255, 255, d->maskAlpha);
+        }
+
+        return d->maskColor;
+    }
+#endif
 
     switch ((int)d->maskColorType) {
     case DarkColor: {
@@ -710,6 +733,8 @@ void DBlurEffectWidget::setBlendMode(DBlurEffectWidget::BlendMode blendMode)
 
     if (blendMode == BehindWindowBlend && DApplication::isWayland()) {
         setWindowFlag(Qt::FramelessWindowHint, true);
+        // setWindowFlag 可能重建窗口并丢掉透明属性，重新设置一次
+        setAttribute(Qt::WA_TranslucentBackground);
     }
 
     d->blendMode = blendMode;
@@ -862,6 +887,16 @@ void DBlurEffectWidget::paintEvent(QPaintEvent *event)
         pa.setClipPath(path);
     }
 
+#ifdef Q_OS_LINUX
+    // Wayland 下模糊由窗管通过 org_kde_kwin_blur 完成，控件本身只负责画遮罩色。
+    // 注意不能用 CompositionMode_Source：那会把遮罩色的 alpha 直接写进 backingstore，
+    // 覆盖掉父级已经画好的内容，表现为半透明区域发黑/发白。
+    if (DApplication::isWayland() && d->isBehindWindowBlendMode()) {
+        pa.fillRect(rect(), maskColor());
+        return;
+    }
+#endif
+
     if (d->isBehindWindowBlendMode()) {
         pa.setCompositionMode(QPainter::CompositionMode_Source);
     } else {
@@ -988,6 +1023,9 @@ void DBlurEffectWidget::setWindowFlag(Qt::WindowType type, bool on)
     QWidget::setWindowFlag(type, on);
     if (DApplication::isWayland()) {
         QWidget::setWindowFlag(Qt::WindowStaysOnTopHint, false);
+        // 改变窗口标志会销毁并重建 QWindow，WA_TranslucentBackground 会跟着丢失，
+        // 窗口于是被填上不透明底色，模糊效果被完全遮住，这里补回来
+        QWidget::setAttribute(Qt::WA_TranslucentBackground);
     }
 }
 
@@ -996,6 +1034,8 @@ void DBlurEffectWidget::setWindowFlags(Qt::WindowFlags type)
     QWidget::setWindowFlags(type);
     if (DApplication::isWayland()) {
         QWidget::setWindowFlag(Qt::WindowStaysOnTopHint, false);
+        // 同 setWindowFlag，重建窗口后需要重新声明背景透明
+        QWidget::setAttribute(Qt::WA_TranslucentBackground);
     }
 }
 

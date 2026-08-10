@@ -227,4 +227,27 @@ void DDdeShellManager::setNoTitleBar(QWindow* window, bool noTitleBar) {
         qDebug() << "(DWindow) setNoTitleBar" << noTitleBar << "for" << window;
 }
 
+void DDdeShellManager::setWindowRadius(QWindow* window, int radius) {
+    dde_shell_surface* ss = shellSurfaceFor(window);
+    if (!ss) {
+        return;
+    }
+
+    // WindowRadius 是两个 float，分别为 x、y 方向的圆角半径
+    wl_array arr;
+    wl_array_init(&arr);
+    if (float* p = static_cast<float *>(wl_array_add(&arr,
+            sizeof(float) * 2))) {
+        p[0] = static_cast<float>(radius);
+        p[1] = static_cast<float>(radius);
+    }
+
+    dde_shell_surface_set_property(ss, DDE_SHELL_PROPERTY_WINDOWRADIUS, &arr);
+    wl_array_release(&arr);
+    wl_display_flush(m_display);
+
+    if (shellDebug())
+        qDebug() << "(DWindow) setWindowRadius" << radius << "for" << window;
+}
+
 DWIDGET_END_NAMESPACE
