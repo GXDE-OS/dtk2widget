@@ -1,0 +1,87 @@
+# Maintainer: CharOfString <root@charofstring.cc>
+pkgbase=dtkwidget2-git
+pkgname=('dtkwidget2-git' 'dtkwidget2-dev-git')
+pkgver=2.5.gxde2
+pkgrel=1
+pkgdesc='GXDE DTK2 graphical user interface library, built on DTK5 core'
+arch=('x86_64' 'aarch64')
+url="https://github.com/GXDE-OS/dtk2widget"
+license=('LGPL-3.0-or-later')
+makedepends=('git' 'qt5-tools' 'dtkcore-git' 'deepin-qt-dbus-factory-git'
+             'qt5-base' 'qt5-svg' 'qt5-x11extras' 'qt5-multimedia' 'gsettings-qt5'
+             'librsvg' 'cairo' 'glib2' 'startup-notification' 'wayland'
+             'libx11' 'libxext' 'libxi' 'libxcb' 'xcb-util')
+source=()
+sha512sums=()
+
+# 直接使用 PKGBUILD 所在的 git 仓库作为源码 ・ Build from the git checkout this PKGBUILD lives in.
+_srcroot() {
+  git -C "$startdir" rev-parse --show-toplevel
+}
+
+build() {
+  # 不传 VERSION 时 qmake 会用 git describe 拼出类似 2.52 的版本，这里从 pkgver 取数字部分
+  # Without VERSION qmake mangles `git describe` into things like 2.52, take
+  # the numeric part of pkgver instead.
+  version=$(echo "$pkgver" | grep -oE '^[0-9]+(\.[0-9]+){0,3}')
+  # dtk_translation.prf 直接调用 lrelease ・ dtk_translation.prf calls plain `lrelease`.
+  export PATH="/usr/lib/qt/bin:$PATH"
+  # 代码使用 <QGSettings/QGSettings>，但 Arch 的 gsettings-qt.pc 只给出 .../qt5/QGSettings
+  # The code includes <QGSettings/QGSettings> while Arch's gsettings-qt.pc only
+  # points at .../qt5/QGSettings, add its parent.
+  gsettings_inc=$(dirname "$(pkg-config --variable=includedir gsettings-qt)")
+  mkdir -p build
+  cd build
+  qmake-qt5 -r "$(_srcroot)" \
+    PREFIX=/usr \
+    LIB_INSTALL_DIR=/usr/lib \
+    VERSION="$version" \
+    INCLUDEPATH+="$gsettings_inc" \
+    QMAKE_CFLAGS_RELEASE="$CFLAGS" \
+    QMAKE_CXXFLAGS_RELEASE="$CXXFLAGS" \
+    QMAKE_LFLAGS_RELEASE="$LDFLAGS"
+  make
+}
+
+# 开发文件与 GXDE DTK5 的 dtkwidget-git 路径相同（头文件、.so、.pc、CMake、qmake 模块），
+# 因此单独拆包，运行库可以与 DTK5 共存
+# The development files share their paths with GXDE's DTK5 dtkwidget-git
+# (headers, .so, .pc, CMake and qmake module), so they are split out and the
+# runtime library can be installed alongside DTK5.
+_devfiles=(usr/include
+           usr/lib/libdtkwidget.so
+           usr/lib/pkgconfig
+           usr/lib/cmake
+           usr/lib/qt
+           usr/lib/dtk2)
+
+package_dtkwidget2-git() {
+  depends=('dtkcore-git' 'deepin-qt-dbus-factory-git'
+           'qt5-base' 'qt5-svg' 'qt5-x11extras' 'qt5-multimedia' 'gsettings-qt5'
+           'librsvg' 'cairo' 'glib2' 'startup-notification' 'wayland'
+           'libx11' 'libxext' 'libxi' 'libxcb' 'xcb-util' 'libgcc' 'libstdc++' 'glibc')
+  optdepends=('gxde-qt5integration-git: GXDE style for DTK2 applications')
+  provides=("dtkwidget2=$pkgver")
+  conflicts=('dtkwidget2')
+
+  make -C build INSTALL_ROOT="$pkgdir" install
+  (cd "$pkgdir" && rm -r "${_devfiles[@]}")
+}
+
+package_dtkwidget2-dev-git() {
+  pkgdesc='GXDE DTK2 graphical user interface library (development files)'
+  depends=("dtkwidget2-git=$pkgver-$pkgrel" 'dtkcore-git' 'dtkcore2-git' 'qt5-base'
+           'qt5-multimedia' 'qt5-x11extras' 'qt5-svg' 'libgcc' 'libstdc++' 'glibc')
+  provides=("dtkwidget2-dev=$pkgver")
+  conflicts=('dtkwidget2-dev' 'dtkwidget-git' 'dtkwidget')
+
+  local _root="$srcdir/root" _f
+  rm -rf "$_root"
+  make -C build INSTALL_ROOT="$_root" install
+  for _f in "${_devfiles[@]}"; do
+    install -d "$pkgdir/$(dirname "$_f")"
+    mv "$_root/$_f" "$pkgdir/$_f"
+  done
+  # DCore 头文件由 dtkcore-git 提供，这里只是空目录 ・ DCore headers belong to dtkcore-git, this one is empty.
+  rmdir "$pkgdir/usr/include/dtk5/DCore"
+}
