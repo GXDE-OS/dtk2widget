@@ -1,13 +1,13 @@
 # Maintainer: CharOfString <root@charofstring.cc>
-pkgbase=dtkwidget2-git
-pkgname=('dtkwidget2-git' 'dtkwidget2-dev-git')
+pkgbase=dtkwidget2
+pkgname=('dtkwidget2' 'dtkwidget2-dev')
 pkgver=2.5.gxde2
 pkgrel=1
 pkgdesc='GXDE DTK2 graphical user interface library, built on DTK5 core'
 arch=('x86_64' 'aarch64')
 url="https://github.com/GXDE-OS/dtk2widget"
 license=('LGPL-3.0-or-later')
-makedepends=('git' 'qt5-tools' 'dtkcore-git' 'deepin-qt-dbus-factory-git'
+makedepends=('git' 'qt5-tools' 'gxde-dtkcore' 'gxde-deepin-qt-dbus-factory'
              'qt5-base' 'qt5-svg' 'qt5-x11extras' 'qt5-multimedia' 'gsettings-qt5'
              'librsvg' 'cairo' 'glib2' 'startup-notification' 'wayland'
              'libx11' 'libxext' 'libxi' 'libxcb' 'xcb-util')
@@ -43,9 +43,9 @@ build() {
   make
 }
 
-# 开发文件与 GXDE DTK5 的 dtkwidget-git 路径相同（头文件、.so、.pc、CMake、qmake 模块），
+# 开发文件与 GXDE DTK5 的 gxde-dtkwidget 路径相同（头文件、.so、.pc、CMake、qmake 模块），
 # 因此单独拆包，运行库可以与 DTK5 共存
-# The development files share their paths with GXDE's DTK5 dtkwidget-git
+# The development files share their paths with GXDE's DTK5 gxde-dtkwidget
 # (headers, .so, .pc, CMake and qmake module), so they are split out and the
 # runtime library can be installed alongside DTK5.
 _devfiles=(usr/include
@@ -55,25 +55,27 @@ _devfiles=(usr/include
            usr/lib/qt
            usr/lib/dtk2)
 
-package_dtkwidget2-git() {
-  depends=('dtkcore-git' 'deepin-qt-dbus-factory-git'
+package_dtkwidget2() {
+  depends=('gxde-dtkcore' 'gxde-deepin-qt-dbus-factory'
            'qt5-base' 'qt5-svg' 'qt5-x11extras' 'qt5-multimedia' 'gsettings-qt5'
            'librsvg' 'cairo' 'glib2' 'startup-notification' 'wayland'
            'libx11' 'libxext' 'libxi' 'libxcb' 'xcb-util' 'libgcc' 'libstdc++' 'glibc')
-  optdepends=('gxde-qt5integration-git: GXDE style for DTK2 applications')
-  provides=("dtkwidget2=$pkgver")
-  conflicts=('dtkwidget2')
+  optdepends=('gxde-qt5integration: GXDE style for DTK2 applications')
+  provides=("dtkwidget2-git=$pkgver")
+  conflicts=('dtkwidget2-git')
+  replaces=('dtkwidget2-git')
 
   make -C build INSTALL_ROOT="$pkgdir" install
   (cd "$pkgdir" && rm -r "${_devfiles[@]}")
 }
 
-package_dtkwidget2-dev-git() {
+package_dtkwidget2-dev() {
   pkgdesc='GXDE DTK2 graphical user interface library (development files)'
-  depends=("dtkwidget2-git=$pkgver-$pkgrel" 'dtkcore-git' 'dtkcore2-git' 'qt5-base'
+  depends=("dtkwidget2=$pkgver-$pkgrel" 'gxde-dtkcore' 'dtkcore2' 'qt5-base'
            'qt5-multimedia' 'qt5-x11extras' 'qt5-svg' 'libgcc' 'libstdc++' 'glibc')
-  provides=("dtkwidget2-dev=$pkgver")
-  conflicts=('dtkwidget2-dev' 'dtkwidget-git' 'dtkwidget')
+  provides=("dtkwidget2-dev-git=$pkgver")
+  conflicts=('gxde-dtkwidget' 'dtkwidget' 'dtkwidget2-dev-git')
+  replaces=('dtkwidget2-dev-git')
 
   local _root="$srcdir/root" _f
   rm -rf "$_root"
@@ -82,6 +84,6 @@ package_dtkwidget2-dev-git() {
     install -d "$pkgdir/$(dirname "$_f")"
     mv "$_root/$_f" "$pkgdir/$_f"
   done
-  # DCore 头文件由 dtkcore-git 提供，这里只是空目录 ・ DCore headers belong to dtkcore-git, this one is empty.
+  # DCore 头文件由 gxde-dtkcore 提供，这里只是空目录 ・ DCore headers belong to gxde-dtkcore, this one is empty.
   rmdir "$pkgdir/usr/include/dtk5/DCore"
 }
